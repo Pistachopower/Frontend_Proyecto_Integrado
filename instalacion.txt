@@ -3,3 +3,17 @@ https://www.youtube.com/watch?v=SjTcnEmbR88
 
 Iniciar cliente 
 pnpm run serve
+
+
+TO DO:
+Instalar Pinia para los estados:
+Instalar Pinia dentro del proyecto: pnpm add pinia 
+Instalar router: pnpm add vue-router@4
+
+
+Bootstrap 
+pnpm add bootstrap
+pnpm add bootstrap-icons
+
+
+Definir la estructura: https://alexop.dev/posts/how-to-structure-vue-projects/
