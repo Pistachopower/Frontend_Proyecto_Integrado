@@ -1,5 +1,5 @@
 export function listarProductos() {
-    return fetch('http://127.0.0.1:8000/api/v1/productos')
+    return fetch('http://127.0.0.1:8000/api/v1/login/')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Problemas de conexion ' + response.statusText);
