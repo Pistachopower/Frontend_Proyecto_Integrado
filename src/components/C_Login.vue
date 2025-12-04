@@ -49,6 +49,12 @@ async function handleLogin() {
     errorMessage.value = error.message;
   }
 }
+
+
+
+
+
+
 </script>
 
 <template>
