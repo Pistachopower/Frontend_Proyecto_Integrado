@@ -1,60 +1,52 @@
 <script setup>
-
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+// ... tu código del menú hamburguesa ...
 const isOpen = ref(false)
+const toggleMenu = () => isOpen.value = !isOpen.value
+const closeMenu = () => isOpen.value = false
+// ...
 
-const toggleMenu = () => {
-  isOpen.value = !isOpen.value
-}
-
-const closeMenu = () => {
-  isOpen.value = false
-}
-
-
-// Logout function
 const router = useRouter()
+
+// --- FUNCIÓN GET COOKIE (Cópiala aquí también si es necesario, o haz un archivo compartido) ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 async function handleLogout() {
   try {
-    // 1. Recuperamos los tokens antes de borrarlos
-    const accessToken = localStorage.getItem('access_token')
-    const refreshToken = localStorage.getItem('refresh_token')
+    const csrftoken = getCookie('csrftoken');
 
-    if (refreshToken && accessToken) {
-      // 2. Enviamos el refresh token a la lista negra de Django
-      // Nota: Asegúrate de poner la ruta correcta (/api/v1/logout/ o la que tengas)
-      await fetch('http://127.0.0.1:8000/api/v1/logout/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` // Necesitamos permiso para entrar
-        },
-        body: JSON.stringify({
-          refresh: refreshToken // Este es el dato que espera el backend
-        })
-      })
-    }
-  } catch (error) {
-    console.error("Error al conectar con el servidor para logout:", error)
-    // No importa si falla el servidor, en el frontend DEBEMOS cerrar sesión igual
-  } finally {
-    // 3. LIMPIEZA LOCAL (Esto se ejecuta SIEMPRE)
-    console.log("Limpiando credenciales locales...")
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+    await fetch('http://localhost:8000/api/v1/logout/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken, // Necesario para POST
+      },
+      credentials: 'include' // Enviar la cookie para saber A QUIÉN desloguear
+    })
     
-    // 4. Redirigir al login
-    router.push('/')
+  } catch (error) {
+    console.error("Error al cerrar sesión", error)
+  } finally {
+    console.log("Sesión cerrada")
+    // Ya no hay localStorage que limpiar
+    router.push('/login') // O a Home
   }
 }
-
-
-
-
-
 </script>
 
 <template>
