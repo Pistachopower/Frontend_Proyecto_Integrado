@@ -1,14 +1,24 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
+// --- ESTADO ---
 const perfil = ref(null);
-const pedidos = ref([]); // <--- 1. guardamos la lista
+const pedidos = ref([]);
+const metodosPago = ref([]); 
 const error = ref(null);
-const cargando = ref(true);
-const cargandoPedidos = ref(false); // <--- 2. Spinner para pedidos
+
+// Estados de carga
+const cargando = ref(true);          
+const cargandoPedidos = ref(false);  
+const cargandoMetodos = ref(false);  
+
+// --- ESTADO VISUAL PARA EDICIÓN (LO NUEVO) ---
+const editandoDatos = ref(false);     // Controla el formulario de datos personales
+const editandoMetodoId = ref(null);   // Controla qué tarjeta específica se está editando
+
 const activeTab = ref('datos'); 
 
-// --- DICCIONARIO DE ESTADOS (Para que se vea bonito) ---
+// --- DICCIONARIO DE ESTADOS ---
 const ESTADOS_PEDIDO = {
   1: { texto: 'Pendiente', color: 'bg-warning text-dark' },
   2: { texto: 'Pagado', color: 'bg-success' },
@@ -17,6 +27,7 @@ const ESTADOS_PEDIDO = {
   5: { texto: 'Cancelado', color: 'bg-danger' }
 };
 
+// --- COMPUTED ---
 const nombreCompleto = computed(() => {
   if (!perfil.value) return 'Usuario';
   return `${perfil.value.nombre || 'Usuario'} ${perfil.value.apellido || ''}`;
@@ -29,7 +40,7 @@ const iniciales = computed(() => {
 
 const esEmpleado = computed(() => perfil.value?.tipo_usuario === 'empleado');
 
-// --- CARGA INICIAL DEL PERFIL ---
+// --- CARGA INICIAL ---
 onMounted(async () => {
   try {
     const response = await fetch("http://localhost:8000/api/v1/mi-perfil/", {
@@ -42,7 +53,6 @@ onMounted(async () => {
     if (!response.ok) throw new Error("Error: " + response.status);
 
     perfil.value = await response.json();
-    
   } catch (err) {
     console.error(err);
     error.value = err.message;
@@ -51,38 +61,53 @@ onMounted(async () => {
   }
 });
 
-// --- 3. DESCARGAR PEDIDOS ---
+// --- FETCH PEDIDOS ---
 async function fetchPedidos() {
   cargandoPedidos.value = true;
   try {
-    // Django usará la cookie para saber quién eres y filtrar tus pedidos (gracias al cambio que hicimos en el backend)
     const res = await fetch("http://localhost:8000/api/v1/pedido/", {
       headers: { "Content-Type": "application/json" },
       credentials: 'include'
     });
-    if (res.ok) {
-      pedidos.value = await res.json();
-    }
-  } catch (e) {
-    console.error("Error cargando pedidos", e);
-  } finally {
-    cargandoPedidos.value = false;
-  }
+    if (res.ok) pedidos.value = await res.json();
+  } catch (e) { console.error(e); } finally { cargandoPedidos.value = false; }
 }
 
-// --- 4. Si cambias de pestaña, carga los datos ---
+// --- FETCH MÉTODOS PAGO ---
+async function fetchMetodosPago() {
+  cargandoMetodos.value = true;
+  try {
+    const res = await fetch("http://localhost:8000/api/v1/metodo_pago/", { 
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include'
+    });
+    if (res.ok) metodosPago.value = await res.json();
+  } catch (e) { console.error(e); } finally { cargandoMetodos.value = false; }
+}
+
+// --- WATCHER ---
 watch(activeTab, (newTab) => {
-  if ((newTab === 'pedidos' || newTab === 'ventas') && pedidos.value.length === 0) {
-    fetchPedidos();
-  }
+  if ((newTab === 'pedidos' || newTab === 'ventas') && pedidos.value.length === 0) fetchPedidos();
+  if (newTab === 'bancarios' && metodosPago.value.length === 0) fetchMetodosPago();
 });
 
 const setTab = (tab) => activeTab.value = tab;
+const formatoDinero = (val) => Number(val).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 
-// Ayuda para formato de moneda
-const formatoDinero = (valor) => {
-  return Number(valor).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
-}
+// Helpers visuales
+const getIconoMetodo = (metodo) => {
+    if (metodo.tipo_metodo === 1) return 'bi-credit-card';
+    if (metodo.tipo_metodo === 2) return 'bi-bank';
+    if (metodo.tipo_metodo === 3) return 'bi-wallet2';
+    return 'bi-cash';
+};
+
+const getDescripcionMetodo = (metodo) => {
+    if (metodo.tarjeta) return `Tarjeta terminada en ****`; 
+    else if (metodo.cuenta_bancaria) return `Cuenta: ${metodo.cuenta_bancaria.banco}`;
+    else if (metodo.billetera_digital) return `Billetera: ${metodo.billetera_digital.email}`;
+    return 'Método de pago';
+};
 </script>
 
 <template>
@@ -102,12 +127,10 @@ const formatoDinero = (valor) => {
       <div class="col-12 col-lg-4">
         <div class="card border-0 shadow-sm h-100">
           <div class="card-body text-center pt-5 pb-4">
-            
             <div class="avatar-circle mb-3 mx-auto shadow-sm" 
                  :class="esEmpleado ? 'bg-warning-gradient' : 'bg-primary-gradient'">
               {{ iniciales }}
             </div>
-            
             <h3 class="card-title fw-bold mb-1">{{ nombreCompleto }}</h3>
             <p class="text-muted mb-2">{{ perfil.usuario?.email }}</p>
             
@@ -128,14 +151,15 @@ const formatoDinero = (valor) => {
             <button @click="setTab('datos')" class="list-group-item list-group-item-action border-0 px-4 py-3" :class="{ 'active-link': activeTab === 'datos' }">
               <i class="bi bi-person-lines-fill me-2"></i> Mis Datos
             </button>
-            
             <button v-if="!esEmpleado" @click="setTab('pedidos')" class="list-group-item list-group-item-action border-0 px-4 py-3" :class="{ 'active-link': activeTab === 'pedidos' }">
               <i class="bi bi-box-seam me-2"></i> Mis Pedidos
             </button>
             <button v-else @click="setTab('ventas')" class="list-group-item list-group-item-action border-0 px-4 py-3" :class="{ 'active-link': activeTab === 'ventas' }">
               <i class="bi bi-graph-up-arrow me-2"></i> Mis Ventas
             </button>
-
+            <button v-if="!esEmpleado" @click="setTab('bancarios')" class="list-group-item list-group-item-action border-0 px-4 py-3" :class="{ 'active-link': activeTab === 'bancarios' }">
+              <i class="bi bi-credit-card-2-front me-2"></i> Datos Bancarios
+            </button>
             <button @click="setTab('seguridad')" class="list-group-item list-group-item-action border-0 px-4 py-3" :class="{ 'active-link': activeTab === 'seguridad' }">
               <i class="bi bi-shield-lock me-2"></i> Configuración
             </button>
@@ -155,15 +179,29 @@ const formatoDinero = (valor) => {
                {{ esEmpleado ? 'Ventas' : 'Pedidos' }}
             </a>
           </li>
+           <li class="nav-item" v-if="!esEmpleado">
+            <a class="nav-link" :class="{ active: activeTab === 'bancarios' }" @click.prevent="setTab('bancarios')" href="#">Bancos</a>
+          </li>
         </ul>
 
         <div v-if="activeTab === 'datos'" class="card border-0 shadow-sm animate-fade">
-          <div class="card-header bg-white border-0 py-3">
+          <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
             <h5 class="mb-0 fw-bold" :class="esEmpleado ? 'text-warning' : 'text-primary'">Información Personal</h5>
-          </div>
+            
+            <div v-if="!editandoDatos">
+                <button @click="editandoDatos = true" class="btn btn-sm btn-outline-primary shadow-sm">
+                    <i class="bi bi-pencil me-1"></i> Editar
+                </button>
+            </div>
+            <div v-else>
+                <button @click="editandoDatos = false" class="btn btn-sm btn-outline-secondary me-2">Cancelar</button>
+                <button @click="editandoDatos = false" class="btn btn-sm btn-primary shadow-sm">Guardar</button>
+            </div>
+            </div>
+
           <div class="card-body">
             <form class="row g-3">
-               <div class="col-md-6">
+                <div class="col-md-6">
                   <label class="form-label text-muted small text-uppercase">Usuario</label>
                   <input type="text" class="form-control bg-light" :value="perfil.usuario?.username" readonly>
                 </div>
@@ -171,37 +209,49 @@ const formatoDinero = (valor) => {
                   <label class="form-label text-muted small text-uppercase">Email</label>
                   <input type="text" class="form-control bg-light" :value="perfil.usuario?.email" readonly>
                 </div>
+                
                 <div class="col-md-6">
                   <label class="form-label text-muted small text-uppercase">Nombre</label>
-                  <input type="text" class="form-control" :value="perfil.nombre" readonly>
+                  <input type="text" class="form-control" 
+                         :class="{ 'bg-light': !editandoDatos }"
+                         :value="perfil.nombre" 
+                         :readonly="!editandoDatos">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label text-muted small text-uppercase">Apellido</label>
-                  <input type="text" class="form-control" :value="perfil.apellido" readonly>
+                  <input type="text" class="form-control" 
+                         :class="{ 'bg-light': !editandoDatos }"
+                         :value="perfil.apellido" 
+                         :readonly="!editandoDatos">
                 </div>
                 <div class="col-12">
                    <label class="form-label text-muted small text-uppercase">Teléfono</label>
-                   <input type="text" class="form-control" :value="perfil.telefono" readonly>
+                   <input type="text" class="form-control" 
+                          :class="{ 'bg-light': !editandoDatos }"
+                          :value="perfil.telefono" 
+                          :readonly="!editandoDatos">
+                </div>
+                <div class="col-12" v-if="!esEmpleado">
+                  <label class="form-label text-muted small text-uppercase">Dirección</label>
+                  <input type="text" class="form-control" 
+                         :class="{ 'bg-light': !editandoDatos }"
+                         :value="perfil.direccion" 
+                         :readonly="!editandoDatos">
                 </div>
             </form>
           </div>
         </div>
 
         <div v-if="activeTab === 'pedidos' || activeTab === 'ventas'" class="animate-fade">
-          
           <div v-if="cargandoPedidos" class="text-center py-5">
              <div class="spinner-border text-secondary" role="status"></div>
           </div>
-
           <div v-else-if="pedidos.length === 0" class="card border-0 shadow-sm py-5 text-center">
             <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-inbox"></i></div>
             <h5>No hay registros</h5>
-            <p class="text-muted">Aún no hay movimientos en tu historial.</p>
           </div>
-
           <div v-else>
             <h5 class="mb-3 fw-bold ps-1">{{ esEmpleado ? 'Historial de Ventas' : 'Mis Pedidos Recientes' }}</h5>
-            
             <div v-for="pedido in pedidos" :key="pedido.id" class="card border-0 shadow-sm mb-3 pedido-card">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -213,34 +263,81 @@ const formatoDinero = (valor) => {
                     {{ ESTADOS_PEDIDO[pedido.estado]?.texto || 'Desconocido' }}
                   </span>
                 </div>
-
                 <div class="bg-light p-3 rounded mb-3">
                   <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Artículos:</small>
                   <ul class="list-unstyled mb-0 mt-2">
                     <li v-for="linea in pedido.lineas_pedido" :key="linea.id" class="d-flex justify-content-between border-bottom py-2">
-                      <span>
-                        <span class="fw-bold">{{ linea.cantidad }}x</span> 
-                        {{ linea.pieza?.nombre || 'Pieza' }}
-                      </span>
+                      <span><span class="fw-bold">{{ linea.cantidad }}x</span> {{ linea.pieza?.nombre }}</span>
                       <span>{{ formatoDinero(linea.subtotal) }}</span>
                     </li>
                   </ul>
                 </div>
-
                 <div class="d-flex justify-content-between align-items-center">
-                  <div v-if="esEmpleado">
-                    <small class="text-muted">Cliente:</small> 
-                    <strong>{{ pedido.cliente?.nombre }} {{ pedido.cliente?.apellido }}</strong>
-                  </div>
-                  <div v-else>
                     <small class="text-muted">Total:</small>
-                  </div>
-                  <h4 class="fw-bold text-primary mb-0">{{ formatoDinero(pedido.total) }}</h4>
+                    <h4 class="fw-bold text-primary mb-0">{{ formatoDinero(pedido.total) }}</h4>
                 </div>
               </div>
             </div>
           </div>
-          </div>
+        </div>
+
+        <div v-if="activeTab === 'bancarios'" class="animate-fade">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Mis Métodos de Pago</h5>
+                <button class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i> Añadir Nuevo</button>
+            </div>
+
+            <div v-if="cargandoMetodos" class="text-center py-5">
+                 <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+            <div v-else-if="metodosPago.length === 0" class="card border-0 shadow-sm py-5 text-center">
+                <div class="display-1 text-muted opacity-25 mb-3"><i class="bi bi-credit-card"></i></div>
+                <h5>No tienes métodos de pago</h5>
+            </div>
+            <div v-else class="row g-3">
+                <div v-for="metodo in metodosPago" :key="metodo.id" class="col-12 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 pedido-card">
+                        
+                        <div class="card-body" v-if="editandoMetodoId !== metodo.id">
+                            <div class="d-flex justify-content-between mb-3">
+                                <i class="bi fs-3 text-primary" :class="getIconoMetodo(metodo)"></i>
+                                <span v-if="metodo.es_predeterminado" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">Predeterminado</span>
+                            </div>
+                            
+                            <h6 class="fw-bold mb-1">{{ getDescripcionMetodo(metodo) }}</h6>
+                            <p class="text-muted small mb-3">Agregado el: {{ metodo.fecha_agregado }}</p>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-secondary w-100" @click="editandoMetodoId = metodo.id">
+                                    <i class="bi bi-pencil me-1"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger w-100">
+                                    <i class="bi bi-trash me-1"></i> Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-body bg-light border-start border-4 border-primary" v-else>
+                            <h6 class="fw-bold mb-3 text-primary">Editando Método</h6>
+                            
+                            <div class="mb-2">
+                                <label class="small form-label mb-1">Titular / Alias</label>
+                                <input type="text" class="form-control form-control-sm bg-white" placeholder="Ej: Tarjeta Personal">
+                            </div>
+                            <div class="mb-3">
+                                <label class="small form-label mb-1">Fecha Expiración</label>
+                                <input type="text" class="form-control form-control-sm bg-white" placeholder="MM/AA">
+                            </div>
+
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-sm btn-secondary w-100" @click="editandoMetodoId = null">Cancelar</button>
+                                <button class="btn btn-sm btn-primary w-100" @click="editandoMetodoId = null">Guardar</button>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
 
       </div>
     </div>
@@ -248,29 +345,15 @@ const formatoDinero = (valor) => {
 </template>
 
 <style scoped>
-/* Gradientes para diferenciar roles */
+/* Los mismos estilos de siempre */
 .bg-primary-gradient { background: linear-gradient(135deg, #0d6efd, #0dcaf0); color: white; }
 .bg-warning-gradient { background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; }
-
-.avatar-circle {
-  width: 100px; height: 100px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.5rem; font-weight: bold;
-}
-
-.active-link {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  border-left: 4px solid transparent; 
-}
-.active-link { border-color: #0d6efd !important; color: #0d6efd; }
-
+.avatar-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; }
+.active-link { background-color: #f8f9fa; font-weight: 600; border-left: 4px solid #0d6efd !important; color: #0d6efd; }
 .animate-fade { animation: fadeIn 0.3s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 .form-control:read-only { background-color: #f8f9fa; opacity: 1; }
-.text-uppercase { font-size: 0.75rem; letter-spacing: 0.5px; }
 .pedido-card { transition: transform 0.2s; }
 .pedido-card:hover { transform: translateY(-2px); }
+.text-uppercase { font-size: 0.75rem; }
 </style>

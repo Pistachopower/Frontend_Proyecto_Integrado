@@ -1,10 +1,14 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-// 1. Agregamos los campos de USUARIO (necesarios para el login)
+const router = useRouter()
+
+// 1. Campos de USUARIO
 const username = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('') // <--- NUEVO CAMPO
 
 // Campos de CLIENTE
 const nombre = ref('')
@@ -21,17 +25,29 @@ const errors = ref({})
 function validate() {
   errors.value = {}
   
-  // Validaciones de Usuario
+  // Validaciones
   if (!username.value) errors.value.username = 'El usuario es obligatorio.'
   if (!email.value) errors.value.email = 'El email es obligatorio.'
-  if (!password.value) errors.value.password = 'La contraseña es obligatoria.'
+  
+  // Validaciones de Contraseña
+  if (!password.value) {
+    errors.value.password = 'La contraseña es obligatoria.'
+  } else if (password.value.length < 4) {
+    // Puedes añadir reglas de longitud si quieres
+    errors.value.password = 'Mínimo 4 caracteres.' 
+  }
 
-  // Validaciones de Cliente
-  if (!nombre.value) errors.value.nombre = 'Nombre es obligatorio.'
-  if (!apellido.value) errors.value.apellido = 'Apellido es obligatorio.'
-  if (!telefono.value) errors.value.telefono = 'Teléfono es obligatorio.'
-  if (!direccion.value) errors.value.direccion = 'Dirección es obligatoria.'
-  if (!fecha_nacimiento.value) errors.value.fecha_nacimiento = 'Fecha de nacimiento es obligatoria.'
+  // --- NUEVA VALIDACIÓN: COINCIDENCIA ---
+  if (password.value !== confirmPassword.value) {
+    errors.value.confirmPassword = 'Las contraseñas no coinciden.'
+  }
+
+  // Validaciones Personales
+  if (!nombre.value) errors.value.nombre = 'Nombre requerido.'
+  if (!apellido.value) errors.value.apellido = 'Apellido requerido.'
+  if (!telefono.value) errors.value.telefono = 'Teléfono requerido.'
+  if (!direccion.value) errors.value.direccion = 'Dirección requerida.'
+  if (!fecha_nacimiento.value) errors.value.fecha_nacimiento = 'Fecha requerida.'
   
   return Object.keys(errors.value).length === 0
 }
@@ -39,16 +55,18 @@ function validate() {
 async function handleSubmit() {
   errorMsg.value = null
   success.value = null
+  
+  // Si la validación falla (incluyendo contraseñas distintas), paramos aquí.
   if (!validate()) return
 
   submitting.value = true
 
-  // 2. CAMBIO CLAVE: Estructura anidada para que coincida con RegistroClienteSerializer
   const payload = {
     user_data: {
       username: username.value,
       email: email.value,
-      password: password.value
+      password: password.value 
+      // NOTA: No enviamos 'confirmPassword' al backend, no es necesario allí.
     },
     cliente_data: {
       nombre: nombre.value,
@@ -60,33 +78,30 @@ async function handleSubmit() {
   }
 
   try {
-    // 3. CAMBIO DE URL: Debe coincidir con tu api_urls.py ('registro_cliente/')
-    // Asegúrate de incluir el /v1/ si así lo tienes en el backend
-    const res = await fetch('http://127.0.0.1:8000/api/v1/registro_cliente/', {
+    const res = await fetch('http://localhost:8000/api/v1/registro_cliente/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
 
     if (!res.ok) {
-      // Intentamos leer el error que manda Django
       const errorData = await res.json()
-      throw new Error(JSON.stringify(errorData) || 'Error en la creación de usuario')
+      throw new Error(JSON.stringify(errorData) || 'Error en el registro')
     }
     
-    const data = await res.json()
-
-    console.log('Usuario creado:', data)
-    success.value = '¡Usuario registrado con éxito! Ahora puedes iniciar sesión.'
+    success.value = '¡Cuenta creada correctamente! Redirigiendo al login...'
     
-    // Limpiar formulario
-    username.value = email.value = password.value = ''
-    nombre.value = apellido.value = telefono.value = direccion.value = fecha_nacimiento.value = ''
+    // Limpieza
+    username.value = email.value = password.value = confirmPassword.value = ''
+    
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
     
   } catch (err) {
     console.error(err)
-    // Mostramos el error de forma un poco más limpia si viene de Django
-    errorMsg.value = err.message || 'Error inesperado'
+    // Mensaje genérico o específico según lo que devuelva Django
+    errorMsg.value = 'Hubo un error. Verifica que el usuario o email no existan ya.'
   } finally {
     submitting.value = false
   }
@@ -94,79 +109,169 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="card p-4">
-    <h5 class="mb-3">Registrar Nuevo Cliente</h5>
+  <div class="register-container d-flex align-items-center justify-content-center min-vh-100 bg-light py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          
+          <div class="card border-0 shadow-lg animate-fade-up">
+            <div class="card-body p-4 p-md-5">
+              
+              <div class="text-center mb-5">
+                <h2 class="fw-bold text-primary">Crea tu cuenta</h2>
+                <p class="text-muted">Únete a MotorPartsExpress</p>
+              </div>
 
-    <div v-if="success" class="alert alert-success py-2">{{ success }}</div>
-    <div v-if="errorMsg" class="alert alert-danger py-2">{{ errorMsg }}</div>
+              <div v-if="success" class="alert alert-success d-flex align-items-center mb-4">
+                <i class="bi bi-check-circle-fill me-2 fs-4"></i>
+                <div>{{ success }}</div>
+              </div>
 
-    <form @submit.prevent="handleSubmit" novalidate>
-      
-      <h6 class="text-primary mt-2">Datos de Cuenta</h6>
-      <hr>
-      <div class="mb-3">
-        <label class="form-label">Nombre de Usuario (Login)</label>
-        <input v-model="username" type="text" class="form-control" :class="{ 'is-invalid': errors.username }" />
-        <div class="invalid-feedback">{{ errors.username }}</div>
-      </div>
+              <div v-if="errorMsg" class="alert alert-danger d-flex align-items-center mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                <div>{{ errorMsg }}</div>
+              </div>
 
-      <div class="mb-3">
-        <label class="form-label">Correo Electrónico</label>
-        <input v-model="email" type="email" class="form-control" :class="{ 'is-invalid': errors.email }" />
-        <div class="invalid-feedback">{{ errors.email }}</div>
-      </div>
+              <form @submit.prevent="handleSubmit" novalidate>
+                
+                <div class="bg-light p-3 rounded mb-4 border-start border-4 border-primary">
+                  <h5 class="mb-3 text-primary fw-bold"><i class="bi bi-shield-lock me-2"></i>Datos de Acceso</h5>
+                  
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="username" type="text" class="form-control" id="user" placeholder="Usuario" :class="{ 'is-invalid': errors.username }">
+                        <label for="user">Nombre de Usuario</label>
+                        <div class="invalid-feedback">{{ errors.username }}</div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="email" type="email" class="form-control" id="email" placeholder="Email" :class="{ 'is-invalid': errors.email }">
+                        <label for="email">Correo Electrónico</label>
+                        <div class="invalid-feedback">{{ errors.email }}</div>
+                      </div>
+                    </div>
 
-      <div class="mb-3">
-        <label class="form-label">Contraseña</label>
-        <input v-model="password" type="password" class="form-control" :class="{ 'is-invalid': errors.password }" />
-        <div class="invalid-feedback">{{ errors.password }}</div>
-      </div>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="password" type="password" class="form-control" id="pass" placeholder="Pass" :class="{ 'is-invalid': errors.password }">
+                        <label for="pass">Contraseña</label>
+                        <div class="invalid-feedback">{{ errors.password }}</div>
+                      </div>
+                    </div>
 
-      <h6 class="text-primary mt-4">Datos Personales</h6>
-      <hr>
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input 
+                          v-model="confirmPassword" 
+                          type="password" 
+                          class="form-control" 
+                          id="confirmPass" 
+                          placeholder="Repetir Pass" 
+                          :class="{ 'is-invalid': errors.confirmPassword }"
+                        >
+                        <label for="confirmPass">Repetir Contraseña</label>
+                        <div class="invalid-feedback">{{ errors.confirmPassword }}</div>
+                      </div>
+                    </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Nombre</label>
-          <input v-model="nombre" type="text" class="form-control" :class="{ 'is-invalid': errors.nombre }" />
-          <div class="invalid-feedback">{{ errors.nombre }}</div>
+                  </div>
+                </div>
+
+                <div class="bg-light p-3 rounded mb-4 border-start border-4 border-info">
+                  <h5 class="mb-3 text-info fw-bold"><i class="bi bi-person-badge me-2"></i>Información Personal</h5>
+                  
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" :class="{ 'is-invalid': errors.nombre }">
+                        <label for="nombre">Nombre</label>
+                        <div class="invalid-feedback">{{ errors.nombre }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="apellido" type="text" class="form-control" id="apellido" placeholder="Apellido" :class="{ 'is-invalid': errors.apellido }">
+                        <label for="apellido">Apellido</label>
+                        <div class="invalid-feedback">{{ errors.apellido }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="telefono" type="tel" class="form-control" id="tel" placeholder="Tel" :class="{ 'is-invalid': errors.telefono }">
+                        <label for="tel">Teléfono</label>
+                        <div class="invalid-feedback">{{ errors.telefono }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-floating">
+                        <input v-model="fecha_nacimiento" type="date" class="form-control" id="fecha" :class="{ 'is-invalid': errors.fecha_nacimiento }">
+                        <label for="fecha">Fecha de Nacimiento</label>
+                        <div class="invalid-feedback">{{ errors.fecha_nacimiento }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="form-floating">
+                        <input v-model="direccion" type="text" class="form-control" id="dir" placeholder="Direccion" :class="{ 'is-invalid': errors.direccion }">
+                        <label for="dir">Dirección Completa</label>
+                        <div class="invalid-feedback">{{ errors.direccion }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                  <button class="btn btn-primary py-3 fw-bold shadow-sm button-hover" type="submit" :disabled="submitting">
+                    <span v-if="submitting" class="spinner-border spinner-border-sm me-2"></span>
+                    <span v-else>Crear mi cuenta <i class="bi bi-arrow-right-circle ms-2"></i></span>
+                  </button>
+                </div>
+
+                <div class="text-center mt-4">
+                  <span class="text-muted">¿Ya tienes cuenta? </span>
+                  <router-link to="/login" class="text-decoration-none fw-bold">Inicia Sesión</router-link>
+                </div>
+
+              </form>
+            </div>
+          </div>
+
         </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Apellido</label>
-          <input v-model="apellido" type="text" class="form-control" :class="{ 'is-invalid': errors.apellido }" />
-          <div class="invalid-feedback">{{ errors.apellido }}</div>
-        </div>
       </div>
-
-      <div class="mb-3">
-        <label class="form-label">Teléfono</label>
-        <input v-model="telefono" type="tel" class="form-control" :class="{ 'is-invalid': errors.telefono }" />
-        <div class="invalid-feedback">{{ errors.telefono }}</div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Dirección</label>
-        <input v-model="direccion" type="text" class="form-control" :class="{ 'is-invalid': errors.direccion }" />
-        <div class="invalid-feedback">{{ errors.direccion }}</div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Fecha de nacimiento</label>
-        <input v-model="fecha_nacimiento" type="date" class="form-control" :class="{ 'is-invalid': errors.fecha_nacimiento }" />
-        <div class="invalid-feedback">{{ errors.fecha_nacimiento }}</div>
-      </div>
-
-      <div class="d-flex justify-content-end mt-4">
-        <button class="btn btn-primary w-100" type="submit" :disabled="submitting">
-          <span v-if="submitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          Registrarse
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.card { max-width: 680px; margin: 20px auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.register-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.button-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.button-hover:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
+}
+
+input[type="date"] {
+  min-height: 58px; 
+}
 </style>
