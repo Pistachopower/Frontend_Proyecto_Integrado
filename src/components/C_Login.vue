@@ -30,10 +30,6 @@ async function handleLogin() {
   
   try {
     const csrftoken = getCookie('csrftoken');
-
-    // Retardo artificial pequeño para que se vea la animación (opcional, puedes quitarlo)
-    // await new Promise(r => setTimeout(r, 500)); 
-
     const response = await fetch('http://localhost:8000/api/v1/login/', {
       method: 'POST', 
       headers: {

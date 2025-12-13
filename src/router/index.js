@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue'
-import PerfilView from '../components/C_PerfilView.vue'
+import PerfilView from '../components/perfil_usuario/C_PerfilView.vue'
 import Login from '../components/C_Login.vue'
 import Registro from '../components/C_Registrar.vue'
 import DetalleProducto from '../components/C_DetalleProducto.vue'
 import Carrito from '../components/C_Carrito.vue'
 import ProcesoPago from '../components/C_ProcesoPago.vue'
 import SeleccionMetodoPago from '../components/C_SeleccionMetodoPago.vue'
-import HistorialPedidos from '../components/C_HistorialPedidos.vue'
 import ListaDeseos from '../components/C_ListaDeseos.vue'
 import RecuperarContrasena from '../components/C_RecuperarPassword.vue'
 import DashboardEmpleado from '@/components/C_DashboardEmpleado.vue';
 import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
+import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
+import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
 
 
 
@@ -22,73 +23,84 @@ const routes = [
     component: HomeView,
   },
 
-    {
+  {
     path: '/login',
     name: 'login',
     component: Login,
   },
 
-      {
+  {
     path: '/registro',
     name: 'registro',
     component: Registro,
   },
 
+  // === RUTA PADRE DEL PERFIL (LAYOUT) ===
   {
-    path: '/perfil',
-    name: 'perfil',
-    component: PerfilView,
-  },
+    // Usamos '/perfil-usuario' como base para que coincida con tus router-link
+    path: '/perfil-usuario', 
+    name: 'perfil-usuario-layout',
+    component: PerfilView, // Este componente tiene el Sidebar y <RouterView />
+    
+    // Agregamos un redirect para que al entrar a /perfil-usuario vaya directamente a /datos
+    redirect: '/perfil-usuario/datos', 
+    
+    children: [
+      // Las rutas anidadas NO llevan / inicial
+      {
+        path: 'datos', // Ruta completa: /perfil-usuario/datos
+        name: 'perfil-datos',
+        component: C_PerfilUsuarioDatos,
+      },
+      {
+        path: 'pedidos', // Ruta completa: /perfil-usuario/pedidos
+        name: 'perfil-pedidos',
+        component: C_PerfilUsuarioPedidos,
+      },
 
-    {
+
+    ]
+  },
+  // === FIN RUTAS PERFIL ===
+
+
+  // Las rutas que ya tenía (sin cambios)
+  {
     path: '/detalle-producto',
     name: 'detalle-producto',
     component: DetalleProducto,
   },
-
-      {
+  {
     path: '/carrito',
     name: 'carrito',
     component: Carrito,
   },
-
-        {
+  {
     path: '/proceso-pago',
     name: 'proceso-pago',
     component: ProcesoPago,
   },
-
-          {
+  {
     path: '/seleccion-metodo-pago',
     name: 'seleccion-metodo-pago',
     component: SeleccionMetodoPago,
   },
-
-            {
-    path: '/historial-pedidos',
-    name: 'historial-pedidos',
-    component: HistorialPedidos,
-  },
-
-              {
+  {
     path: '/lista-deseos',
     name: 'lista-deseos',
     component: ListaDeseos,
   },
-
-    {
+  {
     path: '/recuperar-contrasena',
     name: 'recuperar-contrasena',
     component: RecuperarContrasena,
   },
-
-    {
+  {
     path: '/dashboard-empleado',
     name: 'dashboard-empleado',
     component: DashboardEmpleado,
   },
-
-      {
+  {
     path: '/aprobar-comentarios',
     name: 'aprobar-comentarios',
     component: AprobarComentarrios,
