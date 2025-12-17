@@ -1,46 +1,3 @@
-<script setup>
-import { ref } from 'vue';
-
-// --- ESTADO ---
-const email = ref('');
-const loading = ref(false);
-const successMessage = ref(null);
-const errorMessage = ref(null);
-
-// --- FUNCIONES ---
-const handleRecovery = async () => {
-  // 1. Limpiamos mensajes previos
-  successMessage.value = null;
-  errorMessage.value = null;
-  
-  // 2. Validación básica
-  if (!email.value || !email.value.includes('@')) {
-    errorMessage.value = "Por favor, introduce un correo electrónico válido.";
-    return;
-  }
-
-  // 3. Simulación de envío (O llamada a tu API real)
-  loading.value = true;
-
-  try {
-    // AQUÍ IRÍA TU FETCH AL BACKEND
-    // const res = await fetch('http://localhost:8000/api/password_reset/', ...);
-    
-    // Simulamos un retardo de red de 1.5 segundos
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // Éxito simulado
-    successMessage.value = `Hemos enviado un enlace de recuperación a ${email.value}. Por favor, revisa tu bandeja de entrada (y spam).`;
-    email.value = ''; // Limpiamos el campo
-
-  } catch (error) {
-    errorMessage.value = "Ocurrió un error al intentar enviar el correo. Inténtalo más tarde.";
-  } finally {
-    loading.value = false;
-  }
-};
-</script>
-
 <template>
   <div class="recovery-container d-flex align-items-center justify-content-center min-vh-100 bg-light px-3">
     
@@ -57,21 +14,10 @@ const handleRecovery = async () => {
           </p>
         </div>
 
-        <div v-if="successMessage" class="alert alert-success d-flex align-items-start" role="alert">
-          <i class="bi bi-check-circle-fill me-2 mt-1"></i>
-          <div>{{ successMessage }}</div>
-        </div>
-
-        <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          <div>{{ errorMessage }}</div>
-        </div>
-
-        <form @submit.prevent="handleRecovery" v-if="!successMessage">
+        <form>
           
           <div class="form-floating mb-4">
             <input 
-              v-model="email" 
               type="email" 
               class="form-control" 
               id="recoveryEmail" 
@@ -84,23 +30,16 @@ const handleRecovery = async () => {
           <button 
             type="submit" 
             class="btn btn-primary w-100 py-3 fw-bold shadow-sm button-hover"
-            :disabled="loading"
           >
-            <span v-if="loading">
-              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              Enviando...
-            </span>
-            <span v-else>
-              Recuperar Contraseña
-            </span>
+            Recuperar Contraseña
           </button>
 
         </form>
 
         <div class="text-center mt-4 pt-3 border-top">
-          <router-link to="/login" class="text-decoration-none fw-bold text-secondary d-flex justify-content-center align-items-center gap-2 back-link">
+          <a href="/login" class="text-decoration-none fw-bold text-secondary d-flex justify-content-center align-items-center gap-2 back-link">
             <i class="bi bi-arrow-left"></i> Volver al Inicio de Sesión
-          </router-link>
+          </a>
         </div>
 
       </div>

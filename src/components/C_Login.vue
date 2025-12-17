@@ -52,7 +52,7 @@ async function handleLogin() {
     await response.json();
     
     // Login exitoso
-    router.push('/perfil') 
+    router.push('/perfil-usuario') 
     
   } catch (error) {
     console.error('Error en el login:', error);
