@@ -1,0 +1,76 @@
+import { defineStore } from 'pinia';
+import api from '@/services/axiosRequest.js'; 
+
+export const usePiezasStore = defineStore('piezas', {
+    state: () => ({
+        listado: [],         // Todos los productos del catálogo
+        piezaSeleccionada: null, // El producto individual que estamos viendo
+        cargando: false,
+        error: null
+    }),
+
+    getters: {
+        // Un getter por si quieres filtrar o contar
+        totalPiezas: (state) => state.listado.length
+    },
+
+    actions: {
+        // 1. Cargar todo el catálogo
+        async fetchCatalogo() {
+            // Si ya tenemos datos, opcionalmente podemos evitar recargar
+            // if (this.listado.length > 0) return; 
+            
+            this.cargando = true;
+            this.error = null;
+            try {
+                const response = await api.get('pieza/'); // O 'piezas/' según tu back
+                
+                // Manejo de paginación vs lista plana
+                if (response.data.results) {
+                    this.listado = response.data.results;
+                } else {
+                    this.listado = response.data;
+                }
+            } catch (err) {
+                console.error('Error store catalogo:', err);
+                this.error = 'Error al cargar el catálogo';
+            } finally {
+                this.cargando = false;
+            }
+        },
+
+        // 2. Cargar detalle (Inteligente: Cache primero, API después)
+        async fetchPiezaDetalle(id) {
+            this.cargando = true;
+            this.error = null;
+            this.piezaSeleccionada = null; // Limpiamos anterior
+
+            try {
+                // A) PRIMERO: Buscamos en lo que ya tenemos descargado (Memoria)
+                const encontradoEnLocal = this.listado.find(p => p.id == id);
+
+                if (encontradoEnLocal) {
+                    console.log(`🚀 Producto ${id} encontrado en memoria local. Ahorrando petición.`);
+                    this.piezaSeleccionada = encontradoEnLocal;
+                } 
+                // B) SEGUNDO: Si no está (ej: recargó página con F5), pedimos a API
+                else {
+                    console.log(`🌐 Producto ${id} no encontrado localmente. Pidiendo a API...`);
+                    const response = await api.get(`pieza/${id}/`);
+                    this.piezaSeleccionada = response.data;
+                }
+
+            } catch (err) {
+                console.error('Error store detalle:', err);
+                this.error = 'No se pudo cargar el detalle del producto.';
+            } finally {
+                this.cargando = false;
+            }
+        },
+        
+        // Limpiar selección al salir
+        limpiarSeleccion() {
+            this.piezaSeleccionada = null;
+        }
+    }
+});

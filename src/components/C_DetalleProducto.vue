@@ -1,162 +1,198 @@
+<script setup>
+import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { usePiezasStore } from '@/stores/piezasStore';
+import { storeToRefs } from 'pinia';
+
+const route = useRoute();
+const store = usePiezasStore();
+const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
+
+const id = route.params.id;
+const cantidad = ref(1);
+const tabActiva = ref('descripcion');
+
+// --- HELPER ---
+const formatoMoneda = (valor) => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(valor);
+};
+
+// --- IMAGEN COMPUTADA ---
+const imagenPrincipal = computed(() => {
+    if (!pieza.value) return '';
+    const texto = pieza.value.nombre.replace(/ /g, '+'); 
+    return `https://placehold.co/600x600/png?text=${texto}`;
+});
+
+// --- LIFECYCLE ---
+onMounted(() => {
+    store.fetchPiezaDetalle(id);
+});
+
+onUnmounted(() => {
+    store.limpiarSeleccion();
+});
+
+// --- CONTADOR ---
+const incrementar = () => cantidad.value++;
+const decrementar = () => {
+    if (cantidad.value > 1) cantidad.value--;
+};
+
+// --- DATOS MOCK ---
+const productosRelacionados = ref([
+    { id: 101, nombre: 'Kit de Embrague', precio: 120.50 },
+    { id: 102, nombre: 'Filtro de Aceite', precio: 15.00 },
+]);
+// Esta es la variable que daba error. Ahora la usaremos abajo en el template.
+const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. La pieza llegó muy rápido.', estrellas: 5 };
+</script>
+
 <template>
   <div class="container py-4 fade-in">
     
-    <div class="row g-4 mb-5">
-      
-      <div class="col-12 col-lg-7">
-        <div class="card border-0 shadow-sm mb-3 main-image-container">
-          <img src="https://placehold.co/600x600/png?text=Imagen+Principal" class="card-img-top img-fluid rounded" alt="Producto Principal">
-        </div>
-        
-        <div class="d-flex gap-2 overflow-auto">
-          <div class="thumbnail-box border rounded">
-            <img src="https://placehold.co/600x600/e9ecef/495057?text=Vista+Lateral" class="img-fluid rounded" alt="Miniatura">
-          </div>
-          <div class="thumbnail-box border rounded">
-            <img src="https://placehold.co/600x600/e9ecef/495057?text=Conectores" class="img-fluid rounded" alt="Miniatura">
-          </div>
-        </div>
-      </div>
+    <div v-if="cargando" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
 
-      <div class="col-12 col-lg-5">
-        <div class="ps-lg-4">
-          <h1 class="fw-bold mb-2">Alternador Bosch 12V</h1>
-          <p class="text-muted mb-3">Alternador de alto rendimiento para modelos sedán 2018-2022.</p>
-          <h2 class="text-primary fw-bold mb-4">150.00 €</h2>
+    <div v-else-if="error" class="alert alert-danger">
+        {{ error }}
+        <br>
+        <router-link to="/catalogo" class="btn btn-outline-danger mt-3 btn-sm">Volver al catálogo</router-link>
+    </div>
 
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <div class="input-group" style="width: 130px;">
-              <button class="btn btn-outline-secondary" type="button">-</button>
-              <input type="text" class="form-control text-center" value="1" readonly>
-              <button class="btn btn-outline-secondary" type="button">+</button>
+    <div v-else-if="pieza">
+        <div class="row g-4 mb-5">
+          
+          <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm mb-3 main-image-container">
+              <img :src="imagenPrincipal" class="card-img-top img-fluid rounded" :alt="pieza.nombre">
             </div>
-            <button class="btn btn-dark flex-grow-1 py-2">
-              Añadir al Carrito
-            </button>
-          </div>
-
-          <div class="row g-2 mb-4">
-            <div class="col-6">
-              <div class="p-3 border rounded text-center bg-light h-100">
-                <i class="bi bi-truck fs-4 text-primary d-block mb-1"></i>
-                <small class="fw-bold d-block">Envío Rápido</small>
-                <small class="text-muted">24/48 horas</small>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="p-3 border rounded text-center bg-light h-100">
-                <i class="bi bi-shield-check fs-4 text-primary d-block mb-1"></i>
-                <small class="fw-bold d-block">Garantía</small>
-                <small class="text-muted">2 años</small>
+            
+            <div class="d-flex gap-2 overflow-auto">
+              <div class="thumbnail-box border rounded">
+                <img src="https://placehold.co/600x600/e9ecef/495057?text=Vista+Lat" class="img-fluid rounded" alt="Miniatura">
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="row mb-5">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-white border-bottom-0">
-            <ul class="nav nav-tabs card-header-tabs">
-              <li class="nav-item">
-                <a class="nav-link active">Descripción</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link">Envío y Devoluciones</a>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
-            <h5 class="fw-bold">Detalles del producto</h5>
-            <p class="text-muted">Este alternador ofrece una carga estable y duradera. Fabricado con materiales de alta calidad, garantiza el funcionamiento óptimo de todos los sistemas eléctricos de su vehículo. Compatible con series X, Y, Z.</p>
-            <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+          <div class="col-12 col-lg-5">
+            <div class="ps-lg-4">
+              <h1 class="fw-bold mb-2">{{ pieza.nombre }}</h1>
+              
+              <p class="text-muted mb-3">
+                  <span class="badge bg-light text-dark border me-2">{{ pieza.marca }} {{ pieza.anio }}</span>
+                  <span class="small"><i class="bi bi-upc-scan"></i> Ref: {{ pieza.referencia }}</span>
+              </p>
 
-    <div class="mb-5">
-      <h4 class="fw-bold mb-4">Productos Relacionados</h4>
-      <div class="row g-3">
-        <div class="col-6 col-md-4 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm product-card">
-            <div class="card-img-top bg-light ratio ratio-4x3">
-               <img src="https://placehold.co/400x300?text=Bateria" class="object-fit-cover rounded-top" alt="Batería 60Ah">
-            </div>
-            <div class="card-body">
-              <h6 class="card-title text-truncate">Batería 60Ah</h6>
-              <p class="card-text text-primary fw-bold">80.00 €</p>
-              <button class="btn btn-sm btn-outline-primary w-100">Ver</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-4">
-          <div class="card h-100 border-0 shadow-sm product-card">
-            <div class="card-img-top bg-light ratio ratio-4x3">
-               <img src="https://placehold.co/400x300?text=Correa" class="object-fit-cover rounded-top" alt="Correa Distribución">
-            </div>
-            <div class="card-body">
-              <h6 class="card-title text-truncate">Correa Distribución</h6>
-              <p class="card-text text-primary fw-bold">35.50 €</p>
-              <button class="btn btn-sm btn-outline-primary w-100">Ver</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              <h2 class="text-primary fw-bold mb-4">{{ formatoMoneda(pieza.precio_base) }}</h2>
 
-    <div class="mb-5">
-      <h4 class="fw-bold mb-4">Opiniones del producto</h4>
-      <div class="card border-0 shadow-sm">
-        <div class="list-group list-group-flush">
-          <div class="list-group-item p-4">
-            <div class="d-flex align-items-center mb-2">
-              <img src="https://placehold.co/50x50" class="rounded-circle me-3" width="50" height="50" alt="Avatar">
-              <div>
-                <h6 class="mb-0 fw-bold">Pedro Pérez</h6>
-                <div class="text-warning small">
-                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+              <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="input-group" style="width: 130px;">
+                  <button class="btn btn-outline-secondary" @click="decrementar" type="button">-</button>
+                  <input type="text" class="form-control text-center" :value="cantidad" readonly>
+                  <button class="btn btn-outline-secondary" @click="incrementar" type="button">+</button>
+                </div>
+                <button class="btn btn-dark flex-grow-1 py-2">
+                  <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
+                </button>
+              </div>
+
+              <div class="row g-2 mb-4">
+                <div class="col-6">
+                  <div class="p-3 border rounded text-center bg-light h-100">
+                    <i class="bi bi-truck fs-4 text-primary d-block mb-1"></i>
+                    <small class="fw-bold d-block">Envío Rápido</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-3 border rounded text-center bg-light h-100">
+                    <i class="bi bi-shield-check fs-4 text-primary d-block mb-1"></i>
+                    <small class="fw-bold d-block">Garantía</small>
+                  </div>
                 </div>
               </div>
             </div>
-            <p class="text-muted mb-0 ps-5 ms-3">La pieza está en buen estado y llegó rápido.</p>
           </div>
         </div>
-      </div>
-    </div>
 
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom-0">
+                <ul class="nav nav-tabs card-header-tabs">
+                  <li class="nav-item">
+                    <a class="nav-link cursor-pointer" :class="{active: tabActiva === 'descripcion'}" @click="tabActiva = 'descripcion'">Descripción</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link cursor-pointer" :class="{active: tabActiva === 'envio'}" @click="tabActiva = 'envio'">Envío y Devoluciones</a>
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <div v-if="tabActiva === 'descripcion'" class="animate-fade">
+                    <h5 class="fw-bold">Detalles de la pieza</h5>
+                    <p class="text-muted">{{ pieza.descripcion }}</p>
+                </div>
+                <div v-else class="animate-fade">
+                    <h5 class="fw-bold">Política de envíos</h5>
+                    <p class="text-muted">Envíos a toda la península en 24-48 horas.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <h4 class="fw-bold mb-4">También podría interesarte</h4>
+          <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg-4" v-for="rel in productosRelacionados" :key="rel.id">
+              <div class="card h-100 border-0 shadow-sm product-card">
+                <div class="card-img-top bg-light ratio ratio-4x3">
+                   <img :src="`https://placehold.co/400x300?text=${rel.nombre}`" class="object-fit-cover rounded-top" :alt="rel.nombre">
+                </div>
+                <div class="card-body">
+                  <h6 class="card-title text-truncate">{{ rel.nombre }}</h6>
+                  <p class="card-text text-primary fw-bold">{{ formatoMoneda(rel.precio) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <h4 class="fw-bold mb-4">Opiniones del producto</h4>
+          <div class="card border-0 shadow-sm">
+            <div class="list-group list-group-flush">
+              <div class="list-group-item p-4">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center text-white fw-bold" style="width:50px; height:50px;">
+                      {{ opinionEjemplo.usuario.charAt(0) }}
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-bold">{{ opinionEjemplo.usuario }}</h6>
+                    <div class="text-warning small">
+                      <i class="bi bi-star-fill" v-for="n in opinionEjemplo.estrellas" :key="n"></i>
+                    </div>
+                  </div>
+                </div>
+                <p class="text-muted mb-0 ps-5 ms-3">{{ opinionEjemplo.texto }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div> 
   </div>
 </template>
 
 <style scoped>
-.fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-.main-image-container {
-  background-color: #f8f9fa;
-}
-
-.thumbnail-box {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-
-.product-card {
-  transition: transform 0.2s;
-}
-.product-card:hover {
-  transform: translateY(-5px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.fade-in { animation: fadeIn 0.5s ease-in; }
+.animate-fade { animation: fadeIn 0.3s ease-in; }
+.main-image-container { background-color: #f8f9fa; }
+.thumbnail-box { width: 80px; height: 80px; flex-shrink: 0; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+.thumbnail-box:hover { opacity: 1; border-color: var(--bs-primary) !important; }
+.product-card { transition: transform 0.2s; }
+.product-card:hover { transform: translateY(-5px); }
+.cursor-pointer { cursor: pointer; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>

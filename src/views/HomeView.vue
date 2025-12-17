@@ -1,6 +1,6 @@
 <script setup>
 
-import Carousel from '@/components/C_Catalogo.vue'
+
 import Contacto from '@/components/C_Contacto.vue'
 
 </script>
@@ -15,7 +15,7 @@ import Contacto from '@/components/C_Contacto.vue'
     
     <section class="home-section home-products">
       <!-- Aquí irá el componente Productos más vendidos -->
-      <Catalogo></Catalogo>
+      
     </section>
     
     

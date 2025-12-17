@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import PerfilView from '../components/perfil_usuario/C_PerfilView.vue'
 import Login from '../components/C_Login.vue'
 import Registro from '../components/C_Registrar.vue'
+import CatalogoProductos from '../components/C_Catalogo.vue'
 import DetalleProducto from '../components/C_DetalleProducto.vue'
 import Carrito from '../components/C_Carrito.vue'
 import ProcesoPago from '../components/C_ProcesoPago.vue'
@@ -66,9 +67,17 @@ const routes = [
 
   // Las rutas que ya tenía (sin cambios)
   {
-    path: '/detalle-producto',
-    name: 'detalle-producto',
-    component: DetalleProducto,
+    path: '/catalogo-productos',
+    name: 'catalogo-productos',
+    component: CatalogoProductos,
+  },
+
+  {
+      // Agregamos /:id para decirle a Vue que capture el número del producto
+      path: '/detalle-producto/:id', 
+      name: 'detalle-producto',
+      component: DetalleProducto,
+      props: true, // Recomendado para pasar params como props
   },
   {
     path: '/carrito',

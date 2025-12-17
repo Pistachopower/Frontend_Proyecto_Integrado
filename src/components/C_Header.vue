@@ -70,7 +70,7 @@ async function handleLogout() {
             <router-link class="nav-link" to="/" @click="closeMenu">Inicio</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="/productos" @click="closeMenu">Productos</router-link>
+            <router-link class="nav-link" to="/catalogo-productos" @click="closeMenu">Productos</router-link>
           </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/about" @click="closeMenu">Sobre nosotros</router-link>
