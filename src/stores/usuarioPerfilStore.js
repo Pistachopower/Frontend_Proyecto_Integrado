@@ -9,6 +9,9 @@ export const usePerfilStore = defineStore('perfil', {
     cargando: true,
     error: null,
   }),
+
+
+  
   
   getters: {
     // Getter para determinar fácilmente si es empleado
@@ -25,9 +28,13 @@ export const usePerfilStore = defineStore('perfil', {
       try {
         const response = await api.get('mi-perfil/');
         this.perfil = response.data;
+        console.log("👤 Perfil cargado:", this.perfil);
+
+        
       } catch (error) {
         console.error('Error al cargar el perfil:', error);
         this.error = 'No se pudo cargar la información del perfil.';
+      
       } finally {
         this.cargando = false;
       }

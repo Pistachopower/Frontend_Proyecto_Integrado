@@ -13,6 +13,7 @@ onMounted(() => {
   // Inicializamos la carga de los datos del perfil en el Store
   if (!perfilStore.perfil) {
     perfilStore.fetchPerfil();
+
   }
 });
 </script>
@@ -51,19 +52,19 @@ onMounted(() => {
                 </router-link>
 
                 <router-link 
-                    to="/perfil-usuario/bancarios" 
+                    to="/perfil-usuario/metodos-pago" 
                     class="list-group-item list-group-item-action border-0 px-4 py-3"
-                    :class="{ 'active-link': isLinkActive('/perfil-usuario/bancarios') }"
+                    :class="{ 'active-link': isLinkActive('/perfil-usuario/metodos-pago') }"
                 >
                     <i class="bi bi-credit-card-2-front me-2"></i> Métodos de Pago
                 </router-link>
                 
                 <router-link 
-                    to="/perfil-usuario/seguridad" 
+                    to="/perfil-usuario/comentarios" 
                     class="list-group-item list-group-item-action border-0 px-4 py-3"
-                    :class="{ 'active-link': isLinkActive('/perfil-usuario/seguridad') }"
+                    :class="{ 'active-link': isLinkActive('/perfil-usuario/comentarios') }"
                 >
-                    <i class="bi bi-shield-lock me-2"></i> Configuración
+                    <i class="bi bi-shield-lock me-2"></i> Valoraciones y comentarios
                 </router-link>
             </div>
         </div>

@@ -1,6 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '@/services/axiosRequest.js'; 
+import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
+//import { storeToRefs } from 'pinia';
+
+const perfilStore = usePerfilStore();
+//const perfil  = storeToRefs(perfilStore);
+console.log("Perfil store", perfilStore.perfil.id);
+
+
 
 // --- ESTADO ---
 const pedidos = ref([]);
@@ -45,7 +53,9 @@ const fetchPedidos = async () => {
     error.value = null;
     try {
         // Asegúrate que sea 'pedidos/' o 'pedido/' según tu urls.py
-        const response = await api.get('pedido/');
+        console.log("Perfil:", perfilStore.perfil);
+
+        const response = await api.get('pedido/?cliente_id=' + perfilStore.perfil.id);
         
         pedidos.value = response.data; 
         console.log("📦 Datos recibidos:", response.data);

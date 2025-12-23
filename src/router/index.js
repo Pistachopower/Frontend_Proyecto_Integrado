@@ -14,6 +14,8 @@ import DashboardEmpleado from '@/components/C_DashboardEmpleado.vue';
 import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
 import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
+import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
+import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
 
 
 
@@ -57,6 +59,16 @@ const routes = [
         path: 'pedidos', // Ruta completa: /perfil-usuario/pedidos
         name: 'perfil-pedidos',
         component: C_PerfilUsuarioPedidos,
+      },
+      {
+        path: 'metodos-pago', // Ruta completa: /perfil-usuario/metodos-pago
+        name: 'metodos-pago',
+        component: C_PerfilUsuarioMetodosPagos,
+      },
+      {
+        path: 'comentarios', // Ruta completa: /perfil-usuario/comentarios
+        name: 'perfil-comentarios',
+        component: C_PerfilUsuarioComentarios,
       },
 
 
