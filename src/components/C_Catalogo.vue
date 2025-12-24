@@ -28,7 +28,7 @@ const getEstadoInfo = (numEstado) => {
 };
 
 onMounted(() => {
-    store.fetchCatalogo();
+    store.fetchCatalogo(); //Se carga primero este
 });
 </script>
 

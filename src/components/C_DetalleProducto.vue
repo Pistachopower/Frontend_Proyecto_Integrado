@@ -58,7 +58,7 @@ const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. L
     <div v-else-if="error" class="alert alert-danger">
         {{ error }}
         <br>
-        <router-link to="/catalogo" class="btn btn-outline-danger mt-3 btn-sm">Volver al catálogo</router-link>
+        <router-link to="/catalogo-productos" class="btn btn-outline-danger mt-3 btn-sm">Volver al catálogo</router-link>
     </div>
 
     <div v-else-if="pieza">

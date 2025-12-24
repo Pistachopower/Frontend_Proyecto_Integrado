@@ -54,7 +54,7 @@ async function handleLogout() {
     <div class="container">
       <!-- Logo -->
       <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
-        <img :src="logo" alt="Logo" style="height: 40px;" />
+        <img alt="Logo" style="height: 40px;" />
         <span>MotorPartsExpress</span>
       </a>
 
@@ -73,7 +73,7 @@ async function handleLogout() {
             <router-link class="nav-link" to="/catalogo-productos" @click="closeMenu">Productos</router-link>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="/about" @click="closeMenu">Sobre nosotros</router-link>
+            <router-link class="nav-link" to="" @click="closeMenu">Sobre nosotros</router-link>
           </li>
         </ul>
       </div>
@@ -86,5 +86,6 @@ async function handleLogout() {
     </div>
   </nav>
 </template>
+
 <style>
 </style>

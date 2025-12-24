@@ -22,3 +22,11 @@ pnpm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Descargar plugin Mermaid en Visual Studio Code para ver la lógica de funcionamiento
+
+```
+Markdown Preview Mermaid Support
+
+```
