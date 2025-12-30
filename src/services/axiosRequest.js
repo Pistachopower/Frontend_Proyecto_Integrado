@@ -1,13 +1,39 @@
-// src/axios.js
 import axios from 'axios';
 
-// Crear una instancia de Axios
+// Función auxiliar para leer cookies nativamente
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1/', // Cambia por la URL de tu API
-  timeout: 5000, // Opcional: tiempo máximo de espera
-  withCredentials: true, // Muy importante: permite enviar cookies
+  baseURL: 'http://localhost:8000/api/v1/', 
+  timeout: 10000, 
+  withCredentials: true, 
 });
 
-
+api.interceptors.request.use(
+  (config) => {
+    // Usamos la función manual
+    const token = getCookie('csrftoken');
+    
+    if (token) {
+      config.headers['X-CSRFToken'] = token;
+    }
+    
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;

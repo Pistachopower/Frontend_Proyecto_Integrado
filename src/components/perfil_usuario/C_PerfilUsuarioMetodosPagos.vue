@@ -39,7 +39,7 @@ const fetchMetodosPagos = async () => {
       <div v-for="metodo in metodosPago" :key="metodo.id" class="card mb-3">
         <div class="card-body">
           <h5 class="card-title">{{ metodo.tipo_metodo }}</h5>
-          <p class="card-text">{{ metodo.es_predeterminado }}</p>
+          <p class="card-text" v-if="metodo.es_predeterminado">Predeterminado</p>
           <p class="card-text">{{ metodo.fecha_agregado }}</p>
         </div>
       </div>

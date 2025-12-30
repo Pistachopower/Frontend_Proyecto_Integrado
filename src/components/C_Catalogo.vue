@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { storeToRefs } from 'pinia';
 
@@ -9,13 +9,21 @@ const store = usePiezasStore();
 // Al desestructurar, renombramos 'listado' a 'piezas' para que sea más claro en el template
 const { listado: piezas, cargando, error } = storeToRefs(store);
 
+// Accedemos a las variables del store
+// Asegúrate de que en tu store tengas un state o getter llamado 'imagenes'
+// Si las imágenes están dentro de 'piezas', avísame para ajustar esto.
+const imagenes = computed(() => store.imagenes || []);
+
+
+
+
 // --- HELPER: Formato de Moneda ---
 const formatoMoneda = (valor) => {
     return new Intl.NumberFormat('es-ES', { 
         style: 'currency', 
         currency: 'EUR' 
     }).format(valor);
-};
+};      
 
 // --- HELPER: Diccionario de Estados ---
 const getEstadoInfo = (numEstado) => {
@@ -29,6 +37,8 @@ const getEstadoInfo = (numEstado) => {
 
 onMounted(() => {
     store.fetchCatalogo(); //Se carga primero este
+    store.fetchImagenesPieza(); //Luego se cargan las imagenes
+    console.log(imagenes);
 });
 </script>
 
@@ -60,9 +70,26 @@ onMounted(() => {
         <div class="col" v-for="pieza in piezas" :key="pieza.id">
             <div class="card h-100 border-0 shadow-sm hover-card">
                 
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                    <i class="bi bi-gear-wide-connected display-4 text-secondary opacity-50"></i>
+                <!-- <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                     <div v-for="img in imagenes" :key="img.id">
+                        <img :src="img.url_imagen" :alt="pieza.nombre" v-if="img.pieza_id === pieza.id">
+                     </div>
+                </div> -->
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
+                    <img 
+                        v-if="pieza.imagen" 
+                        :src="pieza.imagen" 
+                        :alt="pieza.nombre" 
+                        class="img-fluid" 
+                        style="max-height: 100%; width: 100%; object-fit: cover;"
+                    >
+
+                    <div v-else class="text-muted text-center">
+                        <i class="bi bi-image fs-1"></i>
+                        <p class="small mb-0">Sin imagen</p>
+                    </div>
                 </div>
+                
                 
                 <div class="position-absolute top-0 end-0 m-2">
                     <span class="badge rounded-pill shadow-sm" :class="getEstadoInfo(pieza.estado).clase">

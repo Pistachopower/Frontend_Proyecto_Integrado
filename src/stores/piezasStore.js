@@ -6,7 +6,8 @@ export const usePiezasStore = defineStore('piezas', {
         listado: [],         // Todos los productos del catálogo
         piezaSeleccionada: null, // El producto individual que estamos viendo
         cargando: false,
-        error: null
+        error: null,
+        imagenes: [],
     }),
 
     getters: {
@@ -17,8 +18,7 @@ export const usePiezasStore = defineStore('piezas', {
     actions: {
         // 1. Cargar todo el catálogo
         async fetchCatalogo() {
-            // Si ya tenemos datos, opcionalmente podemos evitar recargar
-            // if (this.listado.length > 0) return; 
+            console.log("📦 Cargando catálogo de piezas...");
             
             this.cargando = true;
             this.error = null;
@@ -28,6 +28,7 @@ export const usePiezasStore = defineStore('piezas', {
                 // Manejo de paginación vs lista plana
                 if (response.data.results) {
                     this.listado = response.data.results;
+
                 } else {
                     this.listado = response.data;
                 }
@@ -71,6 +72,19 @@ export const usePiezasStore = defineStore('piezas', {
         // Limpiar selección al salir
         limpiarSeleccion() {
             this.piezaSeleccionada = null;
-        }
+        },
+        async fetchImagenesPieza() {
+            console.log("📷 Cargando imágenes de las piezas...");
+            // Obtenemos todas las imagenes de las piezas
+            return api.get('imagen_pieza/')
+                .then(response => {
+                    this.imagenes = response.data;
+                })
+                .catch(error => {
+                    console.error('Error al cargar las imágenes de las piezas:', error);
+                });
+
+        } 
+
     }
 });

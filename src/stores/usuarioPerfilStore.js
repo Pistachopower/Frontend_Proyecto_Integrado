@@ -39,5 +39,21 @@ export const usePerfilStore = defineStore('perfil', {
         this.cargando = false;
       }
     },
+    async actualizarPerfil(datosActualizados) {
+      this.cargando = true;
+      this.error = null;
+      try {
+        const response = await api.put('mi-perfil/', datosActualizados);
+        this.perfil = response.data;
+        console.log("✅ Perfil actualizado:", this.perfil);
+      
+      } catch (error) {
+        console.error('Error al actualizar el perfil:', error);
+        this.error = 'No se pudo actualizar la información del perfil.';
+      
+      } finally {
+        this.cargando = false;
+      }
+    }
   },
 });
