@@ -1,5 +1,3 @@
-// stores/perfilStore.js
-
 import { defineStore } from 'pinia';
 import api from '@/services/axiosRequest.js'; // Asegúrate de que la ruta a tu API sea correcta
 

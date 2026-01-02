@@ -1,8 +1,4 @@
-Pendiente:
-Seccion del cliente Metodo de pago 
-Crear un enumerados para mostrar el nombre de los metodos de pago 
-Mejorar el formato de la fecha 
-
-Actualizar y crear 
-Crear el primer metodo de pago como pre-determinado 
-Al actualizar dejamos solo un método pre-determinado (el que venga en la peticion). Debo controlar que es el mismo no se actualice.
+En método de pago :
+Adecuar lo que tiene a lo que está en la api (json del endpoint 
+http://127.0.0.1:8000/api/v1/metodo_pago_cliente/
+)
