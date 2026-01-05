@@ -18,7 +18,7 @@ function getCookie(name) {
 
 const api = axios.create({
   baseURL: 'http://localhost:8000/api/v1/', 
-  timeout: 10000, 
+  timeout: 1000000, 
   withCredentials: true, 
 });
 

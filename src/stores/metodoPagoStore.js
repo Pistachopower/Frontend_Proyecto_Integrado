@@ -30,7 +30,9 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
       
       try {
         // Hacemos la petición GET filtrando por el cliente
-        const response = await api.get(`metodo_pago/?cliente_id=${perfilStore.perfil.id}`);
+        //const response = await api.get(`metodo_pago_cliente/?cliente_id=${perfilStore.perfil.id}`);
+        const response = await api.get(`metodo_pago_cliente/?cliente_id=${perfilStore.perfil.id}`);
+
         this.metodos = response.data;
         
       } catch (error) {
@@ -48,27 +50,33 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
       const perfilStore = usePerfilStore();
 
       try {
-        // Construimos el JSON. 
-        // IMPORTANTE: Aquí asignamos el cliente automáticamente desde el store de perfil
+        // Construimos el JSON base
         const payload = {
-          "tipo_metodo": parseInt(datosFormulario.tipo_metodo), 
-          "es_predeterminado": datosFormulario.es_predeterminado, 
-          "fecha_agregado": null, 
-          "cliente": perfilStore.perfil.id // <--- ASIGNACIÓN AUTOMÁTICA DEL ID
+          "tipo_metodo": parseInt(datosFormulario.tipo_metodo),
+          "es_predeterminado": datosFormulario.es_predeterminado,
+          "fecha_agregado": null,
+          "cliente": perfilStore.perfil.id
         };
+
+        // Adjuntar detalles según el tipo seleccionado
+        if (payload.tipo_metodo === 1 && datosFormulario.detalles_tarjeta) {
+          payload.detalles_tarjeta = { ...datosFormulario.detalles_tarjeta };
+        } else if (payload.tipo_metodo === 2 && datosFormulario.detalles_cuenta) {
+          payload.detalles_cuenta = { ...datosFormulario.detalles_cuenta };
+        } else if (payload.tipo_metodo === 3 && datosFormulario.detalles_billetera) {
+          payload.detalles_billetera = { ...datosFormulario.detalles_billetera };
+        }
 
         console.log("📤 Enviando al backend:", payload);
 
-        const response = await api.post('metodo_pago/', payload);
-        
-        // Agregamos el nuevo a la lista local
+        const response = await api.post('metodo_pago_cliente/', payload);
         this.metodos.push(response.data);
-        return true; 
+        return true;
 
       } catch (error) {
         console.error('Error al crear método:', error);
         this.error = error.response?.data?.detail || 'Error al guardar.';
-        return false; 
+        return false;
       } finally {
         this.cargando = false;
       }
@@ -77,7 +85,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
     // --- ACCIÓN 3: BORRAR (DELETE) ---
     async borrarMetodo(idMetodo) {
       try {
-         await api.delete(`metodo_pago/${idMetodo}/`);
+         await api.delete(`metodo_pago_cliente/${idMetodo}/`);
          this.metodos = this.metodos.filter(m => m.id !== idMetodo);
       } catch (error) {
         console.error(error);
