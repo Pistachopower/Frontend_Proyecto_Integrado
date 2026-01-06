@@ -18,7 +18,6 @@ const enviando = ref(false);
 
 const formulario = ref({
   tipo_metodo: "",
-  es_predeterminado: false,
   // Detalles para cada tipo
   detalles_tarjeta: {
     tipo_tarjeta: null,
@@ -52,7 +51,7 @@ const guardarMetodo = async () => {
   // Construir el objeto base
   const payload = {
     tipo_metodo: parseInt(formulario.value.tipo_metodo),
-    es_predeterminado: formulario.value.es_predeterminado || false
+    // es_predeterminado eliminado
   };
 
   // Según el tipo, incluir solo los detalles necesarios
@@ -70,7 +69,7 @@ const guardarMetodo = async () => {
     mostrandoFormulario.value = false;
     formulario.value = {
       tipo_metodo: "",
-      es_predeterminado: false,
+      // es_predeterminado eliminado
       detalles_tarjeta: {
         tipo_tarjeta: null,
         num_tarjeta_encriptado: "",
@@ -140,17 +139,6 @@ const eliminarMetodo = async (id) => {
             </select>
           </div>
 
-          <div class="form-check mb-3">
-            <input 
-              v-model="formulario.es_predeterminado" 
-              class="form-check-input" 
-              type="checkbox" 
-              id="checkPred"
-            >
-            <label class="form-check-label" for="checkPred">
-              Marcar como predeterminado
-            </label>
-          </div>
 
           <!-- Formulario dinámico para Tarjeta -->
           <div v-if="formulario.tipo_metodo === '1'">
@@ -242,7 +230,6 @@ const eliminarMetodo = async (id) => {
               <th>Tipo</th>
               <th>Detalles</th>
               <th>Agregado</th>
-              <th>Predeterminado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -284,10 +271,7 @@ const eliminarMetodo = async (id) => {
                 </template>
               </td>
               <td>{{ metodo.fecha_agregado || (metodo.metodo_pago?.fecha_agregado) || 'Reciente' }}</td>
-              <td>
-                <span v-if="metodo.es_predeterminado" class="badge bg-success">Sí</span>
-                <span v-else class="text-muted">No</span>
-              </td>
+
               <td>
                 <button class="btn btn-sm btn-outline-secondary me-1" title="Editar">
                   <i class="bi bi-pencil"></i>

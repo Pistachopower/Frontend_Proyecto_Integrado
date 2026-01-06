@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '@/services/axiosRequest.js'; 
+import api from '@/services/axiosRequest.js';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 
 const perfilStore = usePerfilStore();
@@ -26,7 +26,7 @@ const fetchComentarios = async () => {
 
 <template>
   <div class="container py-4">
-    <h1 class="mb-4">Mis Comentarios</h1>
+    <h1 class="mb-4">Mis Valoraciones y Comentarios</h1>
 
     <div v-if="cargando" class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
@@ -37,11 +37,13 @@ const fetchComentarios = async () => {
 
     <div v-else>
       <div v-for="comentario in comentarios" :key="comentario.id" class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">{{ comentario.pieza.nombre }}</h5>
-          <p class="card-text">{{ comentario.comentario }}</p>
-          <p class="text-muted">Puntuación: {{ comentario.puntuacion }}/5</p>
-        </div>
+        <router-link :to="`/detalle-producto/${comentario.pieza.id}`" class="list-group-item list-group-item-action border-0 px-4 py-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ comentario.pieza.nombre }}</h5>
+            <p class="card-text">{{ comentario.comentario }}</p>
+            <p class="text-muted">Puntuación: {{ comentario.puntuacion }}/5</p>
+          </div>
+        </router-link>
       </div>
     </div>
   </div>
