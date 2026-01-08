@@ -1,33 +1,62 @@
+<script setup>
+import { onMounted, computed } from 'vue'
+import { useCarritoStore } from '../stores/carritoStore'
+
+const carritoStore = useCarritoStore()
+
+// Obtener los productos del carrito al montar el componente
+onMounted(async () => {
+  try {
+    await carritoStore.obtenerCarrito()
+  } catch (error) {
+    console.error('Error al cargar el carrito:', error)
+  }
+})
+
+// Calcular el total con envío
+const calcularTotal = computed(() => {
+  return carritoStore.precioTotal + 10 // 10 es el costo del envío
+})
+</script>
+
 <template>
   <div class="container py-5 fade-in">
     <h2 class="fw-bold mb-4">Tu Carrito de Compra</h2>
 
-    <div class="row g-4">
+    <div v-if="carritoStore.items.length === 0" class="alert alert-info">
+      Tu carrito está vacío. <router-link to="/catalogo-productos">Continúa comprando</router-link>
+    </div>
+
+    <div v-else class="row g-4">
       
       <div class="col-12 col-lg-8">
-        <div class="card border-0 shadow-sm mb-3">
+        <div v-for="item in carritoStore.items" :key="item.id" class="card border-0 shadow-sm mb-3">
           <div class="card-body p-3">
             <div class="row align-items-center g-3">
               
               <div class="col-3 col-md-2">
-                <img src="https://placehold.co/100x100/png?text=Alt" class="img-fluid rounded bg-light" alt="Alternador Bosch 12V">
+                <img 
+                  :src="item.imagen || 'https://placehold.co/100x100/png?text=Producto'" 
+                  class="img-fluid rounded bg-light" 
+                  :alt="item.nombre"
+                >
               </div>
 
               <div class="col-9 col-md-4">
-                <h6 class="fw-bold mb-1">Alternador Bosch 12V</h6>
-                <small class="text-muted d-block text-truncate">Ref: ALT-2023-X</small>
+                <h6 class="fw-bold mb-1">{{ item.nombre }}</h6>
+                <small class="text-muted d-block text-truncate">Ref: {{ item.id }}</small>
               </div>
 
               <div class="col-6 col-md-3 d-flex justify-content-center">
                 <div class="input-group input-group-sm" style="max-width: 120px;">
                   <button class="btn btn-outline-secondary">-</button>
-                  <input type="text" class="form-control text-center bg-white" value="1" readonly>
+                  <input type="text" class="form-control text-center bg-white" :value="item.cantidad" readonly>
                   <button class="btn btn-outline-secondary">+</button>
                 </div>
               </div>
 
               <div class="col-6 col-md-3 d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">€150.00</span>
+                <span class="fw-bold text-primary">€{{ item.precio_total_piezas.toFixed(2) }}</span>
                 <button class="btn btn-sm btn-outline-danger border-0 rounded-circle">
                   <i class="bi bi-trash"></i>
                 </button>
@@ -38,9 +67,9 @@
         </div>
 
         <div class="mt-4">
-          <a href="/productos" class="text-decoration-none text-muted fw-bold">
+          <router-link to="/catalogo-productos" class="text-decoration-none text-muted fw-bold">
             <i class="bi bi-arrow-left me-2"></i> Seguir comprando
-          </a>
+          </router-link>
         </div>
       </div>
 
@@ -51,7 +80,7 @@
             
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Subtotal</span>
-              <span class="fw-bold">€310.00</span>
+              <span class="fw-bold">€{{ carritoStore.precioTotal.toFixed(2) }}</span>
             </div>
             
             <div class="d-flex justify-content-between mb-3">
@@ -63,7 +92,7 @@
 
             <div class="d-flex justify-content-between mb-4">
               <span class="fw-bold fs-5">Total</span>
-              <span class="fw-bold fs-4 text-primary">€320.00</span>
+              <span class="fw-bold fs-4 text-primary">€{{ calcularTotal.toFixed(2) }}</span>
             </div>
 
             <button class="btn btn-dark w-100 py-3 fw-bold shadow-hover">

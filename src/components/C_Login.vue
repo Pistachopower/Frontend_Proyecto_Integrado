@@ -1,66 +1,28 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/authStore'
 
+const authStore = useAuthStore()
 const router = useRouter()
 const username = ref('')
 const password = ref('')
-const errorMessage = ref(null) 
-const cargando = ref(false) // <--- NUEVO: Para controlar el spinner del botón
-
-// --- FUNCIÓN PARA LEER LA COOKIE CSRF DE DJANGO ---
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
 async function handleLogin() {
-  errorMessage.value = null
-  cargando.value = true // Activamos spinner
-  
   try {
-    const csrftoken = getCookie('csrftoken');
-    const response = await fetch('http://localhost:8000/api/v1/login/', {
-      method: 'POST', 
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken, 
-      },
-      credentials: 'include', 
-      
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Usuario o contraseña incorrectos.');
-    }
-
-    await response.json();
+    await authStore.login(username.value, password.value)
+    authStore.checkAuthStatus()
     
-    // Login exitoso
-    router.push('/perfil-usuario') 
-    
+    // Navegar a la página principal después del login exitoso
+    router.push('/')
   } catch (error) {
-    console.error('Error en el login:', error);
-    errorMessage.value = error.message;
-  } finally {
-    cargando.value = false // Desactivamos spinner pase lo que pase
+    // El error ya está en authStore.errorMessage
+    console.error('Error al iniciar sesión:', error)
   }
-}
+}  
+
+
+
 </script>
 
 <template>
@@ -81,9 +43,9 @@ async function handleLogin() {
                 <p class="text-muted small">Accede a tu cuenta de MotorPartsExpress</p>
               </div>
 
-              <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+              <div v-if="authStore.errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <div>{{ errorMessage }}</div>
+                <div>{{ authStore.errorMessage }}</div>
               </div>
 
               <form @submit.prevent="handleLogin">
@@ -115,9 +77,9 @@ async function handleLogin() {
                 <button 
                   type="submit" 
                   class="btn btn-primary w-100 py-3 fw-bold shadow-sm button-hover"
-                  :disabled="cargando"
+                  :disabled="authStore.isLoading"
                 >
-                  <span v-if="cargando">
+                  <span v-if="authStore.isLoading">
                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Entrando...
                   </span>
