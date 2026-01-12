@@ -17,6 +17,25 @@ onMounted(async () => {
 const calcularTotal = computed(() => {
   return carritoStore.precioTotal + 10 // 10 es el costo del envío
 })
+
+// Eliminar producto del carrito
+const eliminarDelCarrito = async (pieza_id) => {
+  try {
+    await carritoStore.eliminarProducto(pieza_id)
+  } catch (error) {
+    console.error('Error al eliminar producto:', error)
+  }
+}
+
+// Actualizar cantidad del producto
+const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
+  try {
+    if (nuevaCantidad < 1) return
+    await carritoStore.agregarOActualizar(pieza_id, nuevaCantidad)
+  } catch (error) {
+    console.error('Error al actualizar cantidad:', error)
+  }
+}
 </script>
 
 <template>
@@ -49,15 +68,15 @@ const calcularTotal = computed(() => {
 
               <div class="col-6 col-md-3 d-flex justify-content-center">
                 <div class="input-group input-group-sm" style="max-width: 120px;">
-                  <button class="btn btn-outline-secondary">-</button>
-                  <input type="text" class="form-control text-center bg-white" :value="item.cantidad" readonly>
-                  <button class="btn btn-outline-secondary">+</button>
+                  <button class="btn btn-outline-secondary" @click="actualizarCantidad(item.id, item.cantidad - 1)">-</button>
+                  <input type="text" class="form-control text-center bg-white" :value="item.cantidad" readonly disabled>
+                  <button class="btn btn-outline-secondary" @click="actualizarCantidad(item.id, item.cantidad + 1)">+</button>
                 </div>
               </div>
 
               <div class="col-6 col-md-3 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-primary">€{{ item.precio_total_piezas.toFixed(2) }}</span>
-                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle">
+                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" @click="eliminarDelCarrito(item.id)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>

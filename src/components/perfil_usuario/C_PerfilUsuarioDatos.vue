@@ -8,8 +8,8 @@ const editando = ref(false);
 const formulario = reactive({
   username: '',
   email: '',
-  nombre: '',
-  apellido: '',
+  first_name: '',
+  last_name: '',
   telefono: '',
   direccion: ''
 });
@@ -20,10 +20,10 @@ const sincronizarDatos = () => {
     // Usamos el operador ?. por seguridad, o cadenas vacías si es null
     formulario.username = perfilStore.perfil.usuario?.username || '';
     formulario.email = perfilStore.perfil.usuario?.email || '';
-    formulario.nombre = perfilStore.perfil.nombre || '';
-    formulario.apellido = perfilStore.perfil.apellido || '';
-    formulario.telefono = perfilStore.perfil.telefono || '';
-    formulario.direccion = perfilStore.perfil.direccion || '';
+    formulario.first_name = perfilStore.perfil.usuario?.first_name || '';
+    formulario.last_name = perfilStore.perfil.usuario?.last_name || '';
+    formulario.telefono = perfilStore.perfil.usuario?.telefono || '';
+    formulario.direccion = perfilStore.perfil.usuario?.direccion || '';
   }
 };
 
@@ -63,7 +63,8 @@ const guardarCambios = async () => {
     // Aquí tu lógica de envío a la API...
     await perfilStore.actualizarPerfil(formulario);
     editando.value = false;
-  
+    await perfilStore.fetchPerfil(); // Refrescar datos desde la API
+    
   } catch (error) {
     console.error(error);
   }
@@ -121,7 +122,7 @@ const guardarCambios = async () => {
               type="text" 
               class="form-control" 
               :class="{'bg-light': !editando}"
-              v-model="formulario.nombre"
+              v-model="formulario.first_name"
               :disabled="!editando"
             >
           </div>
@@ -132,7 +133,7 @@ const guardarCambios = async () => {
               type="text" 
               class="form-control" 
               :class="{'bg-light': !editando}"
-              v-model="formulario.apellido"
+              v-model="formulario.last_name"
               :disabled="!editando"
             >
           </div>

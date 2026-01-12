@@ -2,10 +2,12 @@
 import { onMounted, onUnmounted, computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { usePiezasStore } from '@/stores/piezasStore';
+import { useCarritoStore } from '@/stores/carritoStore';
 import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const store = usePiezasStore();
+const carritoStore = useCarritoStore();
 const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
 
 const id = route.params.id;
@@ -37,6 +39,18 @@ onUnmounted(() => {
 const incrementar = () => cantidad.value++;
 const decrementar = () => {
     if (cantidad.value > 1) cantidad.value--;
+};
+
+// --- AGREGAR AL CARRITO ---
+const agregarAlCarrito = async () => {
+    try {
+        await carritoStore.agregarOActualizar(pieza.value.id, cantidad.value);
+        // Feedback visual (opcional)
+        alert(`${cantidad.value} ${pieza.value.nombre} añadido al carrito`);
+        cantidad.value = 1; // Reiniciar contador
+    } catch (error) {
+        alert('Error al agregar el producto al carrito');
+    }
 };
 
 // --- DATOS MOCK ---
@@ -93,7 +107,7 @@ const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. L
                   <input type="text" class="form-control text-center" :value="cantidad" readonly>
                   <button class="btn btn-outline-secondary" @click="incrementar" type="button">+</button>
                 </div>
-                <button class="btn btn-dark flex-grow-1 py-2">
+                <button class="btn btn-dark flex-grow-1 py-2" @click="agregarAlCarrito">
                   <i class="bi bi-cart-plus me-2"></i> Añadir al Carrito
                 </button>
               </div>
