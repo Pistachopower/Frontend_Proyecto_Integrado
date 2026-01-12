@@ -3,16 +3,21 @@ import api from '@/services/axiosRequest.js';
 
 export const usePiezasStore = defineStore('piezas', {
     state: () => ({
-        listado: [],         // Todos los productos del catálogo
-        piezaSeleccionada: null, // El producto individual que estamos viendo
+        listado: [],
+        piezaSeleccionada: null,
         cargando: false,
         error: null,
         imagenes: [],
     }),
 
     getters: {
-        // Un getter por si quieres filtrar o contar
-        totalPiezas: (state) => state.listado.length
+        totalPiezas: (state) => state.listado.length,
+        
+        // NUEVO: Getter para obtener la imagen de una pieza
+        obtenerImagenPorPieza: (state) => (piezaId) => {
+            const imagen = state.imagenes.find(img => img.pieza.id === piezaId);
+            return imagen ? imagen.url_imagen : null;
+        }
     },
 
     actions: {

@@ -1,16 +1,17 @@
 <script setup>
-import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { onMounted, onUnmounted, computed, ref,  watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { useCarritoStore } from '@/stores/carritoStore';
 import { storeToRefs } from 'pinia';
+import C_ProductosRelacionados from '@/components/C_OtrosProductos.vue';
 
 const route = useRoute();
 const store = usePiezasStore();
 const carritoStore = useCarritoStore();
 const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
 
-const id = route.params.id;
+//const id = route.params.id;
 const cantidad = ref(1);
 const tabActiva = ref('descripcion');
 
@@ -26,9 +27,21 @@ const imagenPrincipal = computed(() => {
     return `https://placehold.co/600x600/png?text=${texto}`;
 });
 
+// --- FUNCIÓN PARA CARGAR PRODUCTO ---
+const cargarProducto = () => {
+    store.fetchPiezaDetalle(route.params.id);
+};
+
 // --- LIFECYCLE ---
 onMounted(() => {
-    store.fetchPiezaDetalle(id);
+        cargarProducto();
+
+});
+
+// ESTO ES IMPORTANTE: Observar cambios en la ruta
+watch(() => route.params.id, () => {
+    console.log('ID cambió a:', route.params.id);
+    cargarProducto();
 });
 
 onUnmounted(() => {
@@ -53,11 +66,7 @@ const agregarAlCarrito = async () => {
     }
 };
 
-// --- DATOS MOCK ---
-const productosRelacionados = ref([
-    { id: 101, nombre: 'Kit de Embrague', precio: 120.50 },
-    { id: 102, nombre: 'Filtro de Aceite', precio: 15.00 },
-]);
+
 // Esta es la variable que daba error. Ahora la usaremos abajo en el template.
 const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. La pieza llegó muy rápido.', estrellas: 5 };
 </script>
@@ -157,22 +166,7 @@ const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. L
           </div>
         </div>
 
-        <div class="mb-5">
-          <h4 class="fw-bold mb-4">También podría interesarte</h4>
-          <div class="row g-3">
-            <div class="col-6 col-md-4 col-lg-4" v-for="rel in productosRelacionados" :key="rel.id">
-              <div class="card h-100 border-0 shadow-sm product-card">
-                <div class="card-img-top bg-light ratio ratio-4x3">
-                   <img :src="`https://placehold.co/400x300?text=${rel.nombre}`" class="object-fit-cover rounded-top" :alt="rel.nombre">
-                </div>
-                <div class="card-body">
-                  <h6 class="card-title text-truncate">{{ rel.nombre }}</h6>
-                  <p class="card-text text-primary fw-bold">{{ formatoMoneda(rel.precio) }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <C_ProductosRelacionados />
 
         <div class="mb-5">
           <h4 class="fw-bold mb-4">Opiniones del producto</h4>

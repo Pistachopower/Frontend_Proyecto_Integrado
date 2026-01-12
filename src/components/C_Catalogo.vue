@@ -14,7 +14,9 @@ const { listado: piezas, cargando, error } = storeToRefs(store);
 // Si las imágenes están dentro de 'piezas', avísame para ajustar esto.
 const imagenes = computed(() => store.imagenes || []);
 
-
+const obtenerImagen = (piezaId) => {
+    return store.obtenerImagenPorPieza(piezaId);
+};
 
 
 // --- HELPER: Formato de Moneda ---
@@ -69,16 +71,12 @@ onMounted(() => {
         
         <div class="col" v-for="pieza in piezas" :key="pieza.id">
             <div class="card h-100 border-0 shadow-sm hover-card">
-                
-                <!-- <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                     <div v-for="img in imagenes" :key="img.id">
-                        <img :src="img.url_imagen" :alt="pieza.nombre" v-if="img.pieza_id === pieza.id">
-                     </div>
-                </div> -->
+
+                <!-- obtenerImagen(pieza.id) -->
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
                     <img 
-                        v-if="pieza.imagen" 
-                        :src="pieza.imagen" 
+                        v-if="obtenerImagen(pieza.id)" 
+                        :src="obtenerImagen(pieza.id)" 
                         :alt="pieza.nombre" 
                         class="img-fluid" 
                         style="max-height: 100%; width: 100%; object-fit: cover;"
