@@ -1,26 +1,30 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, onUnmounted, watch, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useProductosRelacionadosStore } from '@/stores/productosRelacionadosStore';
 import { storeToRefs } from 'pinia';
 
-const router = useRouter();
+const route = useRoute();
 const store = useProductosRelacionadosStore();
-const { productos, cargando, error } = storeToRefs(store);
+const { productos: productosRelacionados, cargando, error } = storeToRefs(store);
 
-// --- HELPER ---
-const formatoMoneda = (valor) => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(valor);
-};
+// Obtén el ID directamente de la ruta
+const piezaId = ref(null);
 
-// --- NAVEGACIÓN ---
-const irAlProducto = (id) => {
-    router.push(`/detalle-producto/${id}`); 
-};
-
-// --- LIFECYCLE ---
 onMounted(() => {
-    store.fetchProductosAleatorios();
+    piezaId.value = route.params.id;
+    if (piezaId.value) {
+        store.fetchProductosPorMarca(Number(piezaId.value));
+    }
+});
+
+// Observa cambios en la ruta (por si navegan a otro producto)
+watch(() => route.params.id, (nuevoId) => {
+    console.log('Nuevo ID de ruta:', nuevoId);
+    if (nuevoId) {
+        piezaId.value = nuevoId;
+        store.fetchProductosPorMarca(Number(nuevoId));
+    }
 });
 
 onUnmounted(() => {
@@ -29,29 +33,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="mb-5" v-if="!error">
+    <div class="mb-5">
         <h4 class="fw-bold mb-4">También podría interesarte</h4>
         
         <div v-if="cargando" class="text-center py-4">
-            <div class="spinner-border text-primary spinner-sm" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <div v-else-if="error" class="alert alert-danger">
+            {{ error }}
         </div>
 
         <div v-else class="row g-3">
-            <!-- ✅ AGREGAR @click="irAlProducto(producto.id)" -->
-            <div class="col-6 col-md-4 col-lg-4" v-for="producto in productos" :key="producto.id">
-                <div class="card h-100 border-0 shadow-sm product-card cursor-pointer" 
-                     @click="irAlProducto(producto.id)">
-                    <div class="card-img-top bg-light ratio ratio-4x3">
-                        <img :src="`https://placehold.co/400x300?text=${producto.nombre}`" 
-                             class="object-fit-cover rounded-top" 
-                             :alt="producto.nombre">
-                    </div>
+            <div v-for="producto in productosRelacionados" :key="producto.id" class="col-12 col-sm-6 col-lg-3">
+                <div class="card product-card h-100 border-0 shadow-sm">
+                    <img :src="`https://placehold.co/300x300/png?text=${producto.nombre}`" class="card-img-top" :alt="producto.nombre">
                     <div class="card-body">
-                        <h6 class="card-title text-truncate">{{ producto.nombre }}</h6>
-                        <p class="text-muted small mb-2">{{ producto.marca }} - {{ producto.anio }}</p>
-                        <p class="card-text text-primary fw-bold">{{ formatoMoneda(producto.precio_base) }}</p>
+                        <h6 class="card-title fw-bold">{{ producto.nombre }}</h6>
+                        <p class="text-muted small mb-2">{{ producto.marca }}</p>
+                        <p class="text-primary fw-bold">{{ producto.precio_base }}€</p>
+                        <router-link :to="`/producto/${producto.id}`" class="btn btn-sm btn-outline-primary w-100">
+                            Ver detalles
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -60,18 +63,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.product-card { 
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.product-card:hover { 
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
-}
-.cursor-pointer { 
-    cursor: pointer; 
-}
-.spinner-sm {
-    width: 1.5rem;
-    height: 1.5rem;
-}
+.product-card { transition: transform 0.2s; }
+.product-card:hover { transform: translateY(-5px); }
 </style>

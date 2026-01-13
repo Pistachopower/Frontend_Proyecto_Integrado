@@ -166,7 +166,7 @@ const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. L
           </div>
         </div>
 
-        <C_ProductosRelacionados />
+        <C_ProductosRelacionados :piezaId="pieza.id"/>
 
         <div class="mb-5">
           <h4 class="fw-bold mb-4">Opiniones del producto</h4>
