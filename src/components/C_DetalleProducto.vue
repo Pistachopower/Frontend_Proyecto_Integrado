@@ -5,6 +5,8 @@ import { usePiezasStore } from '@/stores/piezasStore';
 import { useCarritoStore } from '@/stores/carritoStore';
 import { storeToRefs } from 'pinia';
 import C_ProductosRelacionados from '@/components/C_OtrosProductos.vue';
+import C_Valoraciones from '@/components/C_Valoraciones.vue';
+
 
 const route = useRoute();
 const store = usePiezasStore();
@@ -67,8 +69,6 @@ const agregarAlCarrito = async () => {
 };
 
 
-// Esta es la variable que daba error. Ahora la usaremos abajo en el template.
-const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. La pieza llegó muy rápido.', estrellas: 5 };
 </script>
 
 <template>
@@ -168,27 +168,7 @@ const opinionEjemplo = { usuario: 'Cliente Verificado', texto: 'Todo perfecto. L
 
         <C_ProductosRelacionados :piezaId="pieza.id"/>
 
-        <div class="mb-5">
-          <h4 class="fw-bold mb-4">Opiniones del producto</h4>
-          <div class="card border-0 shadow-sm">
-            <div class="list-group list-group-flush">
-              <div class="list-group-item p-4">
-                <div class="d-flex align-items-center mb-2">
-                  <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center text-white fw-bold" style="width:50px; height:50px;">
-                      {{ opinionEjemplo.usuario.charAt(0) }}
-                  </div>
-                  <div>
-                    <h6 class="mb-0 fw-bold">{{ opinionEjemplo.usuario }}</h6>
-                    <div class="text-warning small">
-                      <i class="bi bi-star-fill" v-for="n in opinionEjemplo.estrellas" :key="n"></i>
-                    </div>
-                  </div>
-                </div>
-                <p class="text-muted mb-0 ps-5 ms-3">{{ opinionEjemplo.texto }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <C_Valoraciones />
         </div> 
   </div>
 </template>
