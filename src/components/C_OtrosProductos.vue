@@ -52,7 +52,7 @@ onUnmounted(() => {
                         <h6 class="card-title fw-bold">{{ producto.nombre }}</h6>
                         <p class="text-muted small mb-2">{{ producto.marca }}</p>
                         <p class="text-primary fw-bold">{{ producto.precio_base }}€</p>
-                        <router-link :to="`/producto/${producto.id}`" class="btn btn-sm btn-outline-primary w-100">
+                        <router-link :to="`/detalle-producto/${producto.id}`" class="btn btn-sm btn-outline-primary w-100">
                             Ver detalles
                         </router-link>
                     </div>
