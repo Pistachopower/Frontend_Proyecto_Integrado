@@ -96,6 +96,7 @@ const routes = [
     name: 'carrito',
     component: Carrito,
   },
+  
   {
     path: '/proceso-pago',
     name: 'proceso-pago',

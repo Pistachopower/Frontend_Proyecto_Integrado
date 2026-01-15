@@ -2,19 +2,20 @@
 
 
 import Contacto from '@/components/C_Contacto.vue'
+import CategoriaProductos from '@/components/C_CategoriaProductos.vue'
 
 </script>
 
 <template>
   <main class="home-main">
     <section class="home-section home-carousel">
-     <Carousel></Carousel>
+   
       
     </section>
     
     
     <section class="home-section home-products">
-      <!-- Aquí irá el componente Productos más vendidos -->
+      <CategoriaProductos></CategoriaProductos>
       
     </section>
     
@@ -50,5 +51,12 @@ import Contacto from '@/components/C_Contacto.vue'
 /* Quita el borde inferior de la última sección */
 .home-section:last-child {
   border-bottom: none;
+}
+
+.home-products {
+  align-items: stretch;
+  justify-content: flex-start;
+  background: #f9f9f9;
+  padding: 0 !important;
 }
 </style>
