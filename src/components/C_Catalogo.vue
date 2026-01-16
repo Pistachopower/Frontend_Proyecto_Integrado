@@ -11,7 +11,6 @@ const { listado: piezas, cargando, error } = storeToRefs(store);
 
 // Accedemos a las variables del store
 // Asegúrate de que en tu store tengas un state o getter llamado 'imagenes'
-// Si las imágenes están dentro de 'piezas', avísame para ajustar esto.
 const imagenes = computed(() => store.imagenes || []);
 
 const obtenerImagen = (piezaId) => {

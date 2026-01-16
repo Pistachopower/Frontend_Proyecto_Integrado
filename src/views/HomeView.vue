@@ -1,8 +1,8 @@
 <script setup>
-
-
 import Contacto from '@/components/C_Contacto.vue'
 import CategoriaProductos from '@/components/C_CategoriaProductos.vue'
+
+
 
 </script>
 
@@ -53,10 +53,5 @@ import CategoriaProductos from '@/components/C_CategoriaProductos.vue'
   border-bottom: none;
 }
 
-.home-products {
-  align-items: stretch;
-  justify-content: flex-start;
-  background: #f9f9f9;
-  padding: 0 !important;
-}
+
 </style>

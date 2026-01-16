@@ -23,7 +23,6 @@ export const usePiezasStore = defineStore('piezas', {
     actions: {
         // 1. Cargar todo el catálogo
         async fetchCatalogo() {
-            console.log("📦 Cargando catálogo de piezas...");
             
             this.cargando = true;
             this.error = null;

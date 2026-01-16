@@ -1,263 +1,177 @@
 <script setup>
-import { onMounted, computed } from 'vue'
-import { useCategoriasStore } from '@/stores/categoriasStore'
-import { usePiezasStore } from '@/stores/piezasStore'
-import api from '../services/axiosRequest';
+import { useCategoriasStore } from '@/stores/categoriasStore';
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 
+const categoriasStore = useCategoriasStore();
+const { listado } = storeToRefs(categoriasStore);
 
-const categoriasStore = useCategoriasStore()
-const piezasStore = usePiezasStore()
-
-// Cargar datos al montar
 onMounted(async () => {
-  // Si hay categoría seleccionada, cargar productos de esa categoría
-  if (categoriasStore.categoriaSeleccionada) {
-    console.log('📦 Cargando productos de categoría:', categoriasStore.categoriaSeleccionada.nombre)
-    await cargarProductosPorCategoria()
-  } else {
-    // Si no hay categoría, cargar todos los productos
-    console.log('📦 Cargando todos los productos')
-    await piezasStore.fetchCatalogo()
-  }
-  
-  // Cargar imágenes
-  await piezasStore.fetchImagenesPieza()
-})
-
-// Función para cargar productos por categoría
-const cargarProductosPorCategoria = async () => {
-  piezasStore.cargando = true
-  piezasStore.error = null
-  
-  try {
-    const response = await api.get(
-      `pieza/?categoria=${categoriasStore.categoriaSeleccionada.id}`
-    )
-    
-    if (response.data.results) {
-      piezasStore.listado = response.data.results
-    } else {
-      piezasStore.listado = response.data
-    }
-    
-    console.log('✅ Productos cargados:', piezasStore.listado)
-  } catch (err) {
-    console.error('❌ Error al cargar productos:', err)
-    piezasStore.error = 'Error al cargar los productos'
-  } finally {
-    piezasStore.cargando = false
-  }
-}
-
-// Computed: Título dinámico basado en la categoría
-const tituloCatalogo = computed(() => {
-  if (categoriasStore.categoriaSeleccionada) {
-    return `Catálogo - ${categoriasStore.categoriaSeleccionada.nombre}`
-  }
-  return 'Catálogo Completo'
-})
-
-// Función para ir al detalle del producto
-const irAlDetalle = (idProducto) => {
-  piezasStore.fetchPiezaDetalle(idProducto)
-  // Aquí iría la navegación al detalle si tienes una ruta
-}
+    await categoriasStore.fetchCategorias();
+});
 </script>
 
 <template>
-  <div class="catalogo-wrapper">
-    <!-- Encabezado del catálogo -->
-    <div class="catalogo-header">
-      <h1>{{ tituloCatalogo }}</h1>
-      <p v-if="categoriasStore.categoriaSeleccionada" class="subtitle">
-        Mostrando productos de: <strong>{{ categoriasStore.categoriaSeleccionada.nombre }}</strong>
-      </p>
-    </div>
+    <section class="categorias-section py-5">
+        <div class="container-fluid px-3 px-md-4">
+            <!-- Encabezado -->
+            <div class="mb-5">
+                <h2 class="fw-bold mb-2">Categorías de Productos</h2>
+                <p class="text-muted">Descubre nuestras categorías disponibles</p>
+            </div>
 
-    <!-- Estados de carga -->
-    <div v-if="piezasStore.cargando" class="loading">
-      <p>Cargando productos...</p>
-    </div>
+            <!-- Grid de categorías -->
+            <div class="row g-4">
+                <div v-for="categoria in listado" :key="categoria.id" class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="categoria-card">
+                        <!-- Contenedor de imagen con overlay -->
+                        <div class="imagen-container">
+                            <img 
+                                :src="categoria.imagen_categoria" 
+                                :alt="categoria.nombre" 
+                                class="categoria-imagen"
+                                loading="lazy"
+                            >
+                            <div class="overlay"></div>
+                        </div>
 
-    <div v-else-if="piezasStore.error" class="error-message">
-      <p>{{ piezasStore.error }}</p>
-    </div>
-
-    <div v-else-if="piezasStore.listado.length === 0" class="sin-productos">
-      <p>No hay productos disponibles</p>
-    </div>
-
-    <!-- Grid de productos -->
-    <div v-else class="productos-grid">
-      <div
-        v-for="producto in piezasStore.listado"
-        :key="producto.id"
-        class="producto-card"
-        @click="irAlDetalle(producto.id)"
-      >
-        <!-- Imagen -->
-        <div class="producto-imagen">
-          <img 
-            v-if="piezasStore.obtenerImagenPorPieza(producto.id)" 
-            :src="piezasStore.obtenerImagenPorPieza(producto.id)" 
-            :alt="producto.nombre"
-          />
-          <div v-else class="sin-imagen">
-            <span>🔧</span>
-          </div>
+                        <!-- Contenido de la tarjeta -->
+                        <div class="card-content">
+                            
+                            <a :href="`/categoria/${categoria.id}`" class="categoria-enlace">
+                                {{ categoria.nombre }}
+                             
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Info -->
-        <div class="producto-info">
-          <h3>{{ producto.nombre }}</h3>
-          <button class="btn-ver-detalles">Ver Detalles</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    </section>
 </template>
 
 <style scoped>
-.catalogo-wrapper {
-  padding: 40px 20px;
-  background: #f9f9f9;
-  min-height: calc(100vh - 200px);
+.categorias-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 400px;
 }
 
-.catalogo-header {
-  text-align: center;
-  margin-bottom: 40px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+.categoria-card {
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: white;
+    display: flex;
+    flex-direction: column;
 }
 
-.catalogo-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 10px 0;
+.categoria-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
-.subtitle {
-  font-size: 16px;
-  color: #666;
-  margin: 0;
+.imagen-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: #e9ecef;
 }
 
-.productos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+.categoria-imagen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
 }
 
-.producto-card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
+.categoria-card:hover .categoria-imagen {
+    transform: scale(1.08);
 }
 
-.producto-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.producto-imagen {
-  width: 100%;
-  height: 180px;
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+.categoria-card:hover .overlay {
+    opacity: 1;
 }
 
-.producto-imagen img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.card-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.sin-imagen {
-  font-size: 40px;
+
+
+.categoria-enlace {
+    display: inline-flex;
+    align-items: center;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
 }
 
-.producto-info {
-  padding: 15px;
+.categoria-enlace:hover {
+    color: #0056b3;
+    border-bottom-color: #0056b3;
+    gap: 8px;
 }
 
-.producto-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #333;
-  font-weight: 600;
+.categoria-enlace i {
+    transition: transform 0.3s ease;
 }
 
-.producto-info p {
-  margin: 5px 0;
-  font-size: 12px;
-  color: #666;
+.categoria-card:hover .categoria-enlace i {
+    transform: translateX(4px);
 }
 
-.marca {
-  font-weight: 600;
+/* Responsive */
+@media (max-width: 576px) {
+
+    .categoria-titulo {
+        font-size: 1rem;
+    }
+
+    .categoria-enlace {
+        font-size: 0.9rem;
+    }
 }
 
-.precio {
-  font-size: 16px !important;
-  font-weight: bold;
-  color: #e74c3c;
-  margin: 10px 0 8px 0 !important;
+@media (min-width: 768px) {
+    .categoria-titulo {
+        font-size: 1.15rem;
+    }
 }
 
-.btn-ver-detalles {
-  width: 100%;
-  padding: 8px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 8px;
-  transition: background 0.3s;
-}
+@media (min-width: 1024px) {
+    .card-content {
+        padding: 25px;
+    }
 
-.btn-ver-detalles:hover {
-  background: #c0392b;
-}
-
-.loading,
-.error-message,
-.sin-productos {
-  text-align: center;
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 20px auto;
-  border-radius: 8px;
-}
-
-.error-message {
-  background: #fadbd8;
-  color: #e74c3c;
-}
-
-.sin-productos {
-  background: white;
-  color: #999;
-}
-
-@media (max-width: 768px) {
-  .productos-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-  }
+    .categoria-titulo {
+        font-size: 1.2rem;
+    }
 }
 </style>
