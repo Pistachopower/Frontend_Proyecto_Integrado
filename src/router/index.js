@@ -16,6 +16,7 @@ import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioP
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
 import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
 import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
+import CategoriaDetalleView from '@/components/C_CategoriaDetalleView.vue';
 
 
 
@@ -91,11 +92,19 @@ const routes = [
       component: DetalleProducto,
       props: true, // Recomendado para pasar params como props
   },
+  
   {
     path: '/carrito',
     name: 'carrito',
     component: Carrito,
   },
+
+   {
+    path: '/categoria/:id',
+    name: 'categoria-detalle',
+    component: CategoriaDetalleView,
+  },
+
   
   {
     path: '/proceso-pago',
