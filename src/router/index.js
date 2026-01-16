@@ -16,7 +16,7 @@ import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioP
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
 import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
 import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
-import CategoriaDetalleView from '@/components/C_CategoriaDetalleView.vue';
+import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
 
 
 
@@ -102,7 +102,7 @@ const routes = [
    {
     path: '/categoria/:id',
     name: 'categoria-detalle',
-    component: CategoriaDetalleView,
+    component: CategoriaDetalles,
   },
 
   

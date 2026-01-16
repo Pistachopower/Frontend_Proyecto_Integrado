@@ -15,15 +15,11 @@ onMounted(async () => {
     try {
         const response = await api.get(`pieza/?categoria=${categoriaId}`);
         
-        console.log('📦 Productos:', response.data);
         
-        if (response.data.results) {
-            productos.value = response.data.results;
-        } else if (Array.isArray(response.data)) {
+        if (response.data) {
             productos.value = response.data;
-        }
+        } 
         
-        console.log(`✅ ${productos.value.length} productos cargados`);
         
     } catch (err) {
         console.error('❌ Error:', err);
@@ -67,8 +63,8 @@ onMounted(async () => {
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ producto.nombre }}</h5>
                         <p class="card-text text-muted small">{{ producto.descripcion }}</p>
-                        <p class="card-text fw-bold text-primary mt-auto">€ {{ producto.precio }}</p>
-                        <router-link :to="`/producto/${producto.id}`" class="btn btn-primary btn-sm">Ver detalles</router-link>
+                        <p class="card-text fw-bold text-primary mt-auto">€ {{ producto.precio_base }}</p>
+                        <router-link :to="`/detalle-producto/${producto.id}`" class="btn btn-primary btn-sm">Ver detalles</router-link>
                     </div>
                 </div>
             </div>
