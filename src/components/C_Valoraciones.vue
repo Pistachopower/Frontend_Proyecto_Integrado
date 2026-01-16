@@ -32,10 +32,7 @@ onUnmounted(() => {
     store.limpiar();
 });
 
-// --- HELPER: Renderizar estrellas ---
-//const renderizarEstrellas = (puntuacion) => {
-//    return Array.from({ length: 5 }, (_, i) => i < puntuacion ? '★' : '☆').join('');
-//};
+
 
 // --- HELPER: Formato de Fecha ---
 const formatoFecha = (fechaString) => {

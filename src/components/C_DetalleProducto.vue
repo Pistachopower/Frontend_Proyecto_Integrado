@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, computed, ref,  watch } from 'vue';
+import { onMounted, onUnmounted, ref,  watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { useCarritoStore } from '@/stores/carritoStore';
@@ -13,7 +13,7 @@ const store = usePiezasStore();
 const carritoStore = useCarritoStore();
 const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
 
-//const id = route.params.id;
+
 const cantidad = ref(1);
 const tabActiva = ref('descripcion');
 
@@ -22,12 +22,7 @@ const formatoMoneda = (valor) => {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(valor);
 };
 
-// --- IMAGEN COMPUTADA ---
-const imagenPrincipal = computed(() => {
-    if (!pieza.value) return '';
-    const texto = pieza.value.nombre.replace(/ /g, '+'); 
-    return `https://placehold.co/600x600/png?text=${texto}`;
-});
+
 
 // --- FUNCIÓN PARA CARGAR PRODUCTO ---
 const cargarProducto = () => {
@@ -89,12 +84,13 @@ const agregarAlCarrito = async () => {
           
           <div class="col-12 col-lg-7">
             <div class="card border-0 shadow-sm mb-3 main-image-container">
-              <img :src="imagenPrincipal" class="card-img-top img-fluid rounded" :alt="pieza.nombre">
+              <img :src="pieza.imagen" class="card-img-top img-fluid rounded" :alt="pieza.nombre">
             </div>
             
             <div class="d-flex gap-2 overflow-auto">
               <div class="thumbnail-box border rounded">
-                <img src="https://placehold.co/600x600/e9ecef/495057?text=Vista+Lat" class="img-fluid rounded" alt="Miniatura">
+                <img :src="pieza.imagen" class="img-fluid rounded" alt="Miniatura">
+                              
               </div>
             </div>
           </div>

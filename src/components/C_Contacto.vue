@@ -8,7 +8,7 @@
       <!-- Columna izquierda: imagen -->
       <div class="col-lg-5 mb-5">
         <img
-          
+          src="@/assets/logo.png"
           alt="Imagen formulario"
           class="img-fluid rounded"
           style="max-height: 500px; object-fit: cover;"
@@ -97,7 +97,7 @@
             >
             Enviar mensaje
           </button>
-          <div v-if="status" class="mt-3"></div>
+          <div class="mt-3"></div>
         </form>
       </div>
     </div>

@@ -55,8 +55,7 @@ async function cerrarSesion() {
     <div class="container-fluid px-4">
       <!-- Logo (izquierda) -->
       <router-link to="/" class="navbar-brand fw-bold d-flex align-items-center gap-2">
-        <img alt="Logo" style="height: 40px;" />
-        <span>MotorPartsExpress</span>
+          <img src="@/assets/logo.png" alt="MotorPartsExpress Logo" style="height: 40px;" />
       </router-link>
 
       <!-- Botón hamburguesa -->

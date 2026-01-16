@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from 'vue';
+import { onMounted} from 'vue';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { storeToRefs } from 'pinia';
 
@@ -9,13 +9,9 @@ const store = usePiezasStore();
 // Al desestructurar, renombramos 'listado' a 'piezas' para que sea más claro en el template
 const { listado: piezas, cargando, error } = storeToRefs(store);
 
-// Accedemos a las variables del store
-// Asegúrate de que en tu store tengas un state o getter llamado 'imagenes'
-const imagenes = computed(() => store.imagenes || []);
 
-const obtenerImagen = (piezaId) => {
-    return store.obtenerImagenPorPieza(piezaId);
-};
+
+
 
 
 // --- HELPER: Formato de Moneda ---
@@ -38,8 +34,7 @@ const getEstadoInfo = (numEstado) => {
 
 onMounted(() => {
     store.fetchCatalogo(); //Se carga primero este
-    store.fetchImagenesPieza(); //Luego se cargan las imagenes
-    console.log(imagenes);
+
 });
 </script>
 
@@ -74,8 +69,8 @@ onMounted(() => {
                 <!-- obtenerImagen(pieza.id) -->
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
                     <img 
-                        v-if="obtenerImagen(pieza.id)" 
-                        :src="obtenerImagen(pieza.id)" 
+                        v-if="pieza.imagen" 
+                        :src="pieza.imagen" 
                         :alt="pieza.nombre" 
                         class="img-fluid" 
                         style="max-height: 100%; width: 100%; object-fit: cover;"
@@ -140,5 +135,5 @@ onMounted(() => {
 }
 .hover-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .hover-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; cursor: pointer; }
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 </style>

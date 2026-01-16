@@ -13,11 +13,6 @@ export const usePiezasStore = defineStore('piezas', {
     getters: {
         totalPiezas: (state) => state.listado.length,
         
-        // NUEVO: Getter para obtener la imagen de una pieza
-        obtenerImagenPorPieza: (state) => (piezaId) => {
-            const imagen = state.imagenes.find(img => img.pieza.id === piezaId);
-            return imagen ? imagen.url_imagen : null;
-        }
     },
 
     actions: {
@@ -77,18 +72,7 @@ export const usePiezasStore = defineStore('piezas', {
         limpiarSeleccion() {
             this.piezaSeleccionada = null;
         },
-        async fetchImagenesPieza() {
-            console.log("📷 Cargando imágenes de las piezas...");
-            // Obtenemos todas las imagenes de las piezas
-            return api.get('imagen_pieza/')
-                .then(response => {
-                    this.imagenes = response.data;
-                })
-                .catch(error => {
-                    console.error('Error al cargar las imágenes de las piezas:', error);
-                });
 
-        } 
 
     }
 });

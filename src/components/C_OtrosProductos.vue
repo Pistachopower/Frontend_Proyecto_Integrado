@@ -47,7 +47,7 @@ onUnmounted(() => {
         <div v-else class="row g-3">
             <div v-for="producto in productosRelacionados" :key="producto.id" class="col-12 col-sm-6 col-lg-3">
                 <div class="card product-card h-100 border-0 shadow-sm">
-                    <img :src="`https://placehold.co/300x300/png?text=${producto.nombre}`" class="card-img-top" :alt="producto.nombre">
+                    <img :src="producto.imagen" class="card-img-top" :alt="producto.nombre">
                     <div class="card-body">
                         <h6 class="card-title fw-bold">{{ producto.nombre }}</h6>
                         <p class="text-muted small mb-2">{{ producto.marca }}</p>
