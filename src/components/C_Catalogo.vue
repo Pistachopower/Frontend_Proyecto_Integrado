@@ -1,18 +1,49 @@
 <script setup>
-import { onMounted} from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { storeToRefs } from 'pinia';
+import C_BuscadorCatalogo from './C_BuscadorCatalogo.vue';
 
 const store = usePiezasStore();
-
-// Usamos storeToRefs para que 'listado', 'cargando' y 'error' sigan siendo reactivos
-// Al desestructurar, renombramos 'listado' a 'piezas' para que sea más claro en el template
 const { listado: piezas, cargando, error } = storeToRefs(store);
 
+// Estado de filtros
+const filtros = ref({
+  busqueda: '',
+  marca: 'todas',
+  estado: 'todos',
+  soloEnStock: false
+});
 
+// Piezas filtradas
+const piezasFiltradas = computed(() => {
+  return piezas.value.filter(pieza => {
+    // Filtro por búsqueda (nombre, descripción, referencia)
+    const coincideBusqueda = 
+      pieza.nombre.toLowerCase().includes(filtros.value.busqueda) ||
+      pieza.descripcion.toLowerCase().includes(filtros.value.busqueda) ||
+      pieza.referencia.toLowerCase().includes(filtros.value.busqueda);
 
+    // Filtro por marca
+    const coincideMarca = 
+      filtros.value.marca === 'todas' || pieza.marca === filtros.value.marca;
 
+    // Filtro por estado
+    const coincideEstado = 
+      filtros.value.estado === 'todos' || pieza.estado == filtros.value.estado;
 
+    // Filtro por stock
+    const coincideStock = 
+      !filtros.value.soloEnStock || pieza.stock > 0;
+
+    return coincideBusqueda && coincideMarca && coincideEstado && coincideStock;
+  });
+});
+
+// Función para recibir filtros del buscador
+const aplicarFiltros = (nuevosFiltros) => {
+  filtros.value = nuevosFiltros;
+};
 
 // --- HELPER: Formato de Moneda ---
 const formatoMoneda = (valor) => {
@@ -33,8 +64,7 @@ const getEstadoInfo = (numEstado) => {
 };
 
 onMounted(() => {
-    store.fetchCatalogo(); //Se carga primero este
-
+    store.fetchCatalogo();
 });
 </script>
 
@@ -44,10 +74,18 @@ onMounted(() => {
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary">Catálogo de Repuestos</h2>
         <span v-if="!cargando" class="badge bg-light text-dark border">
-            {{ piezas.length }} productos encontrados
+            {{ piezasFiltradas.length }} productos encontrados
         </span>
     </div>
 
+    <!-- Componente Buscador -->
+    <C_BuscadorCatalogo 
+      v-if="!cargando && piezas.length > 0"
+      :piezas="piezas" 
+      @filtrar="aplicarFiltros"
+    />
+
+    <!-- Estados de carga y error -->
     <div v-if="cargando" class="text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
     </div>
@@ -56,17 +94,24 @@ onMounted(() => {
         {{ error }}
     </div>
 
+    <!-- Sin resultados -->
     <div v-else-if="piezas.length === 0" class="text-center py-5 bg-light rounded">
         <i class="bi bi-box-seam display-1 text-muted opacity-25"></i>
         <h4 class="mt-3 text-muted">No hay piezas disponibles en este momento.</h4>
     </div>
 
+    <!-- Sin resultados de filtro -->
+    <div v-else-if="piezasFiltradas.length === 0" class="text-center py-5 bg-light rounded">
+        <i class="bi bi-search display-1 text-muted opacity-25"></i>
+        <h4 class="mt-3 text-muted">No se encontraron piezas con los filtros aplicados.</h4>
+    </div>
+
+    <!-- Grid de piezas -->
     <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate-fade">
         
-        <div class="col" v-for="pieza in piezas" :key="pieza.id">
+        <div class="col" v-for="pieza in piezasFiltradas" :key="pieza.id">
             <div class="card h-100 border-0 shadow-sm hover-card">
 
-                <!-- obtenerImagen(pieza.id) -->
                 <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height: 200px;">
                     <img 
                         v-if="pieza.imagen" 
@@ -81,7 +126,6 @@ onMounted(() => {
                         <p class="small mb-0">Sin imagen</p>
                     </div>
                 </div>
-                
                 
                 <div class="position-absolute top-0 end-0 m-2">
                     <span class="badge rounded-pill shadow-sm" :class="getEstadoInfo(pieza.estado).clase">
