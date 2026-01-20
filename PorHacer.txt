@@ -1,4 +1,4 @@
-En método de pago :
-Adecuar lo que tiene a lo que está en la api (json del endpoint 
-http://127.0.0.1:8000/api/v1/metodo_pago_cliente/
-)
+En comentarios y valoraciones:
+Modificar la valoracion 
+Crear un comentario o modificarlo (Tanto en el frontend como en el backend 
+comprobar que el usuario haya comprado el producto en cuestion)

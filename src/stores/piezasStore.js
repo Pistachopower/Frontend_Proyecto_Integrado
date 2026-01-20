@@ -8,6 +8,7 @@ export const usePiezasStore = defineStore('piezas', {
         cargando: false,
         error: null,
         imagenes: [],
+        marcas: [],
     }),
 
     getters: {
@@ -24,6 +25,15 @@ export const usePiezasStore = defineStore('piezas', {
             try {
                 const response = await api.get('pieza/'); // O 'piezas/' según tu back
                 
+                // Obtener marcas únicas
+                const marcasSet = new Set();
+                response.data.forEach(pieza => {
+                    if (pieza.marca) {
+                        marcasSet.add(pieza.marca);
+                    }
+                });
+                this.marcas = Array.from(marcasSet).sort();
+
                 // Manejo de paginación vs lista plana
                 if (response.data.results) {
                     this.listado = response.data.results;
@@ -73,6 +83,48 @@ export const usePiezasStore = defineStore('piezas', {
             this.piezaSeleccionada = null;
         },
 
+        // 3. Cargar catálogo con filtros desde el backend
+        async fetchCatalogoConFiltros(filtros) {
+            this.cargando = true;
+            this.error = null;
+            try {
+                // Construir query params
+                const params = new URLSearchParams();
+                
+                if (filtros.busqueda) {
+                    params.append('busqueda', filtros.busqueda);
+                }
+                
+                if (filtros.marca) {
+                    params.append('marca', filtros.marca);
+                }
+                
+                if (filtros.estado && filtros.estado.length > 0) {
+                    filtros.estado.forEach(e => {
+                        params.append('estado', e);
+                    });
+                }
+                
+                if (filtros.soloEnStock !== undefined && filtros.soloEnStock !== null) {
+                    params.append('stock', filtros.soloEnStock ? 'true' : 'false');
+                }
 
-    }
-});
+                const queryString = params.toString();
+                const url = queryString ? `pieza/otros_filtros/?${queryString}` : 'pieza/otros_filtros/';
+                
+                const response = await api.get(url);
+                
+                // Manejo de paginación vs lista plana
+                if (response.data.results) {
+                    this.listado = response.data.results;
+                } else {
+                    this.listado = response.data;
+                }
+            } catch (err) {
+                console.error('Error store filtros:', err);
+                this.error = 'Error al filtrar los productos';
+            } finally {
+                this.cargando = false;
+            }
+        }
+}});

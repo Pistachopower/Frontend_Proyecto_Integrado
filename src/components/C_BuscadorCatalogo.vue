@@ -1,40 +1,47 @@
 <script setup>
 import { ref, computed } from 'vue';
-
-const props = defineProps({
-  piezas: {
-    type: Array,
-    required: true
-  }
-});
+import { usePiezasStore } from '@/stores/piezasStore';
+import { storeToRefs } from 'pinia';
 
 const emit = defineEmits(['filtrar']);
 
+const piezasStore = usePiezasStore();
+const { marcas } = storeToRefs(piezasStore);
+
 // Estado del buscador
 const busqueda = ref('');
-const marcaSeleccionada = ref('todas');
-const estadoSeleccionado = ref('todos');
+const marcaSeleccionada = ref('');
+const estadoSeleccionado = ref({
+  nuevo: false,
+  usado: false,
+  reacondicionado: false
+});
 const soloEnStock = ref(false);
 
-// Obtener marcas únicas
-const marcas = computed(() => {
-  const marcasUnicas = [...new Set(props.piezas.map(p => p.marca))];
-  return marcasUnicas.sort();
-});
-
-// Obtener estados únicos
+// Estados disponibles
 const estados = [
-  { id: 1, texto: 'Nuevo' },
-  { id: 2, texto: 'Usado' },
-  { id: 3, texto: 'Reacondicionado' }
+  { id: 1, key: 'nuevo', texto: 'Nuevo' },
+  { id: 2, key: 'usado', texto: 'Usado' },
+  { id: 3, key: 'reacondicionado', texto: 'Reacondicionado' }
 ];
 
 // Emitir cambios de filtro
 const actualizarFiltros = () => {
+  const estadosSeleccionados = Object.keys(estadoSeleccionado.value)
+    .filter(key => estadoSeleccionado.value[key])
+    .map(key => {
+      const mapeo = {
+        'nuevo': 1,
+        'usado': 2,
+        'reacondicionado': 3
+      };
+      return mapeo[key];
+    });
+
   const filtros = {
-    busqueda: busqueda.value.toLowerCase(),
+    busqueda: busqueda.value.trim(),
     marca: marcaSeleccionada.value,
-    estado: estadoSeleccionado.value,
+    estado: estadosSeleccionados,
     soloEnStock: soloEnStock.value
   };
   emit('filtrar', filtros);
@@ -43,8 +50,12 @@ const actualizarFiltros = () => {
 // Limpiar filtros
 const limpiarFiltros = () => {
   busqueda.value = '';
-  marcaSeleccionada.value = 'todas';
-  estadoSeleccionado.value = 'todos';
+  marcaSeleccionada.value = '';
+  estadoSeleccionado.value = {
+    nuevo: false,
+    usado: false,
+    reacondicionado: false
+  };        
   soloEnStock.value = false;
   actualizarFiltros();
 };
@@ -76,7 +87,7 @@ const limpiarFiltros = () => {
           @change="actualizarFiltros"
           class="form-select border-primary"
         >
-          <option value="todas">Todas las marcas</option>
+          <option value="">Todas las marcas</option>
           <option v-for="marca in marcas" :key="marca" :value="marca">
             {{ marca }}
           </option>
@@ -84,17 +95,30 @@ const limpiarFiltros = () => {
       </div>
 
       <!-- Filtro por estado -->
-      <div class="col-12 col-md-3">
-        <select 
-          v-model="estadoSeleccionado"
-          @change="actualizarFiltros"
-          class="form-select border-primary"
-        >
-          <option value="todos">Cualquier estado</option>
-          <option v-for="estado in estados" :key="estado.id" :value="estado.id">
-            {{ estado.texto }}
-          </option>
-        </select>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-light">
+            <span class="text-primary fw-bold">Estado del Producto</span>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div v-for="estado in estados" :key="estado.id" class="col-12 col-sm-6 col-md-3 mb-2">
+                <div class="form-check">
+                  <input 
+                    v-model="estadoSeleccionado[estado.key]"
+                    @change="actualizarFiltros"
+                    class="form-check-input" 
+                    type="checkbox" 
+                    :id="'estado' + estado.id"
+                  >
+                  <label class="form-check-label" :for="'estado' + estado.id">
+                    {{ estado.texto }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Toggle: Solo en Stock -->
