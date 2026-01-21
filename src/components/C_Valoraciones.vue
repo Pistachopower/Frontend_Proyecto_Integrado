@@ -58,6 +58,8 @@ const formatoFecha = (fechaString) => {
             {{ error }}
         </div>
 
+        
+
         <div v-else>
             <!-- RESUMEN DE VALORACIONES -->
             <div class="card border-0 shadow-sm mb-4">

@@ -37,9 +37,11 @@ const fetchComentarios = async () => {
 
     <div v-else>
       <div v-for="comentario in comentarios" :key="comentario.id" class="card mb-3">
-        <router-link :to="`/detalle-producto/${comentario.pieza.id}`" class="list-group-item list-group-item-action border-0 px-4 py-3">
+        <router-link :to="`/detalle-producto/${comentario.pieza_id}`" class="list-group-item list-group-item-action border-0 px-4 py-3">
           <div class="card-body">
-            <h5 class="card-title">{{ comentario.pieza.nombre }}</h5>
+            <h5 class="card-title">{{ comentario.nombre_pieza }}</h5>
+            <p class="card-text">{{ comentario.titulo }}</p>
+            <p class="card-text">{{ comentario.fecha_valoracion }}</p>
             <p class="card-text">{{ comentario.comentario }}</p>
             <p class="text-muted">Puntuación: {{ comentario.puntuacion }}/5</p>
           </div>
