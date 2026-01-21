@@ -28,6 +28,7 @@ const fetchComentarios = async () => {
   }
 };
 
+
 onMounted(() => {
   fetchComentarios();
 });
@@ -77,6 +78,19 @@ const guardarCambios = async (comentarioId) => {
     
   }
 };
+
+const eliminarComentario = async (comentarioId) => {
+  if (confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
+    try {
+      await api.delete(`valoracion/${comentarioId}/`);
+      
+      // Elimina el comentario de la lista local
+      comentarios.value = comentarios.value.filter(c => c.id !== comentarioId);
+    } catch (err) {
+      error.value = 'Error al eliminar el comentario: ' + err.message;
+    }
+  }
+};
 </script>
 
 <template>
@@ -103,7 +117,8 @@ const guardarCambios = async (comentarioId) => {
             <div v-if="erroresValidacion.titulo" class="invalid-feedback d-block">
               {{ erroresValidacion.titulo[0] }}
             </div>
-          </div>
+          </div>          <button class="btn btn-danger btn-sm">Eliminar</button>
+
 
 
           <div class="mb-3">
@@ -142,8 +157,8 @@ const guardarCambios = async (comentarioId) => {
         <div class="card-footer bg-transparent">
           <button v-if="comentarioEditando === comentario.id" class="btn btn-success btn-sm me-2" @click="guardarCambios(comentario.id)">Guardar</button>
           <button v-if="comentarioEditando === comentario.id" class="btn btn-secondary btn-sm me-2" @click="cancelarEdicion">Cancelar</button>
-          <button v-else class="btn btn-primary btn-sm me-2" @click="abrirEdicion(comentario)">Editar</button>
-          <button class="btn btn-danger btn-sm">Eliminar</button>
+          <button v-if="comentarioEditando !== comentario.id" class="btn btn-primary btn-sm me-2" @click="abrirEdicion(comentario)">Editar</button>
+          <button v-if="comentarioEditando !== comentario.id" class="btn btn-danger btn-sm" @click="eliminarComentario(comentario.id)">Eliminar</button>
         </div>
       </div>
     </div>
