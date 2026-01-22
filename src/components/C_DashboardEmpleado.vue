@@ -19,9 +19,7 @@
               <button class="list-group-item list-group-item-action border-0 rounded mb-1">
                 <i class="bi bi-box-seam me-2"></i> Pedidos
               </button>
-              <button class="list-group-item list-group-item-action border-0 rounded mb-1">
-                <i class="bi bi-tags me-2"></i> Productos
-              </button>
+
               <button class="list-group-item list-group-item-action border-0 rounded mb-1">
                 <i class="bi bi-people me-2"></i> Clientes
               </button>
