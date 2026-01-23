@@ -10,7 +10,6 @@ import ProcesoPago from '../components/C_ProcesoPago.vue'
 import SeleccionMetodoPago from '../components/C_SeleccionMetodoPago.vue'
 import ListaDeseos from '../components/C_ListaDeseos.vue'
 import RecuperarContrasena from '../components/C_RecuperarPassword.vue'
-import DashboardEmpleado from '@/components/C_DashboardEmpleado.vue';
 import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
 import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
@@ -18,10 +17,18 @@ import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsua
 import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
 import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
 
+//componentes vendedor
+import C_VendedorView from '@/components/perfil_vendedor/C_VendedorView.vue';
+import C_VendedorPerfil from '@/components/perfil_vendedor/C_VendedorPerfil.vue';
+import C_VendedorInicio from '@/components/perfil_vendedor/C_VendedorInicio.vue';
+import C_VendedorPedidos from '@/components/perfil_vendedor/C_VendedorPedidos.vue';
+import C_VendedorProductos from '@/components/perfil_vendedor/C_VendedorProductos.vue';
 
+//guards
+//import { requireVendedor, requireCliente, requireAuth } from './guards.js'
 
 const routes = [
-{
+  {
     path: '/',
     name: 'Home',
     component: HomeView,
@@ -39,46 +46,69 @@ const routes = [
     component: Registro,
   },
 
-  // === RUTA PADRE DEL PERFIL (LAYOUT) ===
+  // === RUTA PADRE DEL PERFIL CLIENTE y VENDEDOR (LAYOUT) ===
   {
-    // Usamos '/perfil-usuario' como base para que coincida con tus router-link
     path: '/perfil-usuario', 
     name: 'perfil-usuario-layout',
-    component: PerfilView, // Este componente tiene el Sidebar y <RouterView />
-    
-    // Agregamos un redirect para que al entrar a /perfil-usuario vaya directamente a /datos
-    redirect: '/perfil-usuario/datos', 
-    
+    component: PerfilView,
+    redirect: '/perfil-usuario/datos',
+
     children: [
-      // Las rutas anidadas NO llevan / inicial
       {
-        path: 'datos', // Ruta completa: /perfil-usuario/datos
+        path: 'datos',
         name: 'perfil-datos',
         component: C_PerfilUsuarioDatos,
       },
       {
-        path: 'pedidos', // Ruta completa: /perfil-usuario/pedidos
+        path: 'pedidos',
         name: 'perfil-pedidos',
         component: C_PerfilUsuarioPedidos,
       },
       {
-        path: 'metodos-pago', // Ruta completa: /perfil-usuario/metodos-pago
+        path: 'metodos-pago',
         name: 'metodos-pago',
         component: C_PerfilUsuarioMetodosPagos,
       },
       {
-        path: 'comentarios', // Ruta completa: /perfil-usuario/comentarios
+        path: 'comentarios',
         name: 'perfil-comentarios',
         component: C_PerfilUsuarioComentarios,
       },
-
-
     ]
   },
-  // === FIN RUTAS PERFIL ===
+  // === FIN RUTAS PERFIL CLIENTE ===
 
+  // ← NUEVO: RUTA PADRE DEL PERFIL VENDEDOR (LAYOUT)
+  {
+    path: '/perfil-vendedor',
+    name: 'perfil-vendedor-layout',
+    component: C_VendedorView,
+    redirect: '/perfil-vendedor/inicio',
+    children: [
+      {
+        path: 'inicio',
+        name: 'vendedor-inicio',
+        component: C_VendedorInicio,
+      },
+      {
+        path: 'perfil',
+        name: 'vendedor-perfil',
+        component: C_VendedorPerfil,
+      },
+      {
+        path: 'pedidos',
+        name: 'vendedor-pedidos',
+        component: C_VendedorPedidos,
+      },
+      {
+        path: 'productos',
+        name: 'vendedor-productos',
+        component: C_VendedorProductos,
+      },
+    ]
+  },
+  // === FIN RUTAS PERFIL VENDEDOR ===
 
-  // Las rutas que ya tenía (sin cambios)
   {
     path: '/catalogo-productos',
     name: 'catalogo-productos',
@@ -86,11 +116,10 @@ const routes = [
   },
 
   {
-      // Agregamos /:id para decirle a Vue que capture el número del producto
-      path: '/detalle-producto/:id', 
-      name: 'detalle-producto',
-      component: DetalleProducto,
-      props: true, // Recomendado para pasar params como props
+    path: '/detalle-producto/:id', 
+    name: 'detalle-producto',
+    component: DetalleProducto,
+    props: true,
   },
   
   {
@@ -99,38 +128,36 @@ const routes = [
     component: Carrito,
   },
 
-   {
+  {
     path: '/categoria/:id',
     name: 'categoria-detalle',
     component: CategoriaDetalles,
   },
 
-  
   {
     path: '/proceso-pago',
     name: 'proceso-pago',
     component: ProcesoPago,
   },
+
   {
     path: '/seleccion-metodo-pago',
     name: 'seleccion-metodo-pago',
     component: SeleccionMetodoPago,
   },
+
   {
     path: '/lista-deseos',
     name: 'lista-deseos',
     component: ListaDeseos,
   },
+
   {
     path: '/recuperar-contrasena',
     name: 'recuperar-contrasena',
     component: RecuperarContrasena,
   },
-  {
-    path: '/dashboard-empleado',
-    name: 'dashboard-empleado',
-    component: DashboardEmpleado,
-  },
+
   {
     path: '/aprobar-comentarios',
     name: 'aprobar-comentarios',

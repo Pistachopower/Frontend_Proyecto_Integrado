@@ -56,26 +56,38 @@ async function handleSubmit() {
   errorMsg.value = null
   success.value = null
   
-  // Si la validación falla (incluyendo contraseñas distintas), paramos aquí.
   if (!validate()) return
 
   submitting.value = true
 
-  const payload = {
-    user_data: {
-      username: username.value,
-      email: email.value,
-      password: password.value 
-      // NOTA: No enviamos 'confirmPassword' al backend, no es necesario allí.
-    },
-    cliente_data: {
-      nombre: nombre.value,
-      apellido: apellido.value,
-      telefono: telefono.value,
-      direccion: direccion.value,
-      fecha_nacimiento: fecha_nacimiento.value,
-    }
-  }
+  // const payload = {
+  //   user_data: {
+  //     username: username.value,
+  //     email: email.value,
+  //     password: password.value,
+  //     telefono: telefono.value,
+  //     direccion: direccion.value
+  //   },
+  //   cliente_data: {
+  //     nombre: nombre.value,
+  //     apellido: apellido.value,
+  //     fecha_nacimiento: fecha_nacimiento.value,
+  //   }
+  // }
+
+const payload = {
+  user_data: {
+    username: username.value,
+    email: email.value,
+    password: password.value,
+    first_name: nombre.value,
+    last_name: apellido.value,
+    telefono: telefono.value,
+    direccion: direccion.value,
+    fecha_nacimiento: fecha_nacimiento.value ? new Date(fecha_nacimiento.value).toISOString().split('T')[0] : null,
+  },
+  cliente_data: {}
+}
 
   try {
     const res = await fetch('http://localhost:8000/api/v1/registro_cliente/', {
@@ -86,13 +98,31 @@ async function handleSubmit() {
 
     if (!res.ok) {
       const errorData = await res.json()
-      throw new Error(JSON.stringify(errorData) || 'Error en el registro')
+      
+      if (errorData.user_data) {
+        Object.assign(errors.value, errorData.user_data)
+      }
+      if (errorData.cliente_data) {
+        Object.assign(errors.value, errorData.cliente_data)
+      }
+      
+      submitting.value = false
+      return
     }
     
     success.value = '¡Cuenta creada correctamente! Redirigiendo al login...'
     
-    // Limpieza
-    username.value = email.value = password.value = confirmPassword.value = ''
+    // Limpiar todos los campos
+    username.value = ''
+    email.value = ''
+    password.value = ''
+    confirmPassword.value = ''
+    nombre.value = ''
+    apellido.value = ''
+    telefono.value = ''
+    direccion.value = ''
+    fecha_nacimiento.value = ''
+    errors.value = {}
     
     setTimeout(() => {
       router.push('/login')
@@ -100,7 +130,6 @@ async function handleSubmit() {
     
   } catch (err) {
     console.error(err)
-    // Mensaje genérico o específico según lo que devuelva Django
     errorMsg.value = 'Hubo un error. Verifica que el usuario o email no existan ya.'
   } finally {
     submitting.value = false

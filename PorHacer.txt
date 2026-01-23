@@ -2,3 +2,7 @@ En comentarios y valoraciones:
 Modificar la valoracion 
 Crear un comentario o modificarlo (Tanto en el frontend como en el backend 
 comprobar que el usuario haya comprado el producto en cuestion)
+
+
+HOY 
+ENTENDER COMO PASA LOS DATOS DEL BACKEND AL FORMULARIO 

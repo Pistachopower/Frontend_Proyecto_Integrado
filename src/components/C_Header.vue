@@ -9,8 +9,10 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // Inicializar estado al montar el componente
-onMounted(() => {
-  authStore.checkAuthStatus()
+onMounted(async () => {
+  await authStore.checkAuthStatus()
+  console.log('✅ Estado de auth verificado:', authStore.isLoggedIn)
+  console.log('👤 Usuario:', authStore.user)
 })
 
 const alternarMenu = () => {
@@ -35,7 +37,24 @@ const cerrarDesplegable = () => {
 const irAlPerfil = () => {
   cerrarDesplegable()
   cerrarMenu()
-  router.push('/perfil-usuario')
+
+  // Obtener el tipo de usuario del authStore
+  const tipoUsuario = authStore.user?.tipo_usuario
+  console.log('Tipo de usuario:', tipoUsuario) // 
+  console.log('Usuario completo:', authStore.user) 
+
+
+  if (tipoUsuario === 'cliente') {
+    router.push('/perfil-usuario')
+
+  } else if (tipoUsuario === 'vendedor') {
+    router.push('/perfil-vendedor')
+
+  } else { //PENDIENTE POR IMPLEMENTAR PARA ADMINISTRADOR
+    router.push('/') // Redirigir a inicio si no es reconocido
+  }
+
+
 }
 
 async function cerrarSesion() {

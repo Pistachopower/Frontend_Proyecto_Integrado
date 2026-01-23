@@ -11,7 +11,7 @@ const password = ref('')
 async function handleLogin() {
   try {
     await authStore.login(username.value, password.value)
-    authStore.checkAuthStatus()
+    //authStore.checkAuthStatus()
     
     // Navegar a la página principal después del login exitoso
     router.push('/')

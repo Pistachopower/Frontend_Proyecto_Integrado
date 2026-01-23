@@ -20,7 +20,7 @@ export const useCategoriasStore = defineStore('categorias', {
             try {
                 const response = await api.get('categoria_pieza/');
 
-                console.log('📊 response.data:', response);
+                //console.log('📊 response.data:', response);
 
                 
                 

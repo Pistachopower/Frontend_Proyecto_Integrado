@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import api from '@/services/axiosRequest.js'; // Asegúrate de que la ruta a tu API sea correcta
+import api from '@/services/axiosRequest.js'; 
 
 export const usePerfilStore = defineStore('perfil', {
   state: () => ({
@@ -26,7 +26,7 @@ export const usePerfilStore = defineStore('perfil', {
       try {
         const response = await api.get('mi-perfil/');
         this.perfil = response.data;
-        console.log("👤 Perfil cargado:", this.perfil);
+        console.log("👤 Perfil cargado:", this.perfil.tipo_usuario);
 
         
       } catch (error) {
@@ -43,7 +43,7 @@ export const usePerfilStore = defineStore('perfil', {
       try {
         const response = await api.put('mi-perfil/', datosActualizados);
         this.perfil = response.data;
-        console.log("✅ Perfil actualizado:", this.perfil);
+        //console.log("✅ Perfil actualizado:", this.perfil);
       
       } catch (error) {
         console.error('Error al actualizar el perfil:', error);

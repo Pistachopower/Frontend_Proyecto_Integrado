@@ -5,7 +5,13 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: false,
     isLoading: false,
     errorMessage: null,
+    user: null, // ← AÑADE ESTO
+
+
+
   }),
+
+
 
   actions: {
     // Verificar si el usuario está autenticado (llamando al backend)
@@ -17,15 +23,26 @@ export const useAuthStore = defineStore('auth', {
         })
 
         if (response.ok) {
+          const data = await response.json()
+          // Restructurar según lo que devuelva tu endpoint
+          this.user = {
+            username: data.user || data.username,
+            email: data.email,
+            tipo_usuario: data.tipo_usuario,
+            perfil: data.perfil,
+          }
           this.isLoggedIn = true
           console.log('Usuario autenticado')
         } else {
           this.isLoggedIn = false
+          this.user = null
+
           console.log('Usuario no autenticado')
         }
       } catch (error) {
         console.error('Error verificando autenticación:', error)
         this.isLoggedIn = false
+        this.user = null
       }
     },
 
@@ -70,10 +87,28 @@ export const useAuthStore = defineStore('auth', {
           throw new Error(errorData.error || 'Usuario o contraseña incorrectos.')
         }
 
-        await response.json()
+        const data = await response.json()
 
-        // Login exitoso - actualizar estado directamente
+        //Log para ver exactamente qué devuelve el backend
+        console.log('🔐 Respuesta completa del backend:', data)
+
+        //Mapear de forma más robusta
+        this.user = {
+          username: data.username || data.user, // Algunos backends devuelven 'user', otros 'username'
+          email: data.email || '',
+          tipo_usuario: data.tipo_usuario || data.tipoUsuario || '', // Algunos con underscore, otros camelCase
+          perfil: data.perfil || data.profile || null,
+          id: data.id || null, // Asegúrate de que tienes el ID
+        }
+
+        console.log('✅ Usuario logueado:', this.user)
+
+        // Login exitoso
         this.isLoggedIn = true
+
+
+
+
       } catch (error) {
         console.error('Error en el login:', error)
         this.errorMessage = error.message
@@ -95,9 +130,13 @@ export const useAuthStore = defineStore('auth', {
           },
           credentials: 'include',
         })
+
+        //Limpiar datos al logout
         this.isLoggedIn = false
-        // Verificar estado después de logout
-        await this.checkAuthStatus()
+
+        this.user = null // ← LIMPIA EL USUARIO
+
+
       } catch (error) {
         console.error('Error al cerrar sesión:', error)
         throw error
