@@ -20,7 +20,7 @@ import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
 //componentes vendedor
 import C_VendedorView from '@/components/perfil_vendedor/C_VendedorView.vue';
 import C_VendedorPerfil from '@/components/perfil_vendedor/C_VendedorPerfil.vue';
-import C_VendedorInicio from '@/components/perfil_vendedor/C_VendedorInicio.vue';
+import C_VendedorInicio from '@/components/perfil_vendedor/C_VendedorInicioDashBoard.vue';
 import C_VendedorPedidos from '@/components/perfil_vendedor/C_VendedorPedidos.vue';
 import C_VendedorProductos from '@/components/perfil_vendedor/C_VendedorProductos.vue';
 

@@ -60,20 +60,6 @@ async function handleSubmit() {
 
   submitting.value = true
 
-  // const payload = {
-  //   user_data: {
-  //     username: username.value,
-  //     email: email.value,
-  //     password: password.value,
-  //     telefono: telefono.value,
-  //     direccion: direccion.value
-  //   },
-  //   cliente_data: {
-  //     nombre: nombre.value,
-  //     apellido: apellido.value,
-  //     fecha_nacimiento: fecha_nacimiento.value,
-  //   }
-  // }
 
 const payload = {
   user_data: {

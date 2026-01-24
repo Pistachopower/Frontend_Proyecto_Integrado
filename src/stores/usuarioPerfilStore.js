@@ -14,6 +14,8 @@ export const usePerfilStore = defineStore('perfil', {
   getters: {
     // Getter para determinar fácilmente si es empleado
     esEmpleado: (state) => state.perfil?.tipo_usuario === 'empleado',
+
+    esCliente: (state) => state.perfil?.tipo_usuario === 'cliente',
     
     // Getter para obtener el nombre completo (opcional, por conveniencia)
     nombreCompleto: (state) => `${state.perfil?.nombre || ''} ${state.perfil?.apellido || ''}`,
@@ -26,8 +28,12 @@ export const usePerfilStore = defineStore('perfil', {
       try {
         const response = await api.get('mi-perfil/');
         this.perfil = response.data;
-        console.log("👤 Perfil cargado:", this.perfil.tipo_usuario);
+        // console.log("✅ DATA:", response.data);
+        // console.log("✅ Perfil cargado:", this.perfil);
+        // this.esCliente= response.data.tipo_usuario === 'cliente';
+        // this.esEmpleado= response.data.tipo_usuario === 'empleado';
 
+        console.log(response.data.tipo_usuario);
         
       } catch (error) {
         console.error('Error al cargar el perfil:', error);

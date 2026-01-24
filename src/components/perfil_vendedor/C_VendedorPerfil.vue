@@ -1,103 +1,165 @@
 <script setup>
-import { ref } from 'vue';
-import { useAuthStore } from '../../stores/authStore.js';
+import { ref, reactive, watch, onMounted } from 'vue';
+import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 
-const authStore = useAuthStore();
-
+const perfilStore = usePerfilStore();
 const editando = ref(false);
-const formulario = ref({
-  nombre: authStore.perfil?.nombre || '',
-  email: authStore.usuario || '',
-  telefono: authStore.perfil?.telefono || '',
-  direccion: authStore.perfil?.direccion || '',
+
+const formulario = reactive({
+  username: '',
+  email: '',
+  first_name: '',
+  last_name: '',
+  telefono: '',
+  direccion: ''
 });
 
-const guardarCambios = () => {
-  // Aquí irría la llamada al backend para actualizar datos
-  console.log('Datos a guardar:', formulario.value);
-  editando.value = false;
+// --- NUEVO: FUNCIÓN PARA LLENAR LOS DATOS ---
+const sincronizarDatos = () => {
+  if (perfilStore.perfil) {
+    // Usamos el operador ?. por seguridad, o cadenas vacías si es null
+    formulario.username = perfilStore.perfil.usuario?.username || '';
+    formulario.email = perfilStore.perfil.usuario?.email || '';
+    formulario.first_name = perfilStore.perfil.usuario?.first_name || '';
+    formulario.last_name = perfilStore.perfil.usuario?.last_name || '';
+    formulario.telefono = perfilStore.perfil.usuario?.telefono || '';
+    formulario.direccion = perfilStore.perfil.usuario?.direccion || '';
+  }
+};
+
+// 1. Intentar llenar al cargar (si los datos ya están ahí)
+onMounted(() => {
+  sincronizarDatos();
+});
+
+// 2. IMPORTANTE: Si los datos tardan en llegar (API lenta),
+// este "vigilante" actualizará el formulario en cuanto lleguen.
+watch(
+  () => perfilStore.perfil,
+  () => {
+    if (!editando.value) { // Solo actualizamos si NO estás editando ya
+      sincronizarDatos();
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+// --- Funciones de Botones ---
+
+const iniciarEdicion = () => {
+  editando.value = true;
+  // (Ya no hace falta copiar aquí porque el watcher los mantiene al día,
+  // pero por seguridad podemos llamar a sincronizarDatos())
 };
 
 const cancelarEdicion = () => {
-  formulario.value = {
-    nombre: authStore.perfil?.nombre || '',
-    email: authStore.usuario || '',
-    telefono: authStore.perfil?.telefono || '',
-    direccion: authStore.perfil?.direccion || '',
-  };
   editando.value = false;
+  // Al cancelar, volvemos a poner los datos originales del store
+  sincronizarDatos();
 };
+
+const guardarCambios = async () => {
+  try {
+    // Aquí esta lógica de envío a la API...
+    await perfilStore.actualizarPerfil(formulario);
+    editando.value = false;
+    
+    await perfilStore.fetchPerfil(); // Refrescar datos desde la API
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 </script>
 
 <template>
-  <div class="card border-0 shadow-sm">
+  <div class="card border-0 shadow-sm animate-fade">
     <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-      <h5 class="fw-bold mb-0">Mi Perfil</h5>
-      <button 
-        v-if="!editando"
-        @click="editando = true" 
-        class="btn btn-sm btn-outline-primary"
-      >
-        <i class="bi bi-pencil me-1"></i> Editar
-      </button>
+      <h5 class="mb-0 fw-bold text-warning">Mi Perfil - Vendedor</h5>
+
+      <div>
+        <button v-if="!editando" @click="iniciarEdicion" class="btn btn-sm btn-outline-primary shadow-sm">
+          <i class="bi bi-pencil me-1"></i> Editar
+        </button>
+        <div v-else class="d-flex gap-2">
+          <button @click="cancelarEdicion" class="btn btn-sm btn-outline-secondary">
+            Cancelar
+          </button>
+          <button @click="guardarCambios" class="btn btn-sm btn-success text-white">
+            <i class="bi bi-save me-1"></i> Guardar
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card-body">
-      <div v-if="!editando" class="row g-3">
-        <!-- VISTA DE SOLO LECTURA -->
-        <div class="col-12 col-md-6">
-          <label class="form-label text-muted small fw-bold text-uppercase">Nombre</label>
-          <p class="fs-5 fw-bold">{{ formulario.nombre }}</p>
+      <form class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted small text-uppercase">Nombre</label>
+          <input type="text" class="form-control" :class="{ 'bg-light': !editando }" v-model="formulario.first_name"
+            :disabled="!editando">
         </div>
 
-        <div class="col-12 col-md-6">
-          <label class="form-label text-muted small fw-bold text-uppercase">Email</label>
-          <p class="fs-5 fw-bold">{{ formulario.email }}</p>
+        <div class="col-md-6">
+          <label class="form-label text-muted small text-uppercase">Apellido</label>
+          <input type="text" class="form-control" :class="{ 'bg-light': !editando }" v-model="formulario.last_name"
+            :disabled="!editando">
         </div>
 
-        <div class="col-12 col-md-6">
-          <label class="form-label text-muted small fw-bold text-uppercase">Teléfono</label>
-          <p class="fs-5 fw-bold">{{ formulario.telefono || 'No especificado' }}</p>
+        <div class="col-md-6">
+          <label class="form-label text-muted small text-uppercase">Email</label>
+          <input type="email" class="form-control" :class="{ 'bg-light': !editando }" v-model="formulario.email"
+            :disabled="!editando">
         </div>
 
-        <div class="col-12 col-md-6">
-          <label class="form-label text-muted small fw-bold text-uppercase">Dirección</label>
-          <p class="fs-5 fw-bold">{{ formulario.direccion || 'No especificada' }}</p>
-        </div>
-      </div>
-
-      <div v-else class="row g-3">
-        <!-- FORMULARIO DE EDICIÓN -->
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-bold">Nombre</label>
-          <input v-model="formulario.nombre" type="text" class="form-control">
+        <div class="col-12">
+          <label class="form-label text-muted small text-uppercase">Teléfono</label>
+          <input type="text" class="form-control" :class="{ 'bg-light': !editando }" v-model="formulario.telefono"
+            :disabled="!editando">
         </div>
 
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-bold">Email</label>
-          <input v-model="formulario.email" type="email" class="form-control" disabled>
+        <div class="col-12">
+          <label class="form-label text-muted small text-uppercase">Dirección</label>
+          <input type="text" class="form-control" :class="{ 'bg-light': !editando }" v-model="formulario.direccion"
+            :disabled="!editando">
         </div>
-
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-bold">Teléfono</label>
-          <input v-model="formulario.telefono" type="tel" class="form-control">
-        </div>
-
-        <div class="col-12 col-md-6">
-          <label class="form-label fw-bold">Dirección</label>
-          <input v-model="formulario.direccion" type="text" class="form-control">
-        </div>
-
-        <!-- BOTONES -->
-        <div class="col-12 d-flex gap-2 justify-content-end">
-          <button @click="cancelarEdicion" class="btn btn-secondary">
-            <i class="bi bi-x-circle me-1"></i> Cancelar
-          </button>
-          <button @click="guardarCambios" class="btn btn-primary">
-            <i class="bi bi-check-circle me-1"></i> Guardar
-          </button>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Transición suave al cambiar entre estados */
+.form-control {
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Opcional: Estilo visual cuando está deshabilitado */
+.form-control:disabled {
+  background-color: #f8f9fa;
+  opacity: 1;
+  border-color: transparent;
+}
+
+.text-uppercase {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

@@ -5,4 +5,4 @@ comprobar que el usuario haya comprado el producto en cuestion)
 
 
 HOY 
-ENTENDER COMO PASA LOS DATOS DEL BACKEND AL FORMULARIO 
+Necesito hacer una implementacion similar que perfil_usuario. Es decir, que en el componente C_VendedorView.vue se comunique con C_VendedorPerfil.vue (muestre los datos del empleado). 

@@ -2,17 +2,21 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { usePerfilStore } from '@/stores/usuarioPerfilStore'
 
 const authStore = useAuthStore()
 const router = useRouter()
 const username = ref('')
 const password = ref('')
+const usuarioPerfilStore = usePerfilStore()
 
 async function handleLogin() {
   try {
     await authStore.login(username.value, password.value)
-    //authStore.checkAuthStatus()
-    
+
+  
+    await usuarioPerfilStore.fetchPerfil(); // Cargar datos del perfil tras el login exitoso
+
     // Navegar a la página principal después del login exitoso
     router.push('/')
   } catch (error) {

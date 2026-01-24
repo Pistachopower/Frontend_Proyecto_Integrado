@@ -49,7 +49,7 @@ watch(
 const iniciarEdicion = () => {
   editando.value = true;
   // (Ya no hace falta copiar aquí porque el watcher los mantiene al día,
-  // pero por seguridad podemos llamar a sincronizarDatos() de nuevo si quieres)
+  // pero por seguridad podemos llamar a sincronizarDatos())
 };
 
 const cancelarEdicion = () => {
@@ -62,7 +62,9 @@ const guardarCambios = async () => {
   try {
     // Aquí tu lógica de envío a la API...
     await perfilStore.actualizarPerfil(formulario);
+    
     editando.value = false;
+    
     await perfilStore.fetchPerfil(); // Refrescar datos desde la API
     
   } catch (error) {

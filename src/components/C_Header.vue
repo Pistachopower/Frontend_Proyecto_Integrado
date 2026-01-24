@@ -2,17 +2,21 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { usePerfilStore } from '../stores/usuarioPerfilStore.js';
 
 const menuAbierto = ref(false)
 const desplegableAbierto = ref(false) // Variable para controlar el desplegable
 const router = useRouter()
 const authStore = useAuthStore()
+const perfilStore = usePerfilStore();
+const esVendedor = perfilStore.esEmpleado;
+const esCliente = perfilStore.esCliente;
+
 
 // Inicializar estado al montar el componente
 onMounted(async () => {
   await authStore.checkAuthStatus()
-  console.log('✅ Estado de auth verificado:', authStore.isLoggedIn)
-  console.log('👤 Usuario:', authStore.user)
+  await perfilStore.fetchPerfil()
 })
 
 const alternarMenu = () => {
@@ -39,15 +43,18 @@ const irAlPerfil = () => {
   cerrarMenu()
 
   // Obtener el tipo de usuario del authStore
-  const tipoUsuario = authStore.user?.tipo_usuario
-  console.log('Tipo de usuario:', tipoUsuario) // 
-  console.log('Usuario completo:', authStore.user) 
+  const tipoUsuario = perfilStore.perfil?.usuario.tipo_usuario;
 
 
-  if (tipoUsuario === 'cliente') {
+  console.log('Tipo de usuario:', tipoUsuario) 
+
+  if (perfilStore.esCliente) {
+    console.log('Redirigiendo a perfil de cliente - PENDIENTE POR IMPLEMENTAR')
     router.push('/perfil-usuario')
 
-  } else if (tipoUsuario === 'vendedor') {
+  } else if (perfilStore.esEmpleado) {
+    console.log('Redirigiendo a perfil de empleado - PENDIENTE POR IMPLEMENTAR')
+
     router.push('/perfil-vendedor')
 
   } else { //PENDIENTE POR IMPLEMENTAR PARA ADMINISTRADOR

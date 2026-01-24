@@ -7,7 +7,7 @@ const authStore = useAuthStore();
 // Estado para estadísticas (reemplazar con datos reales del backend)
 
 onMounted(() => {
-  console.log('Dashboard Vendedor Cargado');
+  //console.log('Dashboard Vendedor Cargado');
   // Aquí iría la llamada al backend para obtener estadísticas reales
   // fetchEstadisticas();
 });
