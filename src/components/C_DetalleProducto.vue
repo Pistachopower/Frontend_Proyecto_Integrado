@@ -37,7 +37,7 @@ onMounted(() => {
 
 // ESTO ES IMPORTANTE: Observar cambios en la ruta
 watch(() => route.params.id, () => {
-    console.log('ID cambió a:', route.params.id);
+    //console.log('ID cambió a:', route.params.id);
     cargarProducto();
 });
 

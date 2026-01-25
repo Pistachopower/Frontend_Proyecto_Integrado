@@ -62,15 +62,17 @@ onMounted(async() => {
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
                 :class="{ 'active-link': isLinkActive('/perfil-vendedor/perfil') }"
               >
-                <i class="bi bi-speedometer2 me-2"></i> Perfil
+                <i class="bi bi-person-lines-fill me-2"></i> Perfil
+
               </router-link>
 
               <router-link 
-                to="/perfil-vendedor/perfil" 
+                to="/perfil-vendedor/clientes" 
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
-                :class="{ 'active-link': isLinkActive('/perfil-vendedor/perfil') }"
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/clientes') }"
               >
-                <i class="bi bi-person-lines-fill me-2"></i> Clientes
+                <i class="bi bi-speedometer2 me-2"></i> Clientes 
+
               </router-link>
 
               <router-link 

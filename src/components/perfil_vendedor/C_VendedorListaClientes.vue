@@ -16,6 +16,8 @@ onMounted(() => {
         clientesStore.fetchClientes(perfilStore.perfil.id);
     }
     });
+
+    //console.log('Clientes del vendedor:', clientesStore.listado.map(c => c.usuario.username));
 </script>
 
 <template>
@@ -40,9 +42,9 @@ onMounted(() => {
             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
             >
             <div>
-                <h5 class="mb-1">{{ cliente.nombre }} {{ cliente.apellido }}</h5>
-                <p class="mb-1">Email: {{ cliente.email }}</p>
-                <small>Teléfono: {{ cliente.telefono }}</small>
+                <h5 class="mb-1">{{ cliente.usuario.first_name }} {{ cliente.usuario.last_name }}</h5>
+                <p class="mb-1">Email: {{ cliente.usuario.email }}</p>
+                <small>Teléfono: {{ cliente.usuario.telefono }}</small>
             </div>
             </div>
         </div>

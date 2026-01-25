@@ -60,12 +60,12 @@ export const usePiezasStore = defineStore('piezas', {
                 const encontradoEnLocal = this.listado.find(p => p.id == id);
 
                 if (encontradoEnLocal) {
-                    console.log(`🚀 Producto ${id} encontrado en memoria local. Ahorrando petición.`);
+                    //console.log(`🚀 Producto ${id} encontrado en memoria local. Ahorrando petición.`);
                     this.piezaSeleccionada = encontradoEnLocal;
                 } 
                 // B) SEGUNDO: Si no está (ej: recargó página con F5), pedimos a API
                 else {
-                    console.log(`🌐 Producto ${id} no encontrado localmente. Pidiendo a API...`);
+                    //console.log(`🌐 Producto ${id} no encontrado localmente. Pidiendo a API...`);
                     const response = await api.get(`pieza/${id}/`);
                     this.piezaSeleccionada = response.data;
                 }

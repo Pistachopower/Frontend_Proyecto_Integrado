@@ -5,4 +5,5 @@ comprobar que el usuario haya comprado el producto en cuestion)
 
 
 HOY 
-Necesito hacer una implementacion similar que perfil_usuario. Es decir, que en el componente C_VendedorView.vue se comunique con C_VendedorPerfil.vue (muestre los datos del empleado). 
+HACER EL CRUD DEL DASHBOARD DEL VENDEDOR 
+En el modal, ponerlo como un formulario editable. La parte de la imagen que se pueda subir la imagen (pieza)

@@ -23,6 +23,7 @@ import C_VendedorPerfil from '@/components/perfil_vendedor/C_VendedorPerfil.vue'
 import C_VendedorInicio from '@/components/perfil_vendedor/C_VendedorInicioDashBoard.vue';
 import C_VendedorPedidos from '@/components/perfil_vendedor/C_VendedorPedidos.vue';
 import C_VendedorProductos from '@/components/perfil_vendedor/C_VendedorProductos.vue';
+import C_VendedorClientes from '@/components/perfil_vendedor/C_VendedorListaClientes.vue';
 
 //guards
 //import { requireVendedor, requireCliente, requireAuth } from './guards.js'
@@ -94,6 +95,11 @@ const routes = [
         path: 'perfil',
         name: 'vendedor-perfil',
         component: C_VendedorPerfil,
+      },
+      {
+        path: 'clientes',
+        name: 'vendedor-clientes',
+        component: C_VendedorClientes, 
       },
       {
         path: 'pedidos',
