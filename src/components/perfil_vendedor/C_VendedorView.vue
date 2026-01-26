@@ -10,8 +10,8 @@ const route = useRoute();
 const isLinkActive = (path) => route.path === path;
 
 
-onMounted(async() => {
-    // Inicializamos la carga de los datos del perfil en el Store
+onMounted(async () => {
+  // Inicializamos la carga de los datos del perfil en el Store
   if (!perfilStore.perfil) {
     await perfilStore.fetchPerfil();
   }
@@ -30,7 +30,7 @@ onMounted(async() => {
 <template>
   <div class="container-fluid py-4 bg-light min-vh-100">
     <h1 class="mb-4">Dashboard Vendedor</h1>
-    
+
     <div v-if="perfilStore.cargando" class="text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
       <p>Cargando datos del vendedor...</p>
@@ -41,56 +41,51 @@ onMounted(async() => {
     </div>
 
     <div v-else class="row g-4">
-      
+
       <!-- SIDEBAR -->
       <div class="col-12 col-lg-2">
         <div class="card border-0 shadow-sm h-100 sidebar-card">
           <div class="card-body text-center">
             <div class="mb-4">
-              <img 
-                src="https://placehold.co/100x100/png?text=V" 
-                class="rounded-circle mb-2 border border-3 border-white shadow-sm" 
-                width="80"
-              >
-              <h6 class="fw-bold mb-0">{{ perfilStore.perfil.usuario?.username || ''}}</h6>
+              <img src="https://placehold.co/100x100/png?text=V"
+                class="rounded-circle mb-2 border border-3 border-white shadow-sm" width="80">
+              <h6 class="fw-bold mb-0">{{ perfilStore.perfil.usuario?.username || '' }}</h6>
               <small class="text-muted">Vendedor</small>
             </div>
-            
+
             <div class="list-group list-group-flush text-start">
-              <router-link 
-                to="/perfil-vendedor/perfil" 
+              <router-link to="/perfil-vendedor/inicio"
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
-                :class="{ 'active-link': isLinkActive('/perfil-vendedor/perfil') }"
-              >
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/inicio') }">
+                <i class="bi bi-speedometer2"></i> Inicio
+
+              </router-link>
+              <router-link to="/perfil-vendedor/perfil"
+                class="list-group-item list-group-item-action border-0 rounded mb-1"
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/perfil') }">
                 <i class="bi bi-person-lines-fill me-2"></i> Perfil
 
               </router-link>
 
-              <router-link 
-                to="/perfil-vendedor/clientes" 
+              <router-link to="/perfil-vendedor/clientes"
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
-                :class="{ 'active-link': isLinkActive('/perfil-vendedor/clientes') }"
-              >
-                <i class="bi bi-speedometer2 me-2"></i> Clientes 
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/clientes') }">
+                <i class="bi bi-people-fill"></i> Clientes
 
               </router-link>
 
-              <router-link 
-                to="/perfil-vendedor/pedidos" 
+              <router-link to="/perfil-vendedor/pedidos"
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
-                :class="{ 'active-link': isLinkActive('/perfil-vendedor/pedidos') }"
-              >
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/pedidos') }">
                 <i class="bi bi-box-seam me-2"></i> Pedidos
               </router-link>
 
-              <router-link 
-                to="/perfil-vendedor/productos" 
+              <router-link to="/perfil-vendedor/productos"
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
-                :class="{ 'active-link': isLinkActive('/perfil-vendedor/productos') }"
-              >
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/productos') }">
                 <i class="bi bi-archive me-2"></i> Productos
-              </router-link> 
-            </div> 
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -99,17 +94,17 @@ onMounted(async() => {
       <div class="col-12 col-lg-10">
         <RouterView />
       </div>
-      
+
     </div>
   </div>
 </template>
 
 <style scoped>
-.active-link { 
-  background-color: #f8f9fa; 
-  font-weight: 600; 
-  border-left: 4px solid #0d6efd !important; 
-  color: #0d6efd; 
+.active-link {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-left: 4px solid #0d6efd !important;
+  color: #0d6efd;
 }
 
 .list-group-item {

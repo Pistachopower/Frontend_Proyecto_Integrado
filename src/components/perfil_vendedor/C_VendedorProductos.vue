@@ -2,15 +2,18 @@
 import { onMounted, ref } from 'vue';
 import { usePiezasStore } from '@/stores/piezasStore';
 import C_VendedorModalProducto from './C_VendedorModalProducto.vue';
+import C_VendedorModalCrearProducto from './C_VendedorModalCrearProducto.vue';
+
 
 const piezasStore = usePiezasStore();
 const mostrarModal = ref(false);
+const mostrarModalCrear = ref(false);
 const piezaSeleccionada = ref(null);
 
 //En este componente tomamos los datos del store de piezasStore y lo pintamos
 onMounted(async () => {
   await piezasStore.fetchCatalogo();
-  
+
 });
 
 //Creo un enumerado para los estados de las piezas
@@ -18,6 +21,16 @@ const estado = {
   1: 'Nuevo',
   2: 'Usado',
   3: 'Reacondicionado'
+};
+
+// Función para abrir el modal de crear
+const abrirCrear = () => {
+  mostrarModalCrear.value = true;
+};
+
+// Función para cerrar el modal de crear
+const cerrarModalCrear = () => {
+  mostrarModalCrear.value = false;
 };
 
 // Función para abrir el modal con los detalles de la pieza
@@ -33,6 +46,19 @@ const cerrarModal = () => {
   piezaSeleccionada.value = null;
 };
 
+// Función para eliminar una pieza
+const eliminarPieza = async (pieza) => {
+  // Confirmación antes de eliminar
+  if (confirm(`¿Estás seguro de que deseas eliminar "${pieza.nombre}"?`)) {
+    try {
+      await piezasStore.eliminarPieza(pieza.id);
+      console.log('✅ Producto eliminado correctamente');
+    } catch (error) {
+      console.error('❌ Error al eliminar:', error);
+      alert('Error al eliminar el producto');
+    }
+  }
+};
 
 
 
@@ -43,7 +69,7 @@ const cerrarModal = () => {
   <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
       <h5 class="fw-bold mb-0">Mis Productos</h5>
-      <button class="btn btn-sm btn-primary">
+      <button class="btn btn-sm btn-primary" @click="abrirCrear">
         <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
       </button>
     </div>
@@ -77,10 +103,11 @@ const cerrarModal = () => {
             </td>
             <td class="align-middle">
               <button class="btn btn-sm btn-outline-primary" title="Ver detalles" @click="abrirDetalles(pieza)">
-                        <i class="bi bi-pencil"></i>
+                <i class="bi bi-pencil"></i>
               </button>
 
-              <button class="btn btn-sm btn-outline-danger ms-1" title="Eliminar">
+              <button class="btn btn-sm btn-outline-danger ms-1" title="Eliminar" @click="eliminarPieza(pieza)"
+                :disabled="piezasStore.cargando">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
@@ -96,9 +123,8 @@ const cerrarModal = () => {
   </div>
 
   <!-- Modal de detalles -->
-  <C_VendedorModalProducto 
-    v-if="mostrarModal" 
-    :pieza="piezaSeleccionada.id"
-    @cerrar="cerrarModal"
-  />
+  <C_VendedorModalProducto v-if="mostrarModal" :pieza="piezaSeleccionada.id" @cerrar="cerrarModal" />
+
+  <!-- Modal de crear -->
+  <C_VendedorModalCrearProducto v-if="mostrarModalCrear" @cerrar="cerrarModalCrear" />
 </template>
