@@ -5,5 +5,6 @@ comprobar que el usuario haya comprado el producto en cuestion)
 
 
 HOY 
-HACER EL CRUD DEL DASHBOARD DEL VENDEDOR 
-En el modal, ponerlo como un formulario editable. La parte de la imagen que se pueda subir la imagen (pieza)
+Comenzar implementacion de pago cliente
+http://localhost:8080/proceso-pago
+http://localhost:8080/seleccion-metodo-pago

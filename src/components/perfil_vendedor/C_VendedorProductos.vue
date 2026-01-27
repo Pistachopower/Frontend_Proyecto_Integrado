@@ -60,9 +60,6 @@ const eliminarPieza = async (pieza) => {
   }
 };
 
-
-
-
 </script>
 
 <template>
