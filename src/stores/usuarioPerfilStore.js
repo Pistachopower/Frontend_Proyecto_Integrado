@@ -33,7 +33,7 @@ export const usePerfilStore = defineStore('perfil', {
         // this.esCliente= response.data.tipo_usuario === 'cliente';
         // this.esEmpleado= response.data.tipo_usuario === 'empleado';
 
-        console.log(response.data.tipo_usuario);
+        //console.log(response.data.tipo_usuario);
         
       } catch (error) {
         console.error('Error al cargar el perfil:', error);

@@ -22,6 +22,16 @@ const estadosMap = {
 const togglePedido = (pedidoId) => {
   pedidoExpandido.value = pedidoExpandido.value === pedidoId ? null : pedidoId;
 };
+
+// Función para cambiar el estado del pedido
+const cambiarEstado = async (pedidoId, nuevoEstado) => {
+  try {
+    const response = await pedidosStore.cambiarEstadoPedido(pedidoId, Number(nuevoEstado));
+    alert(response.mensaje || 'Estado actualizado');
+  } catch (error) {
+    alert(error.response?.data?.error || 'Error al cambiar el estado del pedido');
+  }
+};
  
 // Computed para filtrar pedidos según el estado seleccionado
 // const pedidosFiltrados = computed(() => {
@@ -100,15 +110,16 @@ onMounted(() => {
               <td class="align-middle fw-bold">{{ pedido.total }}€</td>
               <td class="align-middle">{{ pedido.lineas_pedido.length }}</td>
               <td class="align-middle">
-                <span class="badge" :class="{
-                  'bg-warning': pedido.estado === 1,
-                  'bg-info': pedido.estado === 2,
-                  'bg-secondary': pedido.estado === 3,
-                  'bg-primary': pedido.estado === 4,
-                  'bg-success': pedido.estado === 5
-                }">
-                  {{ estadosMap[pedido.estado] }}
-                </span>
+                <select 
+                  class="form-select form-select-sm" 
+                  :value="pedido.estado"
+                  @change="cambiarEstado(pedido.id, $event.target.value)"
+                  style="min-width: 140px;"
+                >
+                  <option v-for="(nombre, valor) in estadosMap" :key="valor" :value="valor">
+                    {{ nombre }}
+                  </option>
+                </select>
               </td>
               <td class="align-middle text-muted small">{{ pedido.fecha_pedido }}</td>
             </tr>

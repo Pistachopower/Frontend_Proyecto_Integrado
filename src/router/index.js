@@ -6,8 +6,7 @@ import Registro from '../components/C_Registrar.vue'
 import CatalogoProductos from '../components/C_Catalogo.vue'
 import DetalleProducto from '../components/C_DetalleProducto.vue'
 import Carrito from '../components/C_Carrito.vue'
-import ProcesoPago from '../components/C_ProcesoPago.vue'
-import SeleccionMetodoPago from '../components/C_SeleccionMetodoPago.vue'
+import ProcesoPago from '../components/pago_cliente/C_Envio.vue'
 import ListaDeseos from '../components/C_ListaDeseos.vue'
 import RecuperarContrasena from '../components/C_RecuperarPassword.vue'
 import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
@@ -15,6 +14,7 @@ import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioP
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
 import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
 import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
+import C_PerfilUsuarioDevoluciones from '@/components/perfil_usuario/C_PerfilUsuarioDevoluciones.vue';
 import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
 
 //componentes vendedor
@@ -24,6 +24,7 @@ import C_VendedorInicio from '@/components/perfil_vendedor/C_VendedorInicioDashB
 import C_VendedorPedidos from '@/components/perfil_vendedor/C_VendedorPedidos.vue';
 import C_VendedorProductos from '@/components/perfil_vendedor/C_VendedorProductos.vue';
 import C_VendedorClientes from '@/components/perfil_vendedor/C_VendedorListaClientes.vue';
+import C_VendedorDevoluciones from '@/components/perfil_vendedor/C_VendedorDevoluciones.vue';
 
 //guards
 //import { requireVendedor, requireCliente, requireAuth } from './guards.js'
@@ -75,6 +76,11 @@ const routes = [
         name: 'perfil-comentarios',
         component: C_PerfilUsuarioComentarios,
       },
+      {
+        path: 'devoluciones',
+        name: 'perfil-devoluciones',
+        component: C_PerfilUsuarioDevoluciones,
+      },
     ]
   },
   // === FIN RUTAS PERFIL CLIENTE ===
@@ -111,6 +117,11 @@ const routes = [
         name: 'vendedor-productos',
         component: C_VendedorProductos,
       },
+      {
+        path: 'devoluciones',
+        name: 'vendedor-devoluciones',
+        component: C_VendedorDevoluciones,
+      },
     ]
   },
   // === FIN RUTAS PERFIL VENDEDOR ===
@@ -146,11 +157,7 @@ const routes = [
     component: ProcesoPago,
   },
 
-  {
-    path: '/seleccion-metodo-pago',
-    name: 'seleccion-metodo-pago',
-    component: SeleccionMetodoPago,
-  },
+
 
   {
     path: '/lista-deseos',

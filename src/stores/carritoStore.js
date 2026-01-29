@@ -11,7 +11,9 @@ export const useCarritoStore = defineStore('carrito', {
 			// Agregar o actualizar la cantidad en la API
 			try {
 				const payload = { pieza_id, cantidad };
+				
 				await axios.post('/carrito/', payload);
+				
 				// Actualizar el carrito completo después de agregar/actualizar
 				await this.obtenerCarrito();
 			} catch (error) {
@@ -25,6 +27,7 @@ export const useCarritoStore = defineStore('carrito', {
 			// Eliminar de la API
 			try {
 				await axios.delete(`/carrito/${pieza_id}/`);
+				
 				// Actualizar el carrito completo después de eliminar
 				await this.obtenerCarrito();
 			} catch (error) {
@@ -36,12 +39,36 @@ export const useCarritoStore = defineStore('carrito', {
 		async obtenerCarrito() {
 			try {
 				const response = await axios.get('/carrito/');
+				
 				// Se espera { items: [...], precio_total: number }
 				this.items = response.data.items;
+				
 				this.precioTotal = response.data.precio_total;
 				return response.data;
 			} catch (error) {
 				console.error('Error al obtener el carrito:', error);
+				throw error;
+			}
+		},
+
+		async finalizarCompra(direccion_envio, metodo_pago_id = null) {
+			try {
+				const payload = { direccion_envio };
+				
+				// Solo incluir metodo_pago_id si se proporciona
+				if (metodo_pago_id) {
+					payload.metodo_pago_id = metodo_pago_id;
+				}
+				
+				const response = await axios.post('/carrito/finalizar/', payload);
+				
+				// Limpiar el carrito local después de finalizar
+				this.items = [];
+				this.precioTotal = 0;
+				
+				return response.data;
+			} catch (error) {
+				console.error('Error al finalizar la compra:', error);
 				throw error;
 			}
 		}

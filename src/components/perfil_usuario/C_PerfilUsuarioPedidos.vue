@@ -152,6 +152,9 @@ onMounted(() => {
                                     <div>
                                         <div class="fw-bold text-dark fs-6">
                                             {{ linea.pieza.nombre }}
+                                            <span class="badge bg-secondary ms-2" title="ID Línea de Pedido">
+                                                Línea #{{ linea.id }}
+                                            </span>
                                         </div>
 
                                         <div class="mt-1">

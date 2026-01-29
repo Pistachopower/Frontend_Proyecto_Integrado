@@ -85,6 +85,12 @@ onMounted(async () => {
                 :class="{ 'active-link': isLinkActive('/perfil-vendedor/productos') }">
                 <i class="bi bi-archive me-2"></i> Productos
               </router-link>
+
+              <router-link to="/perfil-vendedor/devoluciones"
+                class="list-group-item list-group-item-action border-0 rounded mb-1"
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/devoluciones') }">
+                <i class="bi bi-arrow-return-left me-2"></i> Devoluciones
+              </router-link>
             </div>
           </div>
         </div>

@@ -2,12 +2,14 @@
 import { onMounted, computed } from 'vue'
 import { useCarritoStore } from '../stores/carritoStore'
 
+
 const carritoStore = useCarritoStore()
 
 // Obtener los productos del carrito al montar el componente
 onMounted(async () => {
   try {
     await carritoStore.obtenerCarrito()
+
   } catch (error) {
     console.error('Error al cargar el carrito:', error)
   }
@@ -47,18 +49,15 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
     </div>
 
     <div v-else class="row g-4">
-      
+
       <div class="col-12 col-lg-8">
         <div v-for="item in carritoStore.items" :key="item.id" class="card border-0 shadow-sm mb-3">
           <div class="card-body p-3">
             <div class="row align-items-center g-3">
-              
+
               <div class="col-3 col-md-2">
-                <img 
-                  :src="item.imagen || 'https://placehold.co/100x100/png?text=Producto'" 
-                  class="img-fluid rounded bg-light" 
-                  :alt="item.nombre"
-                >
+                <img :src="item.imagen || 'https://placehold.co/100x100/png?text=Producto'"
+                  class="img-fluid rounded bg-light" :alt="item.nombre">
               </div>
 
               <div class="col-9 col-md-4">
@@ -68,15 +67,18 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
 
               <div class="col-6 col-md-3 d-flex justify-content-center">
                 <div class="input-group input-group-sm" style="max-width: 120px;">
-                  <button class="btn btn-outline-secondary" @click="actualizarCantidad(item.id, item.cantidad - 1)">-</button>
+                  <button class="btn btn-outline-secondary"
+                    @click="actualizarCantidad(item.id, item.cantidad - 1)">-</button>
                   <input type="text" class="form-control text-center bg-white" :value="item.cantidad" readonly disabled>
-                  <button class="btn btn-outline-secondary" @click="actualizarCantidad(item.id, item.cantidad + 1)">+</button>
+                  <button class="btn btn-outline-secondary"
+                    @click="actualizarCantidad(item.id, item.cantidad + 1)">+</button>
                 </div>
               </div>
 
               <div class="col-6 col-md-3 d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-primary">€{{ item.precio_total_piezas.toFixed(2) }}</span>
-                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" @click="eliminarDelCarrito(item.id)">
+                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle"
+                  @click="eliminarDelCarrito(item.id)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -96,12 +98,12 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
         <div class="card border-0 shadow-sm sticky-summary">
           <div class="card-body p-4">
             <h5 class="fw-bold mb-4">Resumen</h5>
-            
+
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Subtotal</span>
               <span class="fw-bold">€{{ carritoStore.precioTotal.toFixed(2) }}</span>
             </div>
-            
+
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted">Envío</span>
               <span class="fw-bold">€10.00</span>
@@ -114,10 +116,13 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
               <span class="fw-bold fs-4 text-primary">€{{ calcularTotal.toFixed(2) }}</span>
             </div>
 
-            <button class="btn btn-dark w-100 py-3 fw-bold shadow-hover">
+            <router-link
+              to="/proceso-pago"
+              class="btn btn-dark w-100 py-3 fw-bold shadow-hover"
+            >
               Pagar Ahora
-            </button>
-            
+            </router-link>
+
             <div class="text-center mt-3 text-muted opacity-50">
               <i class="bi bi-credit-card-2-front fs-5 mx-2"></i>
               <i class="bi bi-paypal fs-5 mx-2"></i>
@@ -138,24 +143,33 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Efecto hover en el botón de pagar */
 .shadow-hover {
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .shadow-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Sticky Summary: En pantallas grandes, el resumen se queda fijo al hacer scroll */
 @media (min-width: 992px) {
   .sticky-summary {
     position: sticky;
-    top: 2rem; /* Ajusta según la altura de tu navbar */
+    top: 2rem;
+    /* Ajusta según la altura de tu navbar */
     z-index: 10;
   }
 }

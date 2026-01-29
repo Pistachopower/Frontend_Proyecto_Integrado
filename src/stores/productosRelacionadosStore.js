@@ -14,7 +14,7 @@ export const useProductosRelacionadosStore = defineStore('productosRelacionados'
         try {
             const response = await api.get(`/pieza/por_marca/?pieza_id=${piezaId}`);
             productos.value = response.data;
-            console.log('Productos relacionados cargados:', productos.value);
+            //console.log('Productos relacionados cargados:', productos.value);
         } catch (err) {
             error.value = err.message || 'Error al cargar productos relacionados';
             console.error('Error fetchProductosPorMarca:', err);

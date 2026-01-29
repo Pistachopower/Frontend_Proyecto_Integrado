@@ -7,7 +7,7 @@ import { useMetodoPagoStore } from '../../stores/metodoPagoStore.js';
 const perfilStore = usePerfilStore();
 const pagoStore = useMetodoPagoStore();
 
-// --- 2. AQUÍ ESTÁ LA SOLUCIÓN ---
+
 // Extraemos las variables del store manteniendo la reactividad.
 // "metodos: metodosPago" significa: "Toma 'metodos' del store pero llámalo 'metodosPago' aquí".
 const { metodos: metodosPago, cargando, error } = storeToRefs(pagoStore);

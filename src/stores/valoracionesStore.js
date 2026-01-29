@@ -20,7 +20,7 @@ export const useValoracionesStore = defineStore('valoraciones', () => {
             promedioPuntuacion.value = response.data.promedio_puntuacion;
             totalValoraciones.value = response.data.total_valoraciones;
             valoraciones.value = response.data.valoraciones;
-            console.log('Valoraciones cargadas:', response.data);
+            //console.log('Valoraciones cargadas:', response.data);
         } catch (err) {
             error.value = err.message || 'Error al cargar valoraciones';
             console.error('Error fetchValoracionesPorPieza:', err);

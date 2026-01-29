@@ -44,5 +44,25 @@ export const usePedidosVendedorStore = defineStore("pedidosVendedor", {
         this.cargando = false;
       }
     },
+
+    // --- ACCIÓN 2: CAMBIAR ESTADO DEL PEDIDO ---
+    async cambiarEstadoPedido(pedidoId, nuevoEstado) {
+      try {
+        const response = await api.patch(`pedido/${pedidoId}/cambiar_estado_vendedor/`, {
+          estado: nuevoEstado
+        });
+        
+        // Actualizar el pedido localmente
+        const pedido = this.pedidos.find(p => p.id === pedidoId);
+        if (pedido) {
+          pedido.estado = nuevoEstado;
+        }
+        
+        return response.data;
+      } catch (error) {
+        console.error("Error al cambiar estado del pedido:", error);
+        throw error;
+      }
+    },
   },
 });

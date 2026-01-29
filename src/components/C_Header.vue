@@ -49,11 +49,9 @@ const irAlPerfil = () => {
   console.log('Tipo de usuario:', tipoUsuario) 
 
   if (perfilStore.esCliente) {
-    console.log('Redirigiendo a perfil de cliente - PENDIENTE POR IMPLEMENTAR')
     router.push('/perfil-usuario')
 
   } else if (perfilStore.esEmpleado) {
-    console.log('Redirigiendo a perfil de empleado - PENDIENTE POR IMPLEMENTAR')
 
     router.push('/perfil-vendedor')
 

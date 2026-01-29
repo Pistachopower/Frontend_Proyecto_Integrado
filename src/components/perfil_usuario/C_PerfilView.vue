@@ -66,6 +66,14 @@ onMounted(() => {
                 >
                     <i class="bi bi-shield-lock me-2"></i> Valoraciones y comentarios
                 </router-link>
+
+                <router-link 
+                    to="/perfil-usuario/devoluciones" 
+                    class="list-group-item list-group-item-action border-0 px-4 py-3"
+                    :class="{ 'active-link': isLinkActive('/perfil-usuario/devoluciones') }"
+                >
+                    <i class="bi bi-arrow-return-left me-2"></i> Mis Devoluciones
+                </router-link>
             </div>
         </div>
       </div>
