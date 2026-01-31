@@ -15,6 +15,7 @@ import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDat
 import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
 import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsuarioMetodosPagos.vue';
 import C_PerfilUsuarioDevoluciones from '@/components/perfil_usuario/C_PerfilUsuarioDevoluciones.vue';
+import C_PerfilUsuarioListaDeseos from '@/components/perfil_usuario/C_PerfilUsuarioListaDeseos.vue';
 import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
 
 //componentes vendedor
@@ -80,6 +81,11 @@ const routes = [
         path: 'devoluciones',
         name: 'perfil-devoluciones',
         component: C_PerfilUsuarioDevoluciones,
+      },
+      {
+        path: 'lista-deseos',
+        name: 'perfil-lista-deseos',
+        component: C_PerfilUsuarioListaDeseos,
       },
     ]
   },

@@ -68,11 +68,19 @@ onMounted(() => {
                 </router-link>
 
                 <router-link 
-                    to="/perfil-usuario/devoluciones" 
-                    class="list-group-item list-group-item-action border-0 px-4 py-3"
-                    :class="{ 'active-link': isLinkActive('/perfil-usuario/devoluciones') }"
+                  to="/perfil-usuario/devoluciones" 
+                  class="list-group-item list-group-item-action border-0 px-4 py-3"
+                  :class="{ 'active-link': isLinkActive('/perfil-usuario/devoluciones') }"
                 >
-                    <i class="bi bi-arrow-return-left me-2"></i> Mis Devoluciones
+                  <i class="bi bi-arrow-return-left me-2"></i> Mis Devoluciones
+                </router-link>
+
+                <router-link 
+                  to="/perfil-usuario/lista-deseos" 
+                  class="list-group-item list-group-item-action border-0 px-4 py-3"
+                  :class="{ 'active-link': isLinkActive('/perfil-usuario/lista-deseos') }"
+                >
+                  <i class="bi bi-heart me-2"></i> Mi Lista de Deseos
                 </router-link>
             </div>
         </div>

@@ -1,5 +1,24 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import api from '@/services/axiosRequest.js';
+const agregandoDeseo = ref(null); // pieza_id en proceso
+const exitoDeseo = ref(null); // pieza_id último agregado
+const errorDeseo = ref(null);
+
+const agregarADeseos = async (pieza_id) => {
+    agregandoDeseo.value = pieza_id;
+    errorDeseo.value = null;
+    exitoDeseo.value = null;
+    try {
+        await api.post('lista_deseo/agregar_pieza/', { pieza_id });
+        exitoDeseo.value = pieza_id;
+        setTimeout(() => { exitoDeseo.value = null; }, 1200);
+    } catch (err) {
+        errorDeseo.value = 'No se pudo agregar a la lista de deseos.';
+    } finally {
+        agregandoDeseo.value = null;
+    }
+};
 import { usePiezasStore } from '@/stores/piezasStore';
 import { storeToRefs } from 'pinia';
 import C_BuscadorCatalogo from './C_BuscadorCatalogo.vue';
@@ -84,10 +103,10 @@ onMounted(() => {
         <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate-fade">
 
             <div class="col" v-for="pieza in piezas" :key="pieza.id">
-                <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card h-100 border-0 shadow-sm hover-card position-relative">
 
                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center overflow-hidden"
-                        style="height: 200px;">
+                        style="height: 200px; position: relative;">
                         <img v-if="pieza.imagen" :src="pieza.imagen" :alt="pieza.nombre" class="img-fluid"
                             style="max-height: 100%; width: 100%; object-fit: cover;">
 
@@ -95,6 +114,16 @@ onMounted(() => {
                             <i class="bi bi-image fs-1"></i>
                             <p class="small mb-0">Sin imagen</p>
                         </div>
+
+                        <!-- Corazón lista de deseos -->
+                        <button @click.stop="agregarADeseos(pieza.id)"
+                            class="btn btn-light btn-sm rounded-circle shadow position-absolute top-0 start-0 m-2"
+                            :disabled="agregandoDeseo === pieza.id"
+                            :title="'Agregar a lista de deseos'">
+                            <i v-if="agregandoDeseo === pieza.id" class="bi bi-arrow-repeat text-secondary"></i>
+                            <i v-else-if="exitoDeseo === pieza.id" class="bi bi-heart-fill text-danger"></i>
+                            <i v-else class="bi bi-heart"></i>
+                        </button>
                     </div>
 
                     <div class="position-absolute top-0 end-0 m-2">
