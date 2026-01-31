@@ -1,20 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+
+
+import { onMounted } from 'vue';
 import { useAuthStore } from '../../stores/authStore.js';
+import { useDashboardVendedorStore } from '../../stores/dashboardVendedorStore.js';
 
 const authStore = useAuthStore();
-
-// Estado para estadísticas (reemplazar con datos reales del backend)
+const dashboardStore = useDashboardVendedorStore();
 
 onMounted(() => {
-  //console.log('Dashboard Vendedor Cargado');
-  // Aquí iría la llamada al backend para obtener estadísticas reales
-  // fetchEstadisticas();
+  dashboardStore.fetchDashboardVendedor();
 });
 </script>
 
 <template>
   <div class="row g-3">
+    <div v-if="dashboardStore.cargando" class="col-12 text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+    <div v-if="dashboardStore.error" class="col-12">
+      <div class="alert alert-danger">{{ dashboardStore.error }}</div>
+    </div>
+    <template v-if="dashboardStore.dashboard && !dashboardStore.cargando && !dashboardStore.error">
     
     <!-- FILA 1: ESTADÍSTICAS PRINCIPALES -->
     <div class="col-12">
@@ -32,14 +41,15 @@ onMounted(() => {
               <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">
                 Ventas Hoy
               </small>
-              <h4 class="fw-bold mb-0">€</h4>
+              <h4 class="fw-bold mb-0">€{{ dashboardStore.dashboard.ventas_hoy }}</h4>
             </div>
             <div class="rounded-circle p-3 bg-success-subtle">
               <i class="bi bi-cash-coin fs-5 text-success"></i>
             </div>
           </div>
-          <small class="text-success">
-            <i class="bi bi-arrow-up"></i> +12% respecto ayer
+          <small :class="dashboardStore.dashboard.porcentaje_vs_ayer >= 0 ? 'text-success' : 'text-danger'">
+            <i :class="dashboardStore.dashboard.porcentaje_vs_ayer >= 0 ? 'bi bi-arrow-up' : 'bi bi-arrow-down'"></i>
+            {{ dashboardStore.dashboard.porcentaje_vs_ayer >= 0 ? '+' : '' }}{{ dashboardStore.dashboard.porcentaje_vs_ayer }}% respecto ayer
           </small>
         </div>
       </div>
@@ -54,7 +64,7 @@ onMounted(() => {
               <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">
                 Pendientes
               </small>
-              <h4 class="fw-bold mb-0">estadisticas.pedidosPendientes</h4>
+              <h4 class="fw-bold mb-0">{{ dashboardStore.dashboard.pedidos_pendientes }}</h4>
             </div>
             <div class="rounded-circle p-3 bg-warning-subtle">
               <i class="bi bi-box-seam fs-5 text-warning"></i>
@@ -76,7 +86,7 @@ onMounted(() => {
               <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">
                 Productos Activos
               </small>
-              <h4 class="fw-bold mb-0">estadisticas.productosActivos</h4>
+              <h4 class="fw-bold mb-0">{{ dashboardStore.dashboard.producto_activo }} ({{ dashboardStore.dashboard.producto_activo_cantidad }})</h4>
             </div>
             <div class="rounded-circle p-3 bg-info-subtle">
               <i class="bi bi-archive fs-5 text-info"></i>
@@ -98,14 +108,14 @@ onMounted(() => {
               <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">
                 Valoración
               </small>
-              <h4 class="fw-bold mb-0">estadisticas.valoracionPromedio ★</h4>
+              <h4 class="fw-bold mb-0">{{ dashboardStore.dashboard.valoracion_promedio }} ★</h4>
             </div>
             <div class="rounded-circle p-3 bg-primary-subtle">
               <i class="bi bi-star-fill fs-5 text-primary"></i>
             </div>
           </div>
           <small class="text-primary">
-            <i class="bi bi-people"></i> estadisticas.clientesFrecuentes clientes
+            <i class="bi bi-people"></i> {{ dashboardStore.dashboard.cliente_frecuente }} ({{ dashboardStore.dashboard.cliente_frecuente_pedidos }} pedidos)
           </small>
         </div>
       </div>
@@ -119,10 +129,10 @@ onMounted(() => {
         </div>
         <div class="card-body">
           <div class="text-center py-4">
-            <h3 class="fw-bold mb-2">estadisticas.ventasEsta €</h3>
-            <p class="text-muted mb-0">
-              <i class="bi bi-graph-up text-success me-1"></i>
-              +25% respecto semana anterior
+            <h3 class="fw-bold mb-2">€{{ dashboardStore.dashboard.ventas_semana }}</h3>
+            <p :class="dashboardStore.dashboard.porcentaje_vs_semana_pasada >= 0 ? 'text-success' : 'text-danger'">
+              <i :class="dashboardStore.dashboard.porcentaje_vs_semana_pasada >= 0 ? 'bi bi-graph-up text-success me-1' : 'bi bi-graph-down text-danger me-1'"></i>
+              {{ dashboardStore.dashboard.porcentaje_vs_semana_pasada >= 0 ? '+' : '' }}{{ dashboardStore.dashboard.porcentaje_vs_semana_pasada }}% respecto semana anterior
             </p>
           </div>
         </div>
@@ -136,7 +146,7 @@ onMounted(() => {
         </div>
         <div class="card-body">
           <div class="text-center py-4">
-            <h3 class="fw-bold mb-2">estadisticas.clientesFrecuentes</h3>
+            <h3 class="fw-bold mb-2">{{ dashboardStore.dashboard.cliente_frecuente }}</h3>
             <p class="text-muted mb-0">
               <i class="bi bi-people text-info me-1"></i>
               Clientes que compran regularmente
@@ -153,7 +163,7 @@ onMounted(() => {
           <h6 class="fw-bold mb-0">
             <i class="bi bi-receipt me-2"></i>Últimas Transacciones
           </h6>
-          <router-link to="/vendedor-dashboard/pedidos" class="btn btn-sm btn-outline-primary">
+          <router-link to="/perfil-vendedor/pedidos" class="btn btn-sm btn-outline-primary">
             Ver Todas
           </router-link>
         </div>
@@ -168,22 +178,20 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr v-for="(tx, idx) in dashboardStore.dashboard.ultimas_transacciones" :key="idx">
                 <td class="align-middle">
                   <div class="d-flex align-items-center">
                     <div class="rounded-circle bg-light p-2 me-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
                       <i class="bi bi-person-circle text-muted"></i>
                     </div>
-                    <span class="fw-500">transacciones cliente</span>
+                    <span class="fw-500">{{ tx.cliente }}</span>
                   </div>
                 </td>
-                <td class="align-middle fw-bold">transacciones cliente</td>
+                <td class="align-middle fw-bold">€{{ tx.monto }}</td>
                 <td class="align-middle">
-                  <span>
-                    transacciones cliente
-                  </span>
+                  <span>{{ tx.estado }}</span>
                 </td>
-                <td class="align-middle text-muted small">fecha</td>
+                <td class="align-middle text-muted small">{{ tx.fecha }}</td>
               </tr>
             </tbody>
           </table>
@@ -191,6 +199,7 @@ onMounted(() => {
       </div>
     </div>
 
+    </template>
   </div>
 </template>
 

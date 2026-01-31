@@ -103,9 +103,7 @@ async function cerrarSesion() {
               >Productos</router-link
             >
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="" @click="cerrarMenu">Sobre nosotros</router-link>
-          </li>
+
           <li class="nav-item">
             <router-link class="nav-link" to="/carrito" @click="cerrarMenu">
               <svg
