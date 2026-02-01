@@ -32,6 +32,16 @@ const getEstadoClase = (estado) => {
   return clases[estado] || 'bg-secondary text-white';
 };
 
+const getEstadoLineaPedido = (devolucion) => {
+  console.log(devolucion.linea_pedido_estado);
+  if (devolucion?.linea_pedido_estado === 1) {
+    return '(Entregado)';
+  } else if (devolucion?.linea_pedido_estado === 2) {
+    return '(Devuelto)';
+  }
+  return `(Entregado)`; ;
+};
+
 
 // --- APROBAR DEVOLUCIÓN ---
 const aprobarCargando = ref(null); // id de la devolución en proceso
@@ -109,29 +119,32 @@ onMounted(() => {
               <th class="border-0 text-muted small text-uppercase">Pedido</th>
               <th class="border-0 text-muted small text-uppercase">Cliente</th>
               <th class="border-0 text-muted small text-uppercase">Motivo</th>
+              <th class="border-0 text-muted small text-uppercase">Estado de la pieza</th>
               <th class="border-0 text-muted small text-uppercase">Cantidad</th>
               <th class="border-0 text-muted small text-uppercase">Reembolso</th>
               <th class="border-0 text-muted small text-uppercase">Solicitud</th>
               <th class="border-0 text-muted small text-uppercase">Aprobación</th>
               <th class="border-0 text-muted small text-uppercase">Estado</th>
+
             </tr>
           </thead>
           <tbody>
             <tr v-for="devolucion in devoluciones" :key="devolucion.id">
-              <td class="fw-bold ps-3 text-primary">#{{ devolucion.id }}</td>
+              <td class="fw-bold ps-3 text-primary">{{ devolucion.linea_pedido }}</td>
               <td>{{ devolucion.pieza_nombre }}</td>
               <td>#{{ devolucion.pedido_id }}</td>
               <td>{{ devolucion.cliente_nombre }}</td>
               <td class="text-truncate" style="max-width: 200px;" :title="devolucion.motivo">
                 {{ devolucion.motivo }}
               </td>
+              <td>{{ getEstadoLineaPedido(devolucion)}}</td>
               <td>{{ devolucion.cantidad_devuelta }}</td>
               <td>{{ formatoMoneda(devolucion.monto_reembolso) }}</td>
               <td>{{ formatoFecha(devolucion.fecha_solicitud) }}</td>
               <td>{{ devolucion.fecha_aprobacion ? formatoFecha(devolucion.fecha_aprobacion) : '-' }}</td>
               <td>
                 <span class="badge" :class="getEstadoClase(devolucion.estado)">
-                  {{ devolucion.estado_display }}
+                  {{ devolucion.estado_display }} 
                 </span>
                 <div v-if="devolucion.estado === 1" class="mt-2">
                   <button class="btn btn-success btn-sm me-1" :disabled="aprobarCargando === devolucion.id || rechazarCargando === devolucion.id" @click="aprobarDevolucion(devolucion.id)">
