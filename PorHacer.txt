@@ -1,10 +1,8 @@
-En comentarios y valoraciones:
-Modificar la valoracion 
-Crear un comentario o modificarlo (Tanto en el frontend como en el backend 
-comprobar que el usuario haya comprado el producto en cuestion)
+Construye la imagen:
+docker build -t mi-frontend .
 
+Ejecuta el contenedor:
+docker run -p 8080:80 mi-frontend
 
-HOY 
-Comenzar implementacion de pago cliente
-http://localhost:8080/proceso-pago
-http://localhost:8080/seleccion-metodo-pago
+Abre tu navegador y visita:
+http://localhost:8080
