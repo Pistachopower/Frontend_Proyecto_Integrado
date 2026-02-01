@@ -11,8 +11,8 @@ export const useAuthStore = defineStore('auth', {
     // Verificar si el usuario está autenticado (llamando al backend)
     async checkAuthStatus() {
       try {
-        //const response = await fetch('http://localhost:8000/api/v1/auth/status/', {
-          const response = await fetch('http://34.238.73.57/api/v1/auth/status/', {
+        const response = await fetch('http://localhost:8000/api/v1/auth/status/', {
+          //const response = await fetch('http://34.238.73.57/api/v1/auth/status/', {
           method: 'GET',
           credentials: 'include', // Envía las cookies automáticamente
         })
@@ -57,8 +57,8 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const csrftoken = this.getCookie('csrftoken')
-        //const response = await fetch('http://localhost:8000/api/v1/login/', {
-        const response = await fetch('http://34.238.73.57/api/v1/login/', {
+        const response = await fetch('http://localhost:8000/api/v1/login/', {
+        //const response = await fetch('http://34.238.73.57/api/v1/login/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -98,8 +98,8 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       try {
         const csrftoken = this.getCookie('csrftoken')
-        //await fetch('http://localhost:8000/api/v1/logout/', {
-          await fetch('http://34.238.73.57/api/v1/logout/', {
+        await fetch('http://localhost:8000/api/v1/logout/', {
+         // await fetch('http://34.238.73.57/api/v1/logout/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

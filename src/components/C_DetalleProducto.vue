@@ -6,6 +6,36 @@ import { useCarritoStore } from '@/stores/carritoStore';
 import { storeToRefs } from 'pinia';
 import C_ProductosRelacionados from '@/components/C_OtrosProductos.vue';
 import C_Valoraciones from '@/components/C_Valoraciones.vue';
+import { useValoracionesStore } from '@/stores/valoracionesStore';
+// Store de valoraciones para refrescar tras comentar
+const valoracionesStore = useValoracionesStore();
+import api from '@/services/axiosRequest';
+// --- ENVIAR VALORACIÓN ---
+const erroresValoracion = ref({});
+const enviarValoracion = async () => {
+  if (!pieza.value?.id) return;
+  enviandoValoracion.value = true;
+  erroresValoracion.value = {};
+  try {
+    await api.post('valoracion/', {
+      pieza: pieza.value.id,
+      puntuacion: Number(valoracion.value.puntuacion),
+      titulo: valoracion.value.titulo,
+      comentario: valoracion.value.comentario
+    });
+    valoracion.value = { titulo: '', puntuacion: '', comentario: '' };
+    await valoracionesStore.fetchValoracionesPorPieza(pieza.value.id);
+    alert('¡Gracias por tu valoración!');
+  } catch (e) {
+    if (e.response && e.response.data) {
+      erroresValoracion.value = e.response.data;
+    } else {
+      alert('Error al enviar la valoración');
+    }
+  } finally {
+    enviandoValoracion.value = false;
+  }
+};
 
 
 const route = useRoute();
@@ -46,6 +76,14 @@ onUnmounted(() => {
 });
 
 // --- CONTADOR ---
+
+// --- FORMULARIO DE VALORACIÓN ---
+const valoracion = ref({
+  titulo: '',
+  puntuacion: '',
+  comentario: ''
+});
+const enviandoValoracion = ref(false);
 const incrementar = () => cantidad.value++;
 const decrementar = () => {
     if (cantidad.value > 1) cantidad.value--;
@@ -165,6 +203,41 @@ const agregarAlCarrito = async () => {
         <C_ProductosRelacionados :piezaId="pieza.id"/>
 
         <C_Valoraciones />
+          <!-- Formulario de comentario (solo diseño) -->
+          <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+              <h5 class="fw-bold mb-3">Deja un comentario sobre esta pieza</h5>
+              <form @submit.prevent="enviarValoracion">
+                <div v-if="Object.keys(erroresValoracion).length" class="alert alert-danger">
+                  <div v-for="(msgs, campo) in erroresValoracion" :key="campo">
+                    <div v-for="msg in (Array.isArray(msgs) ? msgs : [msgs])" :key="msg">
+                      {{ campo }}: {{ msg }}
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="titulo" class="form-label">Título</label>
+                  <input id="titulo" type="text" class="form-control" placeholder="Título de tu comentario" required v-model="valoracion.titulo">
+                </div>
+                <div class="mb-3">
+                  <label for="puntuacion" class="form-label">Puntuación</label>
+                  <select id="puntuacion" class="form-select" required v-model="valoracion.puntuacion">
+                    <option value="" disabled>Selecciona una puntuación</option>
+                    <option value="5">5 - Excelente</option>
+                    <option value="4">4 - Muy bueno</option>
+                    <option value="3">3 - Bueno</option>
+                    <option value="2">2 - Regular</option>
+                    <option value="1">1 - Malo</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="comentario" class="form-label">Comentario</label>
+                  <textarea id="comentario" class="form-control" rows="3" placeholder="Escribe tu comentario aquí..." required v-model="valoracion.comentario"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" :disabled="enviandoValoracion || !valoracion.titulo || !valoracion.puntuacion || !valoracion.comentario">Enviar comentario</button>
+              </form>
+            </div>
+          </div>
         </div> 
   </div>
 </template>

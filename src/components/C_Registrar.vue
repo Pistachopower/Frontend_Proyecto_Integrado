@@ -76,8 +76,8 @@ const payload = {
 }
 
   try {
-    //const res = await fetch('http://localhost:8000/api/v1/registro_cliente/', {
-    const res = await fetch('http://34.238.73.57/api/v1/registro_cliente/', {
+    const res = await fetch('http://localhost:8000/api/v1/registro_cliente/', {
+    //const res = await fetch('http://34.238.73.57/api/v1/registro_cliente/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
