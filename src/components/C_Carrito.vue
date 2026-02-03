@@ -17,7 +17,8 @@ onMounted(async () => {
 
 // Calcular el total con envío
 const calcularTotal = computed(() => {
-  return carritoStore.precioTotal + 10 // 10 es el costo del envío
+  const subtotal = parseFloat(carritoStore.precioTotal) || 0
+  return (subtotal + 10).toFixed(2) // 10 es el costo del envío
 })
 
 // Eliminar producto del carrito
@@ -76,7 +77,7 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
               </div>
 
               <div class="col-6 col-md-3 d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-primary">€{{ item.precio_total_piezas.toFixed(2) }}</span>
+                <span class="fw-bold text-primary">€{{ item.precio_total_piezas }}</span>
                 <button class="btn btn-sm btn-outline-danger border-0 rounded-circle"
                   @click="eliminarDelCarrito(item.id)">
                   <i class="bi bi-trash"></i>
@@ -101,7 +102,7 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
 
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Subtotal</span>
-              <span class="fw-bold">€{{ carritoStore.precioTotal.toFixed(2) }}</span>
+              <span class="fw-bold">€{{ carritoStore.precioTotal }}</span>
             </div>
 
             <div class="d-flex justify-content-between mb-3">
@@ -113,7 +114,7 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
 
             <div class="d-flex justify-content-between mb-4">
               <span class="fw-bold fs-5">Total</span>
-              <span class="fw-bold fs-4 text-primary">€{{ calcularTotal.toFixed(2) }}</span>
+              <span class="fw-bold fs-4 text-primary">€{{ calcularTotal }}</span>
             </div>
 
             <router-link

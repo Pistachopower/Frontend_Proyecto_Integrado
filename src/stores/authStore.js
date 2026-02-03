@@ -1,53 +1,78 @@
 import { defineStore } from 'pinia'
+import api from '@/services/axiosRequest'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     isLoggedIn: false,
     isLoading: false,
     errorMessage: null,
+    user: null,
+    accessToken: localStorage.getItem('access_token') || null,
+    refreshToken: localStorage.getItem('refresh_token') || null,
   }),
 
   actions: {
-    // Verificar si el usuario está autenticado (llamando al backend)
+    // Verificar si el usuario está autenticado
     async checkAuthStatus() {
-      try {
-        const response = await fetch('http://localhost:8000/api/v1/auth/status/', {
-          //const response = await fetch('http://34.238.73.57/api/v1/auth/status/', {
-          method: 'GET',
-          credentials: 'include', // Envía las cookies automáticamente
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          
-
-          this.isLoggedIn = data.is_authenticated
-
-
-        } else {
-          this.isLoggedIn = false
-
+      // Si hay token, intentamos verificar
+      if (this.accessToken) {
+        try {
+          const response = await api.get('auth/status/')
+          this.isLoggedIn = response.data.is_authenticated
+          if (response.data.user) {
+            this.user = response.data.user
+          }
+        } catch (error) {
+          console.error('Error verificando autenticación:', error)
+          // Si falla, intentar refresh o limpiar
+          if (error.response?.status === 401) {
+            await this.tryRefreshToken()
+          } else {
+            this.isLoggedIn = false
+          }
         }
-      } catch (error) {
-        console.error('Error verificando autenticación:', error)
+      } else {
         this.isLoggedIn = false
       }
     },
 
-    // Obtener una cookie por nombre
-    getCookie(name) {
-      let cookieValue = null
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';')
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim()
-          if (cookie.substring(0, name.length + 1) === name + '=') {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
-            break
-          }
-        }
+    // Guardar tokens en localStorage y state
+    setTokens(access, refresh) {
+      this.accessToken = access
+      this.refreshToken = refresh
+      localStorage.setItem('access_token', access)
+      localStorage.setItem('refresh_token', refresh)
+    },
+
+    // Limpiar tokens
+    clearTokens() {
+      this.accessToken = null
+      this.refreshToken = null
+      this.user = null
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+    },
+
+    // Intentar refrescar el token
+    async tryRefreshToken() {
+      if (!this.refreshToken) {
+        this.isLoggedIn = false
+        return false
       }
-      return cookieValue
+
+      try {
+        const response = await api.post('token/refresh/', {
+          refresh: this.refreshToken
+        })
+        this.setTokens(response.data.access, this.refreshToken)
+        this.isLoggedIn = true
+        return true
+      } catch (error) {
+        console.error('Error refrescando token:', error)
+        this.clearTokens()
+        this.isLoggedIn = false
+        return false
+      }
     },
 
     // Iniciar sesión
@@ -56,38 +81,24 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
 
       try {
-        const csrftoken = this.getCookie('csrftoken')
-        const response = await fetch('http://localhost:8000/api/v1/login/', {
-        //const response = await fetch('http://34.238.73.57/api/v1/login/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            username,
-            password,
-          }),
+        const response = await api.post('login/', {
+          username,
+          password,
         })
 
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || 'Usuario o contraseña incorrectos.')
-        }
+        const data = response.data
 
-        const data = await response.json()
-
-
+        // Guardar tokens JWT
+        this.setTokens(data.access, data.refresh)
         
-        // Login exitoso
+        // Guardar datos del usuario
+        this.user = data.user
         this.isLoggedIn = data.is_authenticated
-
 
       } catch (error) {
         this.isLoggedIn = false
         console.error('Error en el login:', error)
-        this.errorMessage = error.message
+        this.errorMessage = error.response?.data?.error || 'Usuario o contraseña incorrectos.'
         throw error
       } finally {
         this.isLoading = false
@@ -97,23 +108,15 @@ export const useAuthStore = defineStore('auth', {
     // Cerrar sesión
     async logout() {
       try {
-        const csrftoken = this.getCookie('csrftoken')
-        await fetch('http://localhost:8000/api/v1/logout/', {
-         // await fetch('http://34.238.73.57/api/v1/logout/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken,
-          },
-          credentials: 'include',
+        await api.post('logout/', {
+          refresh: this.refreshToken
         })
-
-        //Limpiar datos al logout
-        this.isLoggedIn = false
-
       } catch (error) {
         console.error('Error al cerrar sesión:', error)
-        throw error
+      } finally {
+        // Siempre limpiar tokens aunque falle la petición
+        this.clearTokens()
+        this.isLoggedIn = false
       }
     },
   },

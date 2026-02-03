@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/services/axiosRequest'
 
 const router = useRouter()
 
@@ -71,31 +72,11 @@ const payload = {
     telefono: telefono.value,
     direccion: direccion.value,
     fecha_nacimiento: fecha_nacimiento.value ? new Date(fecha_nacimiento.value).toISOString().split('T')[0] : null,
-  },
-  cliente_data: {}
+  }
 }
 
   try {
-    const res = await fetch('http://localhost:8000/api/v1/registro_cliente/', {
-    //const res = await fetch('http://34.238.73.57/api/v1/registro_cliente/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-
-    if (!res.ok) {
-      const errorData = await res.json()
-      
-      if (errorData.user_data) {
-        Object.assign(errors.value, errorData.user_data)
-      }
-      if (errorData.cliente_data) {
-        Object.assign(errors.value, errorData.cliente_data)
-      }
-      
-      submitting.value = false
-      return
-    }
+    await api.post('registro_cliente/', payload)
     
     success.value = '¡Cuenta creada correctamente! Redirigiendo al login...'
     
@@ -117,7 +98,16 @@ const payload = {
     
   } catch (err) {
     console.error(err)
-    errorMsg.value = 'Hubo un error. Verifica que el usuario o email no existan ya.'
+    
+    // Manejo de errores de validación del backend
+    if (err.response?.data?.user_data) {
+      Object.assign(errors.value, err.response.data.user_data)
+    } else if (err.response?.data) {
+      // Si el error viene en otro formato
+      errorMsg.value = err.response.data.detail || err.response.data.error || 'Error al registrar. Verifica los datos.'
+    } else {
+      errorMsg.value = 'Hubo un error. Verifica que el usuario o email no existan ya.'
+    }
   } finally {
     submitting.value = false
   }
