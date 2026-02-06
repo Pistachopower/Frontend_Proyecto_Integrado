@@ -44,8 +44,8 @@ function validate() {
   }
 
   // Validaciones Personales
-  if (!nombre.value) errors.value.nombre = 'Nombre requerido.'
-  if (!apellido.value) errors.value.apellido = 'Apellido requerido.'
+  if (!nombre.value) errors.value.first_name = 'Nombre requerido.'
+  if (!apellido.value) errors.value.last_name = 'Apellido requerido.'
   if (!telefono.value) errors.value.telefono = 'Teléfono requerido.'
   if (!direccion.value) errors.value.direccion = 'Dirección requerida.'
   if (!fecha_nacimiento.value) errors.value.fecha_nacimiento = 'Fecha requerida.'
@@ -101,9 +101,12 @@ const payload = {
     
     // Manejo de errores de validación del backend
     if (err.response?.data?.user_data) {
+      // Errores de campos dentro de user_data
       Object.assign(errors.value, err.response.data.user_data)
+    } else if (err.response?.data?.non_field_errors) {
+      // Errores generales de validación
+      errorMsg.value = err.response.data.non_field_errors.join(' ')
     } else if (err.response?.data) {
-      // Si el error viene en otro formato
       errorMsg.value = err.response.data.detail || err.response.data.error || 'Error al registrar. Verifica los datos.'
     } else {
       errorMsg.value = 'Hubo un error. Verifica que el usuario o email no existan ya.'
@@ -192,17 +195,17 @@ const payload = {
                   <div class="row g-3">
                     <div class="col-md-6">
                       <div class="form-floating">
-                        <input v-model="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" :class="{ 'is-invalid': errors.nombre }">
+                        <input v-model="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" :class="{ 'is-invalid': errors.first_name }">
                         <label for="nombre">Nombre</label>
-                        <div class="invalid-feedback">{{ errors.nombre }}</div>
+                        <div class="invalid-feedback">{{ errors.first_name }}</div>
                       </div>
                     </div>
 
                     <div class="col-md-6">
                       <div class="form-floating">
-                        <input v-model="apellido" type="text" class="form-control" id="apellido" placeholder="Apellido" :class="{ 'is-invalid': errors.apellido }">
+                        <input v-model="apellido" type="text" class="form-control" id="apellido" placeholder="Apellido" :class="{ 'is-invalid': errors.last_name }">
                         <label for="apellido">Apellido</label>
-                        <div class="invalid-feedback">{{ errors.apellido }}</div>
+                        <div class="invalid-feedback">{{ errors.last_name }}</div>
                       </div>
                     </div>
 

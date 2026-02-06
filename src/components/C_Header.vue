@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { usePerfilStore } from '../stores/usuarioPerfilStore.js';
@@ -9,8 +9,8 @@ const desplegableAbierto = ref(false) // Variable para controlar el desplegable
 const router = useRouter()
 const authStore = useAuthStore()
 const perfilStore = usePerfilStore();
-const esVendedor = perfilStore.esEmpleado;
-const esCliente = perfilStore.esCliente;
+const esVendedor = computed(() => perfilStore.esEmpleado);
+const esCliente = computed(() => perfilStore.esCliente);
 
 
 // Inicializar estado al montar el componente

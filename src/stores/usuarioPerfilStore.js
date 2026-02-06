@@ -26,6 +26,7 @@ export const usePerfilStore = defineStore('perfil', {
       this.cargando = true;
       this.error = null;
       try {
+  
         const response = await api.get('mi-perfil/');
         this.perfil = response.data;
         // console.log("✅ DATA:", response.data);

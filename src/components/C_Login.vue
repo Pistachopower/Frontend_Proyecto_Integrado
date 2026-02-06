@@ -12,9 +12,9 @@ const usuarioPerfilStore = usePerfilStore()
 
 async function handleLogin() {
   try {
+    
     await authStore.login(username.value, password.value)
-
-  
+    
     await usuarioPerfilStore.fetchPerfil(); // Cargar datos del perfil tras el login exitoso
 
     // Navegar a la página principal después del login exitoso
