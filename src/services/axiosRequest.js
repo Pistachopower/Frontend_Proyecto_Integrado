@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    debugger;
+    //debugger;
     //cuando falla una peticio (401), Axio la guarda en error.response, y la petición original en error.config
     const originalRequest = error.config;
 

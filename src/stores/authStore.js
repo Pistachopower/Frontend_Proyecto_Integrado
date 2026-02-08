@@ -53,27 +53,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('refresh_token')
     },
 
-    // Intentar refrescar el token
-    // async tryRefreshToken() {
-    //   if (!this.refreshToken) {
-    //     this.isLoggedIn = false
-    //     return false
-    //   }
 
-    //   try {
-    //     const response = await api.post('token/refresh/', {
-    //       refresh: this.refreshToken
-    //     })
-    //     this.setTokens(response.data.access, this.refreshToken)
-    //     this.isLoggedIn = true
-    //     return true
-    //   } catch (error) {
-    //     console.error('Error refrescando token:', error)
-    //     this.clearTokens()
-    //     this.isLoggedIn = false
-    //     return false
-    //   }
-    // },
 
     // Iniciar sesión
     async login(username, password) {
