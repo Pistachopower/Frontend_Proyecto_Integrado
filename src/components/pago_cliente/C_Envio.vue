@@ -1,10 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useMetodoPagoStore } from '@/stores/metodoPagoStore.js'
 import { usePerfilStore } from '@/stores/usuarioPerfilStore.js'
 import { useCarritoStore } from '@/stores/carritoStore.js'
+
 
 const router = useRouter()
 const pagoStore = useMetodoPagoStore()
@@ -134,17 +135,85 @@ async function finalizarCompra() {
   }
 }
 
+// Computed para saber si el método seleccionado es PayPal
+const esPayPalDisponible = computed(() => {
+  const metodo = metodosPago.value.find(m => m.id === metodoPagoSeleccionado.value)
+  return metodo && metodo.tipo_metodo === 3 && metodo.detalles_billetera?.proveedor === 1
+})
+
+/**
+ * Inicia el flujo de pago con PayPal
+ */
+async function pagarConPayPal() {
+  // Validar dirección
+  if (!direccionEnvio.value.trim()) {
+    errorCompra.value = 'Por favor, introduce una dirección de envío.'
+    return
+  }
+  errorCompra.value = null
+  procesandoCompra.value = true
+  try {
+    // Crear pedido (finalizarCompra devuelve objeto, extraer pedido_id)
+    const responsePedido = await carritoStore.finalizarCompra(
+      direccionEnvio.value.trim(),
+      metodoPagoSeleccionado.value
+    )
+    // Extraer el id del pedido según backend
+    const pedidoId = responsePedido.pedido_id || responsePedido.id
+    // Llamar a endpoint para crear orden PayPal
+    const response = await pagoStore.crearOrdenPayPal(pedidoId)
+    if (response.success && response.approval_url) {
+      // Guardar payment_id en localStorage para usarlo al volver
+      localStorage.setItem('paypal_payment_id', response.order_id)
+      // Redirigir a PayPal
+      window.location.href = response.approval_url
+      return
+    } else {
+      errorCompra.value = response.error || 'Error al crear la orden de PayPal.'
+      return
+    }
+  } catch (error) {
+    errorCompra.value = 'Error al procesar el pago con PayPal.'
+  } finally {
+    procesandoCompra.value = false
+  }
+}
+
+
+
 onMounted(async () => {
   // 1. Asegurar que el perfil del usuario esté cargado
   if (!perfilStore.perfil) {
     await perfilStore.fetchPerfil()
   }
-  
+
   // 2. Cargar los métodos de pago del usuario
   await pagoStore.fetchMetodos()
-  
+
   // 3. Seleccionar un método por defecto
   seleccionarMetodoPorDefecto()
+
+  // 4. Capturar parámetros de PayPal al volver
+  const urlParams = new URLSearchParams(window.location.search)
+  const payerId = urlParams.get('PayerID')
+  const paymentId = urlParams.get('paymentId') || localStorage.getItem('paypal_payment_id')
+
+  if (payerId && paymentId) {
+    procesandoCompra.value = true
+    try {
+      const response = await pagoStore.capturarPagoPayPal(paymentId, payerId)
+      if (response.success) {
+        localStorage.removeItem('paypal_payment_id')
+        router.push({ name: 'Home' })
+      } else {
+        errorCompra.value = response.error || 'Error al capturar el pago de PayPal.'
+      }
+    } catch (e) {
+      errorCompra.value = 'Error al capturar el pago de PayPal.'
+    } finally {
+      procesandoCompra.value = false
+    }
+  }
 })
 </script>
 
@@ -243,19 +312,40 @@ onMounted(async () => {
           </div>
 
           <div class="d-flex justify-content-end">
-            <button 
-              type="submit" 
-              class="btn btn-dark py-3 px-5 fw-bold shadow-hover"
-              :disabled="procesandoCompra"
-            >
-              <span v-if="procesandoCompra">
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                Procesando...
-              </span>
-              <span v-else>
-                Finalizar Compra <i class="bi bi-check-circle ms-2"></i>
-              </span>
-            </button>
+            <div class="d-flex flex-column flex-md-row justify-content-end gap-2 mt-3">
+              <!-- Botón de pago normal -->
+              <button 
+                type="submit" 
+                class="btn btn-dark py-3 px-5 fw-bold shadow-hover"
+                :disabled="procesandoCompra"
+              >
+                <span v-if="procesandoCompra">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Procesando...
+                </span>
+                <span v-else>
+                  Finalizar Compra <i class="bi bi-check-circle ms-2"></i>
+                </span>
+              </button>
+
+              <!-- Botón de pago con PayPal -->
+              <button
+                type="button"
+                class="btn btn-outline-primary py-3 px-5 fw-bold shadow-hover d-flex align-items-center justify-content-center"
+                :disabled="procesandoCompra || !esPayPalDisponible"
+                @click="pagarConPayPal"
+                style="min-width: 220px;"
+              >
+                <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" style="height: 24px; margin-right: 8px;" />
+                <span v-if="procesandoCompra">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Procesando...
+                </span>
+                <span v-else>
+                  Pagar con PayPal
+                </span>
+              </button>
+            </div>
           </div>
         </form>
       </div>

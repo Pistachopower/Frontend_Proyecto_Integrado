@@ -17,6 +17,7 @@ import C_PerfilUsuarioMetodosPagos from '@/components/perfil_usuario/C_PerfilUsu
 import C_PerfilUsuarioDevoluciones from '@/components/perfil_usuario/C_PerfilUsuarioDevoluciones.vue';
 import C_PerfilUsuarioListaDeseos from '@/components/perfil_usuario/C_PerfilUsuarioListaDeseos.vue';
 import CategoriaDetalles from '@/components/C_CategoriaDetalles.vue';
+import C_PagoExitoso from '@/components/pago_cliente/C_PagoExitoso.vue';
 
 //componentes vendedor
 import C_VendedorView from '@/components/perfil_vendedor/C_VendedorView.vue';
@@ -169,6 +170,12 @@ const routes = [
     path: '/lista-deseos',
     name: 'lista-deseos',
     component: ListaDeseos,
+  },
+
+  {
+    path: '/pago/exito',
+    name: 'pago-exito',
+    component: C_PagoExitoso,
   },
 
   {

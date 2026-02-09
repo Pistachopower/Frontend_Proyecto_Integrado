@@ -90,6 +90,36 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
       } catch (error) {
         console.error(error);
       }
+    },
+
+    // --- ACCIÓN PAYPAL: Crear orden ---
+    async crearOrdenPayPal(pedidoId) {
+      try {
+        const response = await api.post('paypal/crear-orden/', { pedido_id: pedidoId });
+        return response.data;
+      } catch (error) {
+        return { success: false, error: error.response?.data?.error || 'Error al crear la orden PayPal.' };
+      }
+    },
+
+    // --- ACCIÓN PAYPAL: Capturar pago ---
+    async capturarPagoPayPal(paymentId, payerId) {
+      try {
+        const response = await api.post('paypal/capturar-pago/', { payment_id: paymentId, payer_id: payerId });
+        return response.data;
+      } catch (error) {
+        return { success: false, error: error.response?.data?.error || 'Error al capturar el pago PayPal.' };
+      }
+    },
+
+    // --- ACCIÓN PAYPAL: Cancelar pago ---
+    async cancelarPagoPayPal(paymentId) {
+      try {
+        const response = await api.post('paypal/cancelar-pago/', { payment_id: paymentId });
+        return response.data;
+      } catch (error) {
+        return { success: false, error: error.response?.data?.error || 'Error al cancelar el pago PayPal.' };
+      }
     }
   },
 });
