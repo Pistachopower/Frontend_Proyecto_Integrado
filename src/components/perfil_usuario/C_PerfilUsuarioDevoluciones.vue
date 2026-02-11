@@ -57,7 +57,7 @@ const fetchDevoluciones = async () => {
   try {
     const response = await api.get('mis-devoluciones/');
     devoluciones.value = response.data;
-    console.log("📦 Devoluciones recibidas:", response.data);
+    //console.log("📦 Devoluciones recibidas:", response.data);
   } catch (err) {
     console.error("Error obteniendo devoluciones:", err);
     error.value = 'No se pudo cargar el historial de devoluciones.';

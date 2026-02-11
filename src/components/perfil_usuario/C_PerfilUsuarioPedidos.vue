@@ -5,8 +5,8 @@ import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 //import { storeToRefs } from 'pinia';
 
 const perfilStore = usePerfilStore();
-//const perfil  = storeToRefs(perfilStore);
-console.log("Perfil store", perfilStore.perfil.id);
+
+//console.log("Perfil store", perfilStore.perfil.id);
 
 
 
@@ -42,7 +42,8 @@ const getEstadoInfo = (numEstado) => {
         2: { texto: 'Pagado', clase: 'bg-info text-dark' },
         3: { texto: 'Enviado', clase: 'bg-primary text-white' },
         4: { texto: 'Entregado', clase: 'bg-success text-white' },
-        5: { texto: 'Cancelado', clase: 'bg-danger text-white' }
+        5: { texto: 'Cancelado', clase: 'bg-danger text-white' },
+        6: { texto: 'En carrito', clase: 'bg-secondary text-dark' }
     };
     return diccionario[numEstado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
 };
@@ -53,12 +54,12 @@ const fetchPedidos = async () => {
     error.value = null;
     try {
         // Asegúrate que sea 'pedidos/' o 'pedido/' según tu urls.py
-        console.log("Perfil:", perfilStore.perfil);
+        //console.log("Perfil:", perfilStore.perfil);
 
         const response = await api.get('pedido/?cliente_id=' + perfilStore.perfil.id);
         
         pedidos.value = response.data; 
-        console.log("📦 Datos recibidos:", response.data);
+        //console.log("📦 Datos recibidos:", response.data);
 
     } catch (err) {
         console.error("Error obteniendo pedidos:", err);
@@ -106,7 +107,7 @@ onMounted(() => {
         <table class="table table-hover align-middle mb-0">
           <thead class="bg-light">
             <tr>
-              <th class="border-0 text-muted small text-uppercase ps-3">Pedido #</th>
+              <th class="border-0 text-muted small text-uppercase ps-3">Pedido </th>
               <th class="border-0 text-muted small text-uppercase">Fecha</th>
               <th class="border-0 text-muted small text-uppercase">Estado</th>
               <th class="border-0 text-muted small text-uppercase text-end">Total</th>
@@ -122,7 +123,7 @@ onMounted(() => {
                     :class="{'table-active': pedidoExpandido === pedido.id}"
                     @click="toggleDetalle(pedido.id)"
                 >
-                  <td class="fw-bold ps-3 text-primary">#{{ pedido.id }}</td>
+                  <td class="fw-bold ps-3 text-primary">{{ pedido.id }}</td>
                   <td>{{ formatoFecha(pedido.fecha_pedido) }}</td>
                   <td>
                     <span class="badge rounded-pill" :class="getEstadoInfo(pedido.estado).clase">

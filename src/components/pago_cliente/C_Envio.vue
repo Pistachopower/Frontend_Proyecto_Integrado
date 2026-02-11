@@ -82,21 +82,6 @@ function getDetalleMetodo(metodo) {
   return 'Método de pago'
 }
 
-/**
- * Selecciona automáticamente el mejor método de pago disponible
- * Prioridad: predeterminado > primero de la lista
- */
-function seleccionarMetodoPorDefecto() {
-  // Buscar el método marcado como predeterminado
-  const predeterminado = metodosPago.value.find(m => m.es_predeterminado)
-  
-  if (predeterminado) {
-    metodoPagoSeleccionado.value = predeterminado.id
-  } else if (metodosPago.value.length > 0) {
-    // Si no hay predeterminado, seleccionar el primero
-    metodoPagoSeleccionado.value = metodosPago.value[0].id
-  }
-}
 
 /**
  * Procesa la compra llamando al endpoint de finalización
@@ -116,29 +101,40 @@ async function finalizarCompra() {
       direccionEnvio.value.trim(),
       metodoPagoSeleccionado.value
     )
-    
     // Compra exitosa, redirigir al home
     router.push({ name: 'Home' })
   } catch (error) {
-    // Mostrar mensaje de error
-    if (error.response?.data?.error) {
-      errorCompra.value = error.response.data.error
-    } else if (error.response?.data?.detail) {
-      errorCompra.value = error.response.data.detail
-    } else if (error.response?.data?.message) {
-      errorCompra.value = error.response.data.message
+    if (error.response?.data) {
+      errorCompra.value =
+        error.response.data.error ||
+        error.response.data.detail ||
+        error.response.data.message ||
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data));
+    } else if (error.message) {
+      errorCompra.value = error.message;
     } else {
-      errorCompra.value = 'Error al procesar la compra. Inténtalo de nuevo.'
+      errorCompra.value = 'Error al procesar la compra. Inténtalo de nuevo.';
     }
   } finally {
-    procesandoCompra.value = false
+    procesandoCompra.value = false;
   }
 }
 
 // Computed para saber si el método seleccionado es PayPal
 const esPayPalDisponible = computed(() => {
+  // Buscar el método seleccionado
   const metodo = metodosPago.value.find(m => m.id === metodoPagoSeleccionado.value)
-  return metodo && metodo.tipo_metodo === 3 && metodo.detalles_billetera?.proveedor === 1
+  
+  // Si no hay método seleccionado, PayPal no está disponible
+  if (metodo === undefined || metodo === null) {
+    return false
+  }
+  // Debe ser billetera digital
+  const esBilleteraDigital = metodo.tipo_metodo === 3
+  // Debe ser proveedor PayPal
+  const esProveedorPayPal = metodo.detalles_billetera && metodo.detalles_billetera.proveedor === 1
+  // Solo disponible si ambas condiciones se cumplen
+  return esBilleteraDigital && esProveedorPayPal
 })
 
 /**
@@ -148,23 +144,29 @@ async function pagarConPayPal() {
   // Validar dirección
   if (!direccionEnvio.value.trim()) {
     errorCompra.value = 'Por favor, introduce una dirección de envío.'
-    return
+    return //Detener ejecución si no hay dirección válida
   }
+
   errorCompra.value = null
   procesandoCompra.value = true
   try {
+
     // Crear pedido (finalizarCompra devuelve objeto, extraer pedido_id)
     const responsePedido = await carritoStore.finalizarCompra(
       direccionEnvio.value.trim(),
       metodoPagoSeleccionado.value
     )
+
     // Extraer el id del pedido según backend
     const pedidoId = responsePedido.pedido_id || responsePedido.id
-    // Llamar a endpoint para crear orden PayPal
+    
+
     const response = await pagoStore.crearOrdenPayPal(pedidoId)
+    
     if (response.success && response.approval_url) {
       // Guardar payment_id en localStorage para usarlo al volver
       localStorage.setItem('paypal_payment_id', response.order_id)
+      
       // Redirigir a PayPal
       window.location.href = response.approval_url
       return
@@ -173,9 +175,19 @@ async function pagarConPayPal() {
       return
     }
   } catch (error) {
-    errorCompra.value = 'Error al procesar el pago con PayPal.'
+    if (error.response?.data) {
+      errorCompra.value =
+        error.response.data.error ||
+        error.response.data.detail ||
+        error.response.data.message ||
+        (typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data));
+    } else if (error.message) {
+      errorCompra.value = error.message;
+    } else {
+      errorCompra.value = 'Error al procesar el pago con PayPal.';
+    }
   } finally {
-    procesandoCompra.value = false
+    procesandoCompra.value = false;
   }
 }
 
@@ -190,10 +202,7 @@ onMounted(async () => {
   // 2. Cargar los métodos de pago del usuario
   await pagoStore.fetchMetodos()
 
-  // 3. Seleccionar un método por defecto
-  seleccionarMetodoPorDefecto()
-
-  // 4. Capturar parámetros de PayPal al volver
+  // 3. Capturar parámetros de PayPal al volver
   const urlParams = new URLSearchParams(window.location.search)
   const payerId = urlParams.get('PayerID')
   const paymentId = urlParams.get('paymentId') || localStorage.getItem('paypal_payment_id')
@@ -202,9 +211,13 @@ onMounted(async () => {
     procesandoCompra.value = true
     try {
       const response = await pagoStore.capturarPagoPayPal(paymentId, payerId)
+      
+      // Si el pago se capturó correctamente, redirigir a la página de éxito
       if (response.success) {
+        // Limpiar el payment_id del localStorage por si el usuario vuelve a esta página sin pasar por PayPal
         localStorage.removeItem('paypal_payment_id')
-        router.push({ name: 'Home' })
+        
+        router.push({ name: 'pago-exito' })
       } else {
         errorCompra.value = response.error || 'Error al capturar el pago de PayPal.'
       }
@@ -349,61 +362,6 @@ onMounted(async () => {
           </div>
         </form>
       </div>
-
-      <!-- <div class="col-12 col-lg-5">
-        <div class="card border-0 shadow-sm bg-light sticky-summary">
-          <div class="card-body p-4">
-            <h5 class="fw-bold mb-4">Resumen de tu cesta</h5>
-            
-            <div class="cart-items mb-4">
-              <div class="d-flex gap-3 mb-3 bg-white p-2 rounded shadow-sm">
-                <img src="https://placehold.co/80x80/png?text=Alt" class="rounded bg-light" width="60" height="60" style="object-fit: cover;">
-                <div class="flex-grow-1">
-                  <h6 class="mb-0 fw-bold small text-truncate">Alternador Bosch 12V</h6>
-                  <div class="d-flex justify-content-between align-items-center mt-1">
-                    <small class="text-muted">Cant: 1</small>
-                    <small class="fw-bold">150,00 €</small>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex gap-3 mb-3 bg-white p-2 rounded shadow-sm">
-                <img src="https://placehold.co/80x80/png?text=Bat" class="rounded bg-light" width="60" height="60" style="object-fit: cover;">
-                <div class="flex-grow-1">
-                  <h6 class="mb-0 fw-bold small text-truncate">Batería 60Ah</h6>
-                  <div class="d-flex justify-content-between align-items-center mt-1">
-                    <small class="text-muted">Cant: 1</small>
-                    <small class="fw-bold">80,00 €</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <hr>
-
-            <div class="d-flex justify-content-between mb-2 small">
-              <span class="text-muted">Subtotal</span>
-              <span class="fw-bold">230,00 €</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2 small">
-              <span class="text-muted">Envío</span>
-              <span class="fw-bold text-success">Gratis</span>
-            </div>
-            <div class="d-flex justify-content-between mb-3 small">
-              <span class="text-muted">Impuestos (est.)</span>
-              <span class="fw-bold">48,30 €</span>
-            </div>
-
-            <hr>
-
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold fs-5">Total</span>
-              <span class="fw-bold fs-3 text-primary">278,30 €</span>
-            </div>
-
-          </div>
-        </div>
-      </div> -->
-
     </div>
   </div>
 </template>
