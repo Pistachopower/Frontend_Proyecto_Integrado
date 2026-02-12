@@ -27,7 +27,7 @@ import C_VendedorPedidos from '@/components/perfil_vendedor/C_VendedorPedidos.vu
 import C_VendedorProductos from '@/components/perfil_vendedor/C_VendedorProductos.vue';
 import C_VendedorClientes from '@/components/perfil_vendedor/C_VendedorListaClientes.vue';
 import C_VendedorDevoluciones from '@/components/perfil_vendedor/C_VendedorDevoluciones.vue';
-
+import C_PagoCancelado from '@/components/pago_cliente/C_PagoCancelado.vue';
 //guards
 //import { requireVendedor, requireCliente, requireAuth } from './guards.js'
 
@@ -176,6 +176,12 @@ const routes = [
     path: '/pago/exito',
     name: 'pago-exito',
     component: C_PagoExitoso,
+  },
+
+  {
+    path: '/pago/cancelado',
+    name: 'pago-cancelado',
+    component: C_PagoCancelado,
   },
 
   {

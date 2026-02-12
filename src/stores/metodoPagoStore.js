@@ -67,14 +67,14 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
           payload.detalles_billetera = { ...datosFormulario.detalles_billetera };
         }
 
-        console.log("📤 Enviando al backend:", payload);
+        //console.log("📤 Enviando al backend:", payload);
 
         const response = await api.post('metodo_pago_cliente/', payload);
         this.metodos.push(response.data);
         return true;
 
       } catch (error) {
-        console.error('Error al crear método:', error);
+        //console.error('Error al crear método:', error);
         this.error = error.response?.data?.detail || 'Error al guardar.';
         return false;
       } finally {
