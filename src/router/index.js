@@ -8,7 +8,7 @@ import DetalleProducto from '../components/C_DetalleProducto.vue'
 import Carrito from '../components/C_Carrito.vue'
 import ProcesoPago from '../components/pago_cliente/C_Envio.vue'
 import ListaDeseos from '../components/C_ListaDeseos.vue'
-import RecuperarContrasena from '../components/C_RecuperarPassword.vue'
+import RecuperarContrasena from '../components/cambiar_passwordUser/C_RecuperarPassword.vue'
 import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
 import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
@@ -184,10 +184,18 @@ const routes = [
     component: C_PagoCancelado,
   },
 
+
   {
     path: '/recuperar-contrasena',
     name: 'recuperar-contrasena',
     component: RecuperarContrasena,
+  },
+
+  {
+    path: '/restablecer-contrasena',
+    name: 'restablecer-contrasena',
+    component: () => import('@/components/cambiar_passwordUser/C_RestablecerPassword.vue'),
+
   },
 
   {

@@ -1,3 +1,27 @@
+<script setup> 
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+
+const email = ref('')
+const mensaje = ref('')
+const cargando = ref(false)
+const authStore = useAuthStore()
+
+async function enviarRecuperacion() {
+  mensaje.value = ''
+  cargando.value = true
+  const result = await authStore.resetPassword(email.value)
+  
+  if (result.success) {
+    mensaje.value = result.message || 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña.'
+  } else {
+    mensaje.value = result.error || 'No se pudo enviar el correo de recuperación.'
+  }
+  cargando.value = false
+}
+</script>
+
+
 <template>
   <div class="recovery-container d-flex align-items-center justify-content-center min-vh-100 bg-light px-3">
     
@@ -14,10 +38,11 @@
           </p>
         </div>
 
-        <form>
-          
+
+        <form @submit.prevent="enviarRecuperacion">
           <div class="form-floating mb-4">
             <input 
+              v-model="email"
               type="email" 
               class="form-control" 
               id="recoveryEmail" 
@@ -26,14 +51,14 @@
             >
             <label for="recoveryEmail">Correo Electrónico</label>
           </div>
-
           <button 
             type="submit" 
+            :disabled="cargando.value"
             class="btn btn-primary w-100 py-3 fw-bold shadow-sm button-hover"
           >
             Recuperar Contraseña
           </button>
-
+          <p v-if="mensaje">{{ mensaje }}</p>
         </form>
 
         <div class="text-center mt-4 pt-3 border-top">

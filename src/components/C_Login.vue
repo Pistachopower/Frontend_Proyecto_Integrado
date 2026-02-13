@@ -101,6 +101,13 @@ async function handleLogin() {
                 </router-link>
               </div>
 
+              <div class="text-center mt-4 pt-3 border-top">
+                <p class="small text-muted mb-0">¿Has olvidado la contraseña?</p>
+                <router-link to="/recuperar-contrasena" class="text-decoration-none fw-bold text-primary">
+                  Recupérala aquí
+                </router-link>
+              </div>
+
             </div>
           </div>
           <div class="text-center mt-3">

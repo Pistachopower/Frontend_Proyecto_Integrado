@@ -100,6 +100,48 @@ export const useAuthStore = defineStore('auth', {
         this.isLoggedIn = false
       }
     },
+
+    // Recuperar contraseña
+    async resetPassword(email) {
+      this.errorMessage = null
+      this.isLoading = true
+      try {
+        const response = await api.post('/password-reset/', { email })
+        // Si el backend responde con un mensaje en 'detail', lo devolvemos
+        const msg = response.data?.detail || 'Si el correo existe, recibirás instrucciones para restablecer tu contraseña.'
+        return { success: true, message: msg }
+      } catch (error) {
+        console.error('Error en recuperación de contraseña:', error)
+        this.errorMessage = error.response?.data?.error || 'No se pudo enviar el correo de recuperación.'
+        return { success: false, error: this.errorMessage }
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    // Confirmar reseteo de contraseña
+    async resetPasswordConfirm({ uid, token, new_password }) {
+      this.errorMessage = null
+      this.isLoading = true
+      try {
+        const response = await api.post('auth/password-reset/confirm/', {
+          uid,
+          token,
+          new_password
+        })
+        const msg = response.data?.detail || '¡Contraseña restablecida exitosamente!'
+        return { success: true, message: msg }
+      
+      } catch (error) {
+        console.error('Error al confirmar reseteo de contraseña:', error)
+        //TO DO: Mejorar mensaje de error según respuesta del backend
+        this.errorMessage = error.response?.data?.error || 'No se pudo restablecer la contraseña.'
+        return { success: false, error: this.errorMessage }
+      
+      } finally {
+        this.isLoading = false
+      }
+    },
   },
 })
 
