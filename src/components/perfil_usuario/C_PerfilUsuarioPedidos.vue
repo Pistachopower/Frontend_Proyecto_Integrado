@@ -74,6 +74,30 @@ const toggleDetalle = (idPedido) => {
     pedidoExpandido.value = pedidoExpandido.value === idPedido ? null : idPedido;
 };
 
+
+
+const descargarFacturaPDF = async (idPedido) => {
+  try {
+    const response = await api.get(`pedido/${idPedido}/factura_cliente/`, {
+    responseType: 'blob' // Indica que esperas un archivo binario (PDF)
+    });
+
+    //convierte los datos binarios del PDF en una URL que el navegador puede abrir o descargar.
+    const url = window.URL.createObjectURL(
+        new Blob(
+                [response.data], 
+                { type: 'application/pdf' }));
+
+    // Abre la URL en una nueva ventana o pestaña
+    const win = window.open(url, '_blank');
+
+  } catch (err) {
+    alert('No se pudo descargar la factura.');
+  }
+};
+
+
+
 onMounted(() => {
     fetchPedidos();
 });
@@ -107,11 +131,11 @@ onMounted(() => {
         <table class="table table-hover align-middle mb-0">
           <thead class="bg-light">
             <tr>
-              <th class="border-0 text-muted small text-uppercase ps-3">Pedido </th>
-              <th class="border-0 text-muted small text-uppercase">Fecha</th>
-              <th class="border-0 text-muted small text-uppercase">Estado</th>
-              <th class="border-0 text-muted small text-uppercase text-end">Total</th>
-              <th class="border-0"></th>
+                <th class="border-0 text-muted small text-uppercase ps-3">Pedido </th>
+                <th class="border-0 text-muted small text-uppercase">Fecha</th>
+                <th class="border-0 text-muted small text-uppercase">Estado</th>
+                <th class="border-0 text-muted small text-uppercase text-end">Total</th>
+                <th class="border-0"></th>
             </tr>
           </thead>
           <tbody>
@@ -143,6 +167,11 @@ onMounted(() => {
                             <h6 class="fw-bold text-muted small mb-3 border-bottom pb-2">
                                 <i class="bi bi-box-seam me-1"></i> DETALLES DEL PEDIDO
                             </h6>
+
+                            <!-- Botón para descargar factura PDF -->
+                            <button class="btn btn-outline-primary btn-sm" @click.stop="descargarFacturaPDF(pedido.id)">
+                              <i class="bi bi-printer"></i> Imprimir Factura
+                            </button>
                             
                             <div v-if="pedido.lineas_pedido && pedido.lineas_pedido.length > 0">
                                 <div 
