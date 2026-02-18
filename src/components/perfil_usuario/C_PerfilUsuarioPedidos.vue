@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import api from '@/services/axiosRequest.js';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 //import { storeToRefs } from 'pinia';
@@ -15,6 +15,28 @@ const pedidos = ref([]);
 const cargando = ref(true);
 const error = ref(null);
 const pedidoExpandido = ref(null);
+
+// NUEVO: Estado para el filtro por ID
+const filtroId = ref('');
+
+// NUEVO: Método para filtrar por ID
+const filtrarPedidosPorId = async () => {
+    if (!filtroId.value) {
+        fetchPedidos(); // Si el filtro está vacío, carga todos
+        return;
+    }
+    cargando.value = true;
+    error.value = null;
+    try {
+        const response = await api.get(`pedido/filtrar_pedidosCliente/?id=${filtroId.value}`);
+        pedidos.value = response.data;
+    } catch (err) {
+        error.value = 'No se pudo filtrar los pedidos.';
+    } finally {
+        cargando.value = false;
+    }
+};
+
 
 // --- HELPER: Formato de Moneda ---
 const formatoMoneda = (valor) => {
@@ -101,6 +123,8 @@ const descargarFacturaPDF = async (idPedido) => {
 onMounted(() => {
     fetchPedidos();
 });
+
+
 </script>
 
 <template>
@@ -138,10 +162,20 @@ onMounted(() => {
                             <th class="border-0"></th>
                         </tr>
 
-                        <!-- Fila de filtros -->
+                        <!-- Fila de filtros 
+                        @keyup.enter: se ejecuta el método indicado cuando el usuario presiona la tecla Enter
+                        @blur: se ejecuta el método indicado cuando el campo de entrada pierde el foco (cuando el usuario hace clic fuera del campo o navega a otro elemento)
+                        -->
                         <tr>
                             <th class="ps-3">
-                                <input type="text" class="form-control form-control-sm" placeholder="Filtrar por ID" />
+                                <input type="text" class="form-control form-control-sm" 
+                                    placeholder="Filtrar por ID (presiona Enter)"
+                                    v-model="filtroId"
+                                    
+                                    @keyup.enter="filtrarPedidosPorId" 
+                                    @blur="filtrarPedidosPorId"
+                                    
+                                    />
                             </th>
                             <th>
                                 <input type="date" class="form-control form-control-sm"
@@ -213,13 +247,13 @@ onMounted(() => {
                                                         </span>
                                                         <span class="text-muted small" style="font-size: 0.8rem;">
                                                             <i class="bi bi-upc-scan me-1"></i>Ref: {{
-                                                            linea.pieza.referencia }}
+                                                                linea.pieza.referencia }}
                                                         </span>
                                                     </div>
 
                                                     <div class="text-muted small mt-1">
                                                         Cant: <strong>{{ linea.cantidad }}</strong> x {{
-                                                        formatoMoneda(linea.precio_unitario) }}
+                                                            formatoMoneda(linea.precio_unitario) }}
                                                     </div>
                                                 </div>
 
