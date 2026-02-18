@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '@/services/axiosRequest.js'; 
+import api from '@/services/axiosRequest.js';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 //import { storeToRefs } from 'pinia';
 
@@ -14,13 +14,13 @@ const perfilStore = usePerfilStore();
 const pedidos = ref([]);
 const cargando = ref(true);
 const error = ref(null);
-const pedidoExpandido = ref(null); 
+const pedidoExpandido = ref(null);
 
 // --- HELPER: Formato de Moneda ---
 const formatoMoneda = (valor) => {
-    return new Intl.NumberFormat('es-ES', { 
-        style: 'currency', 
-        currency: 'EUR' 
+    return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'EUR'
     }).format(valor);
 };
 
@@ -28,10 +28,10 @@ const formatoMoneda = (valor) => {
 const formatoFecha = (fechaString) => {
     if (!fechaString) return '';
     const fecha = new Date(fechaString);
-    return fecha.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    return fecha.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 };
 
@@ -57,8 +57,8 @@ const fetchPedidos = async () => {
         //console.log("Perfil:", perfilStore.perfil);
 
         const response = await api.get('pedido/?cliente_id=' + perfilStore.perfil.id);
-        
-        pedidos.value = response.data; 
+
+        pedidos.value = response.data;
         //console.log("📦 Datos recibidos:", response.data);
 
     } catch (err) {
@@ -77,23 +77,23 @@ const toggleDetalle = (idPedido) => {
 
 
 const descargarFacturaPDF = async (idPedido) => {
-  try {
-    const response = await api.get(`pedido/${idPedido}/factura_cliente/`, {
-    responseType: 'blob' // Indica que esperas un archivo binario (PDF)
-    });
+    try {
+        const response = await api.get(`pedido/${idPedido}/factura_cliente/`, {
+            responseType: 'blob' // Indica que esperas un archivo binario (PDF)
+        });
 
-    //convierte los datos binarios del PDF en una URL que el navegador puede abrir o descargar.
-    const url = window.URL.createObjectURL(
-        new Blob(
-                [response.data], 
+        //convierte los datos binarios del PDF en una URL que el navegador puede abrir o descargar.
+        const url = window.URL.createObjectURL(
+            new Blob(
+                [response.data],
                 { type: 'application/pdf' }));
 
-    // Abre la URL en una nueva ventana o pestaña
-    const win = window.open(url, '_blank');
+        // Abre la URL en una nueva ventana o pestaña
+        const win = window.open(url, '_blank');
 
-  } catch (err) {
-    alert('No se pudo descargar la factura.');
-  }
+    } catch (err) {
+        alert('No se pudo descargar la factura.');
+    }
 };
 
 
@@ -104,146 +104,201 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="card border-0 shadow-sm animate-fade">
-    
-    <div class="card-header bg-white border-0 py-3">
-      <h5 class="mb-0 fw-bold text-primary">Historial de Pedidos</h5>
-    </div>
+    <div class="card border-0 shadow-sm animate-fade">
 
-    <div class="card-body">
-      
-      <div v-if="cargando" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-2 text-muted small">Cargando tus pedidos...</p>
-      </div>
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 fw-bold text-primary">Historial de Pedidos</h5>
+        </div>
 
-      <div v-else-if="error" class="alert alert-danger d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <div>{{ error }}</div>
-      </div>
+        <div class="card-body">
 
-      <div v-else-if="pedidos.length === 0" class="text-center py-5">
-        <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
-        <h5 class="mt-3 text-muted">Aún no has realizado pedidos.</h5>
-      </div>
+            <div v-if="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted small">Cargando tus pedidos...</p>
+            </div>
 
-      <div v-else class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light">
-            <tr>
-                <th class="border-0 text-muted small text-uppercase ps-3">Pedido </th>
-                <th class="border-0 text-muted small text-uppercase">Fecha</th>
-                <th class="border-0 text-muted small text-uppercase">Estado</th>
-                <th class="border-0 text-muted small text-uppercase text-end">Total</th>
-                <th class="border-0"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-            <template v-for="pedido in pedidos" :key="pedido.id">
-                
-                <tr 
-                    class="cursor-pointer transition-bg" 
-                    :class="{'table-active': pedidoExpandido === pedido.id}"
-                    @click="toggleDetalle(pedido.id)"
-                >
-                  <td class="fw-bold ps-3 text-primary">{{ pedido.id }}</td>
-                  <td>{{ formatoFecha(pedido.fecha_pedido) }}</td>
-                  <td>
-                    <span class="badge rounded-pill" :class="getEstadoInfo(pedido.estado).clase">
-                        {{ getEstadoInfo(pedido.estado).texto }}
-                    </span>
-                  </td>
-                  <td class="text-end fw-bold">{{ formatoMoneda(pedido.total) }}</td>
-                  <td class="text-end pe-3">
-                    <i class="bi" :class="pedidoExpandido === pedido.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-                  </td>
-                </tr>
+            <div v-else-if="error" class="alert alert-danger d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>{{ error }}</div>
+            </div>
 
-                <tr v-if="pedidoExpandido === pedido.id" class="bg-light-subtle">
-                    <td colspan="5" class="p-0 border-0">
-                        <div class="p-4 animate-slide">
-                            
-                            <h6 class="fw-bold text-muted small mb-3 border-bottom pb-2">
-                                <i class="bi bi-box-seam me-1"></i> DETALLES DEL PEDIDO
-                            </h6>
+            <div v-else-if="pedidos.length === 0" class="text-center py-5">
+                <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
+                <h5 class="mt-3 text-muted">Aún no has realizado pedidos.</h5>
+            </div>
 
-                            <!-- Botón para descargar factura PDF -->
-                            <button class="btn btn-outline-primary btn-sm" @click.stop="descargarFacturaPDF(pedido.id)">
-                              <i class="bi bi-printer"></i> Imprimir Factura
-                            </button>
-                            
-                            <div v-if="pedido.lineas_pedido && pedido.lineas_pedido.length > 0">
-                                <div 
-                                    v-for="linea in pedido.lineas_pedido" 
-                                    :key="linea.id" 
-                                    class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3"
-                                >
-                                    <div>
-                                        <div class="fw-bold text-dark fs-6">
-                                            {{ linea.pieza.nombre }}
-                                            <span class="badge bg-secondary ms-2" title="ID Línea de Pedido">
-                                                Línea #{{ linea.id }}
-                                            </span>
+            <div v-else class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase ps-3">Pedido </th>
+                            <th class="border-0 text-muted small text-uppercase">Fecha</th>
+                            <th class="border-0 text-muted small text-uppercase">Estado</th>
+                            <th class="border-0 text-muted small text-uppercase text-end">Total</th>
+                            <th class="border-0"></th>
+                        </tr>
+
+                        <!-- Fila de filtros -->
+                        <tr>
+                            <th class="ps-3">
+                                <input type="text" class="form-control form-control-sm" placeholder="Filtrar por ID" />
+                            </th>
+                            <th>
+                                <input type="date" class="form-control form-control-sm"
+                                    placeholder="Filtrar por fecha" />
+                            </th>
+                            <th>
+                                <select class="form-select form-select-sm">
+                                    <option value="">Todos</option>
+                                    <option value="1">Pendiente</option>
+                                    <option value="2">Pagado</option>
+                                    <option value="3">Enviado</option>
+                                    <option value="4">Entregado</option>
+                                    <option value="5">Cancelado</option>
+                                    <option value="6">En carrito</option>
+                                </select>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <template v-for="pedido in pedidos" :key="pedido.id">
+
+                            <tr class="cursor-pointer transition-bg"
+                                :class="{ 'table-active': pedidoExpandido === pedido.id }"
+                                @click="toggleDetalle(pedido.id)">
+                                <td class="fw-bold ps-3 text-primary">{{ pedido.id }}</td>
+                                <td>{{ formatoFecha(pedido.fecha_pedido) }}</td>
+                                <td>
+                                    <span class="badge rounded-pill" :class="getEstadoInfo(pedido.estado).clase">
+                                        {{ getEstadoInfo(pedido.estado).texto }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold">{{ formatoMoneda(pedido.total) }}</td>
+                                <td class="text-end pe-3">
+                                    <i class="bi"
+                                        :class="pedidoExpandido === pedido.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                </td>
+                            </tr>
+
+                            <tr v-if="pedidoExpandido === pedido.id" class="bg-light-subtle">
+                                <td colspan="5" class="p-0 border-0">
+                                    <div class="p-4 animate-slide">
+
+                                        <h6 class="fw-bold text-muted small mb-3 border-bottom pb-2">
+                                            <i class="bi bi-box-seam me-1"></i> DETALLES DEL PEDIDO
+                                        </h6>
+
+                                        <!-- Botón para descargar factura PDF -->
+                                        <button class="btn btn-outline-primary btn-sm"
+                                            @click.stop="descargarFacturaPDF(pedido.id)">
+                                            <i class="bi bi-printer"></i> Imprimir Factura
+                                        </button>
+
+                                        <div v-if="pedido.lineas_pedido && pedido.lineas_pedido.length > 0">
+                                            <div v-for="linea in pedido.lineas_pedido" :key="linea.id"
+                                                class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                                                <div>
+                                                    <div class="fw-bold text-dark fs-6">
+                                                        {{ linea.pieza.nombre }}
+                                                        <span class="badge bg-secondary ms-2"
+                                                            title="ID Línea de Pedido">
+                                                            Línea #{{ linea.id }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="mt-1">
+                                                        <span class="badge bg-light text-dark border me-2">
+                                                            {{ linea.pieza.marca }} {{ linea.pieza.anio }}
+                                                        </span>
+                                                        <span class="text-muted small" style="font-size: 0.8rem;">
+                                                            <i class="bi bi-upc-scan me-1"></i>Ref: {{
+                                                            linea.pieza.referencia }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="text-muted small mt-1">
+                                                        Cant: <strong>{{ linea.cantidad }}</strong> x {{
+                                                        formatoMoneda(linea.precio_unitario) }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-end">
+                                                    <div class="fw-bold fs-6">
+                                                        {{ formatoMoneda(linea.subtotal) }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div class="mt-1">
-                                            <span class="badge bg-light text-dark border me-2">
-                                                {{ linea.pieza.marca }} {{ linea.pieza.anio }}
-                                            </span>
-                                            <span class="text-muted small" style="font-size: 0.8rem;">
-                                                <i class="bi bi-upc-scan me-1"></i>Ref: {{ linea.pieza.referencia }}
-                                            </span>
+                                        <div v-else class="text-muted small fst-italic">
+                                            No hay líneas de productos asociadas a este pedido.
                                         </div>
-                                    
-                                        <div class="text-muted small mt-1">
-                                            Cant: <strong>{{ linea.cantidad }}</strong> x {{ formatoMoneda(linea.precio_unitario) }}
+
+                                        <div class="mt-3 pt-2 text-end small">
+                                            <span class="text-muted me-1">Enviado a:</span>
+                                            <span class="fw-bold text-dark">{{ pedido.direccion_envio }}</span>
                                         </div>
+
                                     </div>
-    
-                                    <div class="text-end">
-                                        <div class="fw-bold fs-6">
-                                            {{ formatoMoneda(linea.subtotal) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div v-else class="text-muted small fst-italic">
-                                No hay líneas de productos asociadas a este pedido.
-                            </div>
+                                </td>
+                            </tr>
 
-                            <div class="mt-3 pt-2 text-end small">
-                                <span class="text-muted me-1">Enviado a:</span>
-                                <span class="fw-bold text-dark">{{ pedido.direccion_envio }}</span>
-                            </div>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
 
-                        </div>
-                    </td>
-                </tr>
-
-            </template> 
-          </tbody>
-        </table>
-      </div>
-
+        </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
-.cursor-pointer { cursor: pointer; }
-.text-uppercase { font-size: 0.75rem; letter-spacing: 0.5px; }
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-uppercase {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
 
 /* Animación de entrada suave del componente */
-.animate-fade { animation: fadeIn 0.4s ease-in-out; }
+.animate-fade {
+    animation: fadeIn 0.4s ease-in-out;
+}
 
 /* Animación de despliegue del acordeón */
-.animate-slide { animation: slideDown 0.3s ease-out; }
+.animate-slide {
+    animation: slideDown 0.3s ease-out;
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* Efecto hover suave */
-.transition-bg { transition: background-color 0.2s; }
+.transition-bg {
+    transition: background-color 0.2s;
+}
 </style>
