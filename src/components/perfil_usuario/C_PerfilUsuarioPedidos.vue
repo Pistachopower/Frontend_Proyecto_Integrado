@@ -16,19 +16,29 @@ const cargando = ref(true);
 const error = ref(null);
 const pedidoExpandido = ref(null);
 
-// NUEVO: Estado para el filtro por ID
+// Filtros reactivos
 const filtroId = ref('');
+const filtroFecha = ref('');
+const filtroEstado = ref('');
 
-// NUEVO: Método para filtrar por ID
-const filtrarPedidosPorId = async () => {
-    if (!filtroId.value) {
-        fetchPedidos(); // Si el filtro está vacío, carga todos
-        return;
-    }
+// Método para filtrar pedidos por id, fecha y estado
+const filtrarPedidos = async () => {
     cargando.value = true;
     error.value = null;
     try {
-        const response = await api.get(`pedido/filtrar_pedidosCliente/?id=${filtroId.value}`);
+        // Construir objeto de parámetros
+        const params = {};
+        if (filtroId.value) params.id = filtroId.value;
+        if (filtroFecha.value) params.fecha_pedido = filtroFecha.value;
+        if (filtroEstado.value) params.estado = filtroEstado.value;
+
+        // Si no hay filtros, cargar todos los pedidos del cliente
+        if (Object.keys(params).length === 0) {
+            fetchPedidos();
+            return;
+        }
+
+        const response = await api.get('pedido/filtrar_pedidosCliente/', { params });
         pedidos.value = response.data;
     } catch (err) {
         error.value = 'No se pudo filtrar los pedidos.';
@@ -68,6 +78,14 @@ const getEstadoInfo = (numEstado) => {
         6: { texto: 'En carrito', clase: 'bg-secondary text-dark' }
     };
     return diccionario[numEstado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
+};
+
+// Método para mostrar todos los pedidos (limpia filtros y recarga)
+const verTodosPedidos = () => {
+    filtroId.value = '';
+    filtroFecha.value = '';
+    filtroEstado.value = '';
+    fetchPedidos();
 };
 
 // --- LÓGICA: Cargar Datos ---
@@ -135,6 +153,11 @@ onMounted(() => {
         </div>
 
         <div class="card-body">
+            <div class="d-flex justify-content-end mb-2">
+                <button class="btn btn-outline-primary btn-sm" type="button" @click="verTodosPedidos">
+                    <i class="bi bi-arrow-counterclockwise"></i> Ver todos los pedidos
+                </button>
+            </div>
 
             <div v-if="cargando" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
@@ -168,29 +191,34 @@ onMounted(() => {
                         -->
                         <tr>
                             <th class="ps-3">
-                                <input type="text" class="form-control form-control-sm" 
+                                <input type="text" class="form-control form-control-sm"
                                     placeholder="Filtrar por ID (presiona Enter)"
                                     v-model="filtroId"
-                                    
-                                    @keyup.enter="filtrarPedidosPorId" 
-                                    @blur="filtrarPedidosPorId"
-                                    
-                                    />
+                                    @keyup.enter="filtrarPedidos"
+                                    @blur="filtrarPedidos"
+                                />
                             </th>
                             <th>
                                 <input type="date" class="form-control form-control-sm"
-                                    placeholder="Filtrar por fecha" />
+                                    v-model="filtroFecha"
+                                    @change="filtrarPedidos"
+                                />
                             </th>
                             <th>
-                                <select class="form-select form-select-sm">
-                                    <option value="">Todos</option>
-                                    <option value="1">Pendiente</option>
-                                    <option value="2">Pagado</option>
-                                    <option value="3">Enviado</option>
-                                    <option value="4">Entregado</option>
-                                    <option value="5">Cancelado</option>
-                                    <option value="6">En carrito</option>
-                                </select>
+                                <div class="d-flex align-items-center gap-2">
+                                    <select class="form-select form-select-sm"
+                                        v-model="filtroEstado"
+                                        @change="filtrarPedidos">
+                                        <option value="">Todos</option>
+                                        <option :value="1">Pendiente</option>
+                                        <option :value="2">Pagado</option>
+                                        <option :value="3">Enviado</option>
+                                        <option :value="4">Entregado</option>
+                                        <option :value="5">Cancelado</option>
+                                        <option :value="6">En carrito</option>
+                                    </select>
+
+                                </div>
                             </th>
                         </tr>
                     </thead>

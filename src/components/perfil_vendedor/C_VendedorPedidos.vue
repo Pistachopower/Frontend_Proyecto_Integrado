@@ -1,13 +1,21 @@
+
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 import { usePedidosVendedorStore } from '../../stores/pedidosVendedorStore.js';
+import api from '@/services/axiosRequest.js';
 
 
 const perfilStore= usePerfilStore();
 const pedidosStore = usePedidosVendedorStore();
 const filtroEstado = ref('todos');
 const pedidoExpandido = ref(null);
+
+// Filtros reactivos para el endpoint
+const filtroId = ref('');
+const filtroCliente = ref('');
+const filtroMonto = ref('');
+const filtroFecha = ref('');
 
 //Mapeo de estados numericos a strings
 const estadosMap = {
@@ -17,6 +25,26 @@ const estadosMap = {
   4: 'entregado',
   5: 'cancelado'
 };
+
+
+// Función para filtrar pedidos del vendedor usando el endpoint
+const filtrarPedidosVendedor = async () => {
+  if (!perfilStore.perfil || !perfilStore.perfil.id) return;
+  const params = { vendedor_id: perfilStore.perfil.id };
+  if (filtroId.value) params.id = filtroId.value;
+  if (filtroCliente.value) params.nombre_cliente = filtroCliente.value;
+  if (filtroMonto.value) params.monto = filtroMonto.value;
+  if (filtroFecha.value) params.fecha = filtroFecha.value;
+  try {
+    const response = await api.get('pedido/filtrar_pedidosVendedor/', { params });
+    pedidosStore.pedidos = response.data;
+  } catch (err) {
+    // Manejo de error simple
+    pedidosStore.pedidos = [];
+  }
+};
+
+
 
 // Función para alternar expansión del pedido
 const togglePedido = (pedidoId) => {
@@ -31,28 +59,8 @@ const cambiarEstado = async (pedidoId, nuevoEstado) => {
   } catch (error) {
     alert(error.response?.data?.error || 'Error al cambiar el estado del pedido');
   }
-};
- 
-// Computed para filtrar pedidos según el estado seleccionado
-// const pedidosFiltrados = computed(() => {
-//   if (filtroEstado.value === 'todos') {
-//     return pedidosStore.pedidos;
-//   }
-//   return pedidosStore.pedidos.filter(p => estadosMap[p.estado] === filtroEstado.value);
-// });
+}; 
 
-
-// onMounted(() => {
-//     // Inicializamos la carga de los datos del perfil en el Store
-//     if (!perfilStore.perfil) {
-//         perfilStore.fetchPerfil();
-//     }
-//     // Cargar los pedidos asociados al vendedor
-//     if (perfilStore.perfil && perfilStore.perfil.id) {
-//         pedidosStore.fetchPedidosVendedor(perfilStore.perfil.id);
-
-//     }
-// });
 
 // Monitorear cambios en pedidos
 watch(() => pedidosStore.pedidos, (newVal) => {
@@ -96,6 +104,24 @@ onMounted(() => {
             <th class="border-0">Estado</th>
             <th class="border-0">Fecha</th>
           </tr>
+          <!-- Fila de filtros -->
+          <tr>
+            <th></th>
+            <th>
+              <input type="text" class="form-control form-control-sm" placeholder="ID" v-model="filtroId" @keyup.enter="filtrarPedidosVendedor" @blur="filtrarPedidosVendedor" />
+            </th>
+            <th>
+              <input type="text" class="form-control form-control-sm" placeholder="Cliente" v-model="filtroCliente" @keyup.enter="filtrarPedidosVendedor" @blur="filtrarPedidosVendedor" />
+            </th>
+            <th>
+              <input type="text" class="form-control form-control-sm" placeholder="Monto" v-model="filtroMonto" @keyup.enter="filtrarPedidosVendedor" @blur="filtrarPedidosVendedor" />
+            </th>
+            <th></th>
+            <th></th>
+            <th>
+              <input type="date" class="form-control form-control-sm" v-model="filtroFecha" @change="filtrarPedidosVendedor" />
+            </th>
+          </tr>
         </thead>
         <tbody v-if="pedidosStore.pedidos.length > 0">
           <template v-for="pedido in pedidosStore.pedidos" :key="pedido.url">
@@ -103,7 +129,7 @@ onMounted(() => {
               <td class="align-middle" style="cursor: pointer;" @click="togglePedido(pedido.id)">
                 <i :class="pedidoExpandido === pedido.id ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"></i>
               </td>
-              <td class="align-middle fw-bold">#{{ pedido.id }}</td>
+              <td class="align-middle fw-bold">{{ pedido.id }}</td>
               <td class="align-middle">
                 <strong>{{ pedido.cliente_nombre }} {{ pedido.cliente_apellido }}</strong><br>
               </td>

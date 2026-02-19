@@ -1,6 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import api from '@/services/axiosRequest.js';
+import { usePiezasStore } from '@/stores/piezasStore';
+import { storeToRefs } from 'pinia';
+import C_BuscadorCatalogo from './C_BuscadorCatalogo.vue';
+
+
 const agregandoDeseo = ref(null); // pieza_id en proceso
 const exitoDeseo = ref(null); // pieza_id último agregado
 const errorDeseo = ref(null);
@@ -19,9 +24,7 @@ const agregarADeseos = async (pieza_id) => {
         agregandoDeseo.value = null;
     }
 };
-import { usePiezasStore } from '@/stores/piezasStore';
-import { storeToRefs } from 'pinia';
-import C_BuscadorCatalogo from './C_BuscadorCatalogo.vue';
+
 
 const store = usePiezasStore();
 const { listado: piezas, cargando, error } = storeToRefs(store);
