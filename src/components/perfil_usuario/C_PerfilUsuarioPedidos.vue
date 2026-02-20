@@ -8,8 +8,6 @@ const perfilStore = usePerfilStore();
 
 //console.log("Perfil store", perfilStore.perfil.id);
 
-
-
 // --- ESTADO ---
 const pedidos = ref([]);
 const cargando = ref(true);
@@ -93,8 +91,7 @@ const fetchPedidos = async () => {
     cargando.value = true;
     error.value = null;
     try {
-        // Asegúrate que sea 'pedidos/' o 'pedido/' según tu urls.py
-        //console.log("Perfil:", perfilStore.perfil);
+
 
         const response = await api.get('pedido/?cliente_id=' + perfilStore.perfil.id);
 
@@ -155,7 +152,7 @@ onMounted(() => {
         <div class="card-body">
             <div class="d-flex justify-content-end mb-2">
                 <button class="btn btn-outline-primary btn-sm" type="button" @click="verTodosPedidos">
-                    <i class="bi bi-arrow-counterclockwise"></i> Ver todos los pedidos
+                    <i class="bi bi-arrow-counterclockwise"></i>Ver todos los pedidos
                 </button>
             </div>
 
@@ -265,7 +262,7 @@ onMounted(() => {
                                                         {{ linea.pieza.nombre }}
                                                         <span class="badge bg-secondary ms-2"
                                                             title="ID Línea de Pedido">
-                                                            Línea #{{ linea.id }}
+                                                            Línea {{ linea.id }}
                                                         </span>
                                                     </div>
 

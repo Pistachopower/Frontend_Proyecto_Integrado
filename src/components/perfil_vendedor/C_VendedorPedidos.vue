@@ -30,6 +30,7 @@ const estadosMap = {
 // Función para filtrar pedidos del vendedor usando el endpoint
 const filtrarPedidosVendedor = async () => {
   if (!perfilStore.perfil || !perfilStore.perfil.id) return;
+
   const params = { vendedor_id: perfilStore.perfil.id };
   if (filtroId.value) params.id = filtroId.value;
   if (filtroCliente.value) params.nombre_cliente = filtroCliente.value;
@@ -44,6 +45,16 @@ const filtrarPedidosVendedor = async () => {
   }
 };
 
+// Método para mostrar todos los pedidos (limpia filtros y recarga)
+const verTodosPedidos = () => {
+    filtroId.value = '';
+    filtroCliente.value = '';
+    filtroMonto.value = '';
+    filtroFecha.value = '';
+    filtroEstado.value = '';
+
+    pedidosStore.fetchPedidosVendedor(perfilStore.perfil.id);
+};
 
 
 // Función para alternar expansión del pedido
@@ -62,23 +73,46 @@ const cambiarEstado = async (pedidoId, nuevoEstado) => {
 }; 
 
 
-// Monitorear cambios en pedidos
-watch(() => pedidosStore.pedidos, (newVal) => {
-  console.log('Pedidos cargados:', newVal);
-  console.log('Cantidad de pedidos:', newVal?.length);
-}, { deep: true });
+const descargarFacturaPDF = async (idPedido) => {
+    try {
+        const response = await api.get(`pedido/${idPedido}/factura_cliente/`, {
+            responseType: 'blob' // Indica que esperas un archivo binario (PDF)
+        });
+
+        //convierte los datos binarios del PDF en una URL que el navegador puede abrir o descargar.
+        const url = window.URL.createObjectURL(
+            new Blob(
+                [response.data],
+                { type: 'application/pdf' }));
+
+        // Abre la URL en una nueva ventana o pestaña
+        const win = window.open(url, '_blank');
+
+    } catch (err) {
+        alert('No se pudo descargar la factura.');
+    }
+};
+
+
+// // Monitorear cambios en pedidos
+// watch(() => pedidosStore.pedidos, (newVal) => {
+//   console.log('Pedidos cargados:', newVal);
+//   console.log('Cantidad de pedidos:', newVal?.length);
+// }, { deep: true });
 
 onMounted(() => {
-  console.log('Store perfil:', perfilStore.perfil);
+  //console.log('Store perfil:', perfilStore.perfil);
   
   if (!perfilStore.perfil) {
     perfilStore.fetchPerfil();
   }
   
   if (perfilStore.perfil && perfilStore.perfil.id) {
-    console.log('Cargando pedidos para vendedor:', perfilStore.perfil.id);
+    //console.log('Cargando pedidos para vendedor:', perfilStore.perfil.id);
+    
     pedidosStore.fetchPedidosVendedor(perfilStore.perfil.id);
-    console.log('Pedidos después de fetch:', pedidosStore.pedidos);
+    
+    //console.log('Pedidos después de fetch:', pedidosStore.pedidos);
   }
 });
 
@@ -90,6 +124,12 @@ onMounted(() => {
   <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 py-3">
       <h5 class="fw-bold mb-0">Gestión de Pedidos</h5>
+    </div>
+
+    <div class="d-flex justify-content-end mb-2">
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="verTodosPedidos">
+            <i class="bi bi-arrow-counterclockwise"></i>Ver todos los pedidos
+        </button>
     </div>
 
     <div class="table-responsive">
@@ -149,8 +189,15 @@ onMounted(() => {
               </td>
               <td class="align-middle text-muted small">{{ pedido.fecha_pedido }}</td>
             </tr>
+            
             <!-- Fila expandible con líneas de pedido -->
             <tr v-if="pedidoExpandido === pedido.id" class="table-light">
+              <!-- Botón para descargar factura PDF -->
+              <button class="btn btn-outline-primary btn-sm"
+                  @click.stop="descargarFacturaPDF(pedido.id)">
+                  <i class="bi bi-printer"></i> Imprimir Factura
+              </button>
+
               <td colspan="8" class="p-3">
                 <h6 class="mb-3 fw-bold">Líneas de Pedido</h6>
                 <div class="table-responsive">
