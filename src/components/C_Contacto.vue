@@ -1,5 +1,36 @@
 <script setup>
+import { ref } from 'vue';
+import api from '@/services/axiosRequest.js';
 
+const form = ref(null);
+const successToast = ref(null);
+
+const sendEmail = async () => {
+  const nombre = form.value.nombre.value;
+  const email = form.value.email.value;
+  const numero_telefono = form.value.telefono.value;
+  const asunto = form.value.asunto.value;
+  const mensaje = form.value.mensaje.value;
+
+  try {
+    await api.post('contacto-vendedor/', {
+      nombre,
+      email,
+      numero_telefono,
+      asunto,
+      mensaje
+    });
+    // Limpiar formulario
+    form.value.reset();
+    // Mostrar toast de éxito
+    if (successToast.value) {
+      const toast = new window.bootstrap.Toast(successToast.value);
+      toast.show();
+    }
+  } catch (error) {
+    alert('Error al enviar el mensaje. Inténtalo de nuevo.');
+  }
+};
 </script>
 
 <template>
