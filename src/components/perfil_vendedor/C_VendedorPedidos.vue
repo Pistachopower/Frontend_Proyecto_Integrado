@@ -131,7 +131,7 @@ onMounted(() => {
               </td>
               <td class="align-middle fw-bold">{{ pedido.id }}</td>
               <td class="align-middle">
-                <strong>{{ pedido.cliente_nombre }} {{ pedido.cliente_apellido }}</strong><br>
+                <strong>{{ pedido.cliente_nombre }} {{ pedido.cliente_apellido }} </strong><br>
               </td>
               <td class="align-middle fw-bold">{{ pedido.total }}€</td>
               <td class="align-middle">{{ pedido.lineas_pedido.length }}</td>
