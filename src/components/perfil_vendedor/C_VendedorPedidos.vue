@@ -192,13 +192,12 @@ onMounted(() => {
             
             <!-- Fila expandible con líneas de pedido -->
             <tr v-if="pedidoExpandido === pedido.id" class="table-light">
+              <td colspan="8" class="p-3">
               <!-- Botón para descargar factura PDF -->
               <button class="btn btn-outline-primary btn-sm"
                   @click.stop="descargarFacturaPDF(pedido.id)">
                   <i class="bi bi-printer"></i> Imprimir Factura
               </button>
-
-              <td colspan="8" class="p-3">
                 <h6 class="mb-3 fw-bold">Líneas de Pedido</h6>
                 <div class="table-responsive">
                   <table class="table table-sm table-bordered mb-0">

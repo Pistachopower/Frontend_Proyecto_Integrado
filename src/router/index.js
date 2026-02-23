@@ -9,7 +9,7 @@ import Carrito from '../components/C_Carrito.vue'
 import ProcesoPago from '../components/pago_cliente/C_Envio.vue'
 import ListaDeseos from '../components/C_ListaDeseos.vue'
 import RecuperarContrasena from '../components/cambiar_passwordUser/C_RecuperarPassword.vue'
-import AprobarComentarrios from '@/components/C_AprobarComentarios.vue';
+import AprobarComentarios from '@/components/perfil_vendedor/C_AprobarComentarios.vue';
 import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
 import C_PerfilUsuarioDatos from '@/components/perfil_usuario/C_PerfilUsuarioDatos.vue';
 import C_PerfilUsuarioComentarios from '@/components/perfil_usuario/C_PerfilUsuarioComentarios.vue';
@@ -52,7 +52,7 @@ const routes = [
 
   // === RUTA PADRE DEL PERFIL CLIENTE y VENDEDOR (LAYOUT) ===
   {
-    path: '/perfil-usuario', 
+    path: '/perfil-usuario',
     name: 'perfil-usuario-layout',
     component: PerfilView,
     redirect: '/perfil-usuario/datos',
@@ -112,7 +112,7 @@ const routes = [
       {
         path: 'clientes',
         name: 'vendedor-clientes',
-        component: C_VendedorClientes, 
+        component: C_VendedorClientes,
       },
       {
         path: 'pedidos',
@@ -129,6 +129,12 @@ const routes = [
         name: 'vendedor-devoluciones',
         component: C_VendedorDevoluciones,
       },
+
+      {
+        path: 'aprobar-comentarios',
+        name: 'aprobar-comentarios',
+        component: AprobarComentarios,
+      },
     ]
   },
   // === FIN RUTAS PERFIL VENDEDOR ===
@@ -140,12 +146,12 @@ const routes = [
   },
 
   {
-    path: '/detalle-producto/:id', 
+    path: '/detalle-producto/:id',
     name: 'detalle-producto',
     component: DetalleProducto,
     props: true,
   },
-  
+
   {
     path: '/carrito',
     name: 'carrito',
@@ -198,11 +204,6 @@ const routes = [
 
   },
 
-  {
-    path: '/aprobar-comentarios',
-    name: 'aprobar-comentarios',
-    component: AprobarComentarrios,
-  },
 ];
 
 const router = createRouter({

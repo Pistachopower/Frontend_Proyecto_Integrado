@@ -58,8 +58,8 @@ onMounted(async () => {
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
                 :class="{ 'active-link': isLinkActive('/perfil-vendedor/inicio') }">
                 <i class="bi bi-speedometer2"></i> Inicio
-
               </router-link>
+
               <router-link to="/perfil-vendedor/perfil"
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
                 :class="{ 'active-link': isLinkActive('/perfil-vendedor/perfil') }">
@@ -90,6 +90,12 @@ onMounted(async () => {
                 class="list-group-item list-group-item-action border-0 rounded mb-1"
                 :class="{ 'active-link': isLinkActive('/perfil-vendedor/devoluciones') }">
                 <i class="bi bi-arrow-return-left me-2"></i> Devoluciones
+              </router-link>
+
+              <router-link to="/perfil-vendedor/aprobar-comentarios"
+                class="list-group-item list-group-item-action border-0 rounded mb-1"
+                :class="{ 'active-link': isLinkActive('/perfil-vendedor/aprobar-comentarios') }">
+                <i class="bi bi-chat-left-dots me-2"></i> Aprobar Comentarios
               </router-link>
             </div>
           </div>
