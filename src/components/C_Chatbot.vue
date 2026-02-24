@@ -7,22 +7,52 @@ const userInput = ref('');
 const messages = ref([]);
 const chatInput = ref(null);
 const messagesContainer = ref(null);
+const conversationHistory = ref([]); // [{user: "...", bot: "..."}]
+
+// async function sendMessage() {
+// 	const pregunta = userInput.value.trim();
+// 	if (!pregunta) return;
+// 	messages.value.push({ text: pregunta, from: 'user' });
+// 	userInput.value = '';
+// 	try {
+// 		const res = await api.post('chatbot/', { pregunta });
+// 		messages.value.push({ text: res.data.respuesta, from: 'bot' });
+// 	} catch (e) {
+// 		messages.value.push({ text: 'Error al conectar con el chatbot.', from: 'bot' });
+// 	}
+// 	nextTick(() => {
+// 		const el = messagesContainer.value;
+// 		if (el) el.scrollTop = el.scrollHeight;
+// 	});
+// }
+
 
 async function sendMessage() {
-	const pregunta = userInput.value.trim();
-	if (!pregunta) return;
-	messages.value.push({ text: pregunta, from: 'user' });
-	userInput.value = '';
-	try {
-		const res = await api.post('chatbot/', { pregunta });
-		messages.value.push({ text: res.data.respuesta, from: 'bot' });
-	} catch (e) {
-		messages.value.push({ text: 'Error al conectar con el chatbot.', from: 'bot' });
-	}
-	nextTick(() => {
-		const el = messagesContainer.value;
-		if (el) el.scrollTop = el.scrollHeight;
-	});
+    const pregunta = userInput.value.trim();
+    if (!pregunta) return;
+    messages.value.push({ text: pregunta, from: 'user' });
+    userInput.value = '';
+
+    // Prepara el historial para el backend
+    const history = conversationHistory.value;
+
+    try {
+        const res = await api.post('chatbot/', {
+            message: pregunta,
+            history: history
+        });
+        const respuesta = res.data.response || res.data.respuesta || 'Sin respuesta';
+        messages.value.push({ text: respuesta, from: 'bot' });
+
+        // Añade el intercambio al historial
+        conversationHistory.value.push({ user: pregunta, bot: respuesta });
+    } catch (e) {
+        messages.value.push({ text: 'Error al conectar con el chatbot.', from: 'bot' });
+    }
+    nextTick(() => {
+        const el = messagesContainer.value;
+        if (el) el.scrollTop = el.scrollHeight;
+    });
 }
 
 watch(openModal, (val) => {
@@ -54,7 +84,8 @@ watch(openModal, (val) => {
 				<div class="modal-content chatbot-modal-content">
 					<div class="modal-header bg-danger text-white py-2 px-3">
 						<h5 class="modal-title mb-0">Chatbot</h5>
-						<button type="button" class="btn-close btn-close-white" aria-label="Cerrar" @click="openModal.value = false"></button>
+                        <!--<button type="button" class="btn-close btn-close-white" aria-label="Cerrar" @click="openModal.value = false"></button>-->
+						<button type="button" class="btn-close btn-close-white" aria-label="Cerrar" @click="openModal = false"></button>
 					</div>
 					<div class="modal-body p-3 chatbot-modal-body" ref="messagesContainer">
 						<div v-for="(msg, idx) in messages" :key="idx" :class="['mb-3', msg.from === 'user' ? 'text-end' : 'text-start']">
