@@ -1,7 +1,7 @@
 <script setup>
 import Footer from './components/C_Footer.vue'
 import Header from './components/C_Header.vue'
-
+import Chatbot from './components/C_Chatbot.vue'
 
 
 
@@ -12,6 +12,7 @@ import Header from './components/C_Header.vue'
     <Header />
     <main class="main-content">
       <RouterView />
+      <Chatbot />
     </main>
     <Footer />
   </div>
