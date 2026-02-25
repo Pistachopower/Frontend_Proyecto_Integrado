@@ -3,8 +3,8 @@ import { ref, watch, nextTick } from 'vue';
 import api from '../services/axiosRequest';
 
 const openModal = ref(false);
-const userInput = ref('');
-const messages = ref([]);
+const userInput = ref(''); //Lo que escribe el usuario en el campo de texto del chatbot
+const messages = ref([]); //variable que almacena los mensajes del chatbot y del usuario, cada mensaje es un objeto con el texto y el origen (usuario o bot)
 const chatInput = ref(null);
 const messagesContainer = ref(null);
 const conversationHistory = ref([]); // [{user: "...", bot: "..."}]
@@ -28,37 +28,53 @@ const conversationHistory = ref([]); // [{user: "...", bot: "..."}]
 
 
 async function sendMessage() {
+	
     const pregunta = userInput.value.trim();
-    if (!pregunta) return;
-    messages.value.push({ text: pregunta, from: 'user' });
-    userInput.value = '';
+    
+	if (!pregunta) 
+		return; // Si el usuario no ha escrito nada o hace un espacio, no envia nada al backend
+
+	//debugger;
+
+    messages.value.push({ text: pregunta, from: 'user' }); // Añade el mensaje del usuario a la conversación
+    
+	userInput.value = ''; // Limpia el campo de entrada del usuario
+
 
     // Prepara el historial para el backend
     const history = conversationHistory.value;
 
     try {
         const res = await api.post('chatbot/', {
-            message: pregunta,
-            history: history
+            mensaje: pregunta,
+            historial: history
         });
-        const respuesta = res.data.response || res.data.respuesta || 'Sin respuesta';
-        messages.value.push({ text: respuesta, from: 'bot' });
 
-        // Añade el intercambio al historial
+        const respuesta = res.data.response || 'Sin respuesta';
+        
+		messages.value.push({ text: respuesta, from: 'bot' }); // Añade la respuesta del bot a la conversación
+
+
+        //Envia el contexto al backend para que el bot pueda responder de forma coherente, el backend se encargará de mantener un historial de la conversación y usarlo para generar respuestas más contextuales
         conversationHistory.value.push({ user: pregunta, bot: respuesta });
-    } catch (e) {
+    
+	} catch (e) {
         messages.value.push({ text: 'Error al conectar con el chatbot.', from: 'bot' });
     }
-    nextTick(() => {
+
+    nextTick(() => { //nextTick asegura que el scroll se haga cuando el DOM ya tiene el nuevo mensaje, para que siempre veas la última conversación.
+		//debugger;
         const el = messagesContainer.value;
+
         if (el) el.scrollTop = el.scrollHeight;
     });
 }
 
 watch(openModal, (val) => {
+	//Solo ejecuta el código si openModal es true, es decir, cuando se abre el modal.
+	//La utilidad es que no se tenga que hacer click en el campo de texto para escribir, sino que al abrir el modal ya se pueda escribir directamente.
 	if (val) {
-		// (Mensaje de bienvenida eliminado a petición del usuario)
-		nextTick(() => {
+			nextTick(() => {
 			if (chatInput.value) {
 				chatInput.value.focus();
 			}
@@ -84,10 +100,13 @@ watch(openModal, (val) => {
 				<div class="modal-content chatbot-modal-content">
 					<div class="modal-header bg-danger text-white py-2 px-3">
 						<h5 class="modal-title mb-0">Chatbot</h5>
+						<p class="mb-0 ms-2" style="font-size: 0.9rem; opacity: 0.8;">¿Tienes alguna duda? ¡Pregúntame!</p>
                         <!--<button type="button" class="btn-close btn-close-white" aria-label="Cerrar" @click="openModal.value = false"></button>-->
 						<button type="button" class="btn-close btn-close-white" aria-label="Cerrar" @click="openModal = false"></button>
 					</div>
+
 					<div class="modal-body p-3 chatbot-modal-body" ref="messagesContainer">
+						<!-- Esta línea crea un bloque visual para cada mensaje, alineando a la derecha los del usuario y a la izquierda los del bot, y les da un margen abajo.	-->
 						<div v-for="(msg, idx) in messages" :key="idx" :class="['mb-3', msg.from === 'user' ? 'text-end' : 'text-start']">
 							<span :class="msg.from === 'user' ? 'chatbot-user-msg' : 'chatbot-bot-msg'">
 								<i v-if="msg.from === 'user'" class="bi bi-person-circle me-1"></i>
@@ -96,8 +115,9 @@ watch(openModal, (val) => {
 							</span>
 						</div>
 					</div>
+
 					<form class="modal-footer py-3 px-3 gap-2 chatbot-modal-footer" @submit.prevent="sendMessage">
-						<input ref="chatInput" v-model="userInput" type="text" class="form-control chatbot-input-field" placeholder="Escribe tu mensaje..." autocomplete="off" autofocus />
+						<input ref="chatInput" v-model="userInput" type="text" class="form-control chatbot-input-field" placeholder="Escribe tu duda aquí..." autocomplete="off" autofocus />
 						<button type="submit" class="btn btn-primary d-flex align-items-center chatbot-send-btn">
 							<i class="bi bi-send me-1"></i> Enviar
 						</button>
