@@ -3,12 +3,13 @@ import { onMounted, ref } from 'vue';
 import { usePiezasStore } from '@/stores/piezasStore';
 import C_VendedorModalProducto from './C_VendedorModalProducto.vue';
 import C_VendedorModalCrearProducto from './C_VendedorModalCrearProducto.vue';
-
+import C_VendedorModalBulkUpload from './C_VendedorModalBulkUpload.vue';
 
 const piezasStore = usePiezasStore();
 const mostrarModal = ref(false);
 const mostrarModalCrear = ref(false);
 const piezaSeleccionada = ref(null);
+const mostrarModalBulkUpload = ref(false);
 
 //En este componente tomamos los datos del store de piezasStore y lo pintamos
 onMounted(async () => {
@@ -60,6 +61,11 @@ const eliminarPieza = async (pieza) => {
   }
 };
 
+
+const onSubidaExitosa = async () => {
+  await piezasStore.fetchCatalogo();
+};
+
 </script>
 
 <template>
@@ -69,6 +75,11 @@ const eliminarPieza = async (pieza) => {
       <button class="btn btn-sm btn-primary" @click="abrirCrear">
         <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
       </button>
+
+      <!-- Botón para abrir el modal de subida masiva -->
+    <button class="btn btn-sm btn-outline-primary ms-2" @click="mostrarModalBulkUpload = true">
+      <i class="bi bi-upload me-1"></i> Subir piezas
+    </button>
     </div>
 
     <div class="table-responsive">
@@ -124,4 +135,8 @@ const eliminarPieza = async (pieza) => {
 
   <!-- Modal de crear -->
   <C_VendedorModalCrearProducto v-if="mostrarModalCrear" @cerrar="cerrarModalCrear" />
+
+  <C_VendedorModalBulkUpload v-if="mostrarModalBulkUpload" @cerrar="mostrarModalBulkUpload = false"   @subida-exitosa="onSubidaExitosa"
+
+/>
 </template>

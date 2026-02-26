@@ -9,6 +9,11 @@ export const usePiezasStore = defineStore('piezas', {
         error: null,
         imagenes: [],
         marcas: [],
+
+        //Para la subida de archivos del perfil vendedor
+        bulkUploadLoading: false,
+        bulkUploadResult: null, // {detalle, errores, ids}
+        bulkUploadError: null,
     }),
 
     getters: {
@@ -240,9 +245,36 @@ export const usePiezasStore = defineStore('piezas', {
             } finally {
                 this.cargando = false;
             }
-        }
+        },
 
+        async bulkUploadArchivo(file) {
+                this.bulkUploadLoading = true;
+                this.bulkUploadResult = null;
+                this.bulkUploadError = null;
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
 
+                    const response = await api.post('pieza/bulk_upload/', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+
+                    this.bulkUploadResult = response.data;
+                } catch (error) {
+                    if (error.response && error.response.data) {
+                        this.bulkUploadError = error.response.data.detalle || 'Error desconocido';
+                        this.bulkUploadResult = error.response.data;
+                    } else {
+                        this.bulkUploadError = 'Error de red o del servidor';
+                    }
+                } finally {
+                    this.bulkUploadLoading = false;
+                }
+            },
+            clearBulkUploadResult() {
+                this.bulkUploadResult = null;
+                this.bulkUploadError = null;
+            }
 
     }
 });
