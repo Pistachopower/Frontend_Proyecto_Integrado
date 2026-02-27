@@ -11,14 +11,14 @@ const pasandoCarrito = ref(false);
 const exitoCarrito = ref(false);
 const seleccionados = ref([]); // piezas seleccionadas para pasar
 
-const toggleSeleccion = (pieza_id) => {
+// const toggleSeleccion = (pieza_id) => {
 
-  if (seleccionados.value.includes(pieza_id)) {
-    seleccionados.value = seleccionados.value.filter(id => id !== pieza_id);
-  } else {
-    seleccionados.value.push(pieza_id);
-  }
-};
+//   if (seleccionados.value.includes(pieza_id)) {
+//     seleccionados.value = seleccionados.value.filter(id => id !== pieza_id);
+//   } else {
+//     seleccionados.value.push(pieza_id);
+//   }
+// };
 
 const pasarAlCarrito = async (soloSeleccionados = false) => {
 
@@ -43,7 +43,7 @@ const pasarAlCarrito = async (soloSeleccionados = false) => {
     
     await fetchListaDeseos();
     
-    setTimeout(() => { exitoCarrito.value = false; }, 1500);
+    setTimeout(() => { exitoCarrito.value = false; }, 150000);
   
   } catch (err) {
     
@@ -63,7 +63,7 @@ const fetchListaDeseos = async () => {
 
   } catch (err) {
     error.value = 'No se pudo cargar la lista de deseos.';
-    
+
   } finally {
     cargando.value = false;
   }
