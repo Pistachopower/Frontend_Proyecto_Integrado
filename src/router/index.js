@@ -7,7 +7,6 @@ import CatalogoProductos from '../components/C_Catalogo.vue'
 import DetalleProducto from '../components/C_DetalleProducto.vue'
 import Carrito from '../components/C_Carrito.vue'
 import ProcesoPago from '../components/pago_cliente/C_Envio.vue'
-import ListaDeseos from '../components/C_ListaDeseos.vue'
 import RecuperarContrasena from '../components/cambiar_passwordUser/C_RecuperarPassword.vue'
 import AprobarComentarios from '@/components/perfil_vendedor/C_AprobarComentarios.vue';
 import C_PerfilUsuarioPedidos from '@/components/perfil_usuario/C_PerfilUsuarioPedidos.vue';
@@ -168,14 +167,6 @@ const routes = [
     path: '/proceso-pago',
     name: 'proceso-pago',
     component: ProcesoPago,
-  },
-
-
-
-  {
-    path: '/lista-deseos',
-    name: 'lista-deseos',
-    component: ListaDeseos,
   },
 
   {

@@ -10,7 +10,9 @@ const eliminando = ref(null); // pieza_id en proceso
 const pasandoCarrito = ref(false);
 const exitoCarrito = ref(false);
 const seleccionados = ref([]); // piezas seleccionadas para pasar
+
 const toggleSeleccion = (pieza_id) => {
+
   if (seleccionados.value.includes(pieza_id)) {
     seleccionados.value = seleccionados.value.filter(id => id !== pieza_id);
   } else {
@@ -19,21 +21,34 @@ const toggleSeleccion = (pieza_id) => {
 };
 
 const pasarAlCarrito = async (soloSeleccionados = false) => {
+
   pasandoCarrito.value = true;
   error.value = null;
   try {
+
+    
     const body = {};
+    
     if (soloSeleccionados && seleccionados.value.length > 0) {
       body.piezas_ids = seleccionados.value;
     }
+
     body.eliminar_de_lista = true;
+
     await api.post('lista_deseo/pasar_al_carrito/', body);
+    
     exitoCarrito.value = true;
+    
     seleccionados.value = [];
+    
     await fetchListaDeseos();
+    
     setTimeout(() => { exitoCarrito.value = false; }, 1500);
+  
   } catch (err) {
+    
     error.value = 'No se pudo pasar al carrito.';
+
   } finally {
     pasandoCarrito.value = false;
   }
@@ -45,8 +60,10 @@ const fetchListaDeseos = async () => {
   try {
     const response = await api.get('lista_deseo/mi_lista/');
     listaDeseos.value = response.data;
+
   } catch (err) {
     error.value = 'No se pudo cargar la lista de deseos.';
+    
   } finally {
     cargando.value = false;
   }
@@ -105,10 +122,12 @@ const formatoMoneda = (valor) => {
             <span v-if="pasandoCarrito" class="spinner-border spinner-border-sm me-1"></span>
             Pasar <b>todos</b> al carrito
           </button>
+
           <button class="btn btn-primary btn-sm" :disabled="pasandoCarrito || seleccionados.length === 0" @click="pasarAlCarrito(true)">
             <span v-if="pasandoCarrito" class="spinner-border spinner-border-sm me-1"></span>
             Pasar seleccionados al carrito
           </button>
+
           <span v-if="exitoCarrito" class="text-success small fw-bold ms-2">¡Productos pasados al carrito!</span>
         </div>
 
