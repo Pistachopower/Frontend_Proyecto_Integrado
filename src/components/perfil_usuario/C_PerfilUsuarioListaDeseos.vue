@@ -22,13 +22,13 @@ const seleccionados = ref([]); // piezas seleccionadas para pasar
 
 const pasarAlCarrito = async (soloSeleccionados = false) => {
 
-  pasandoCarrito.value = true;
+  pasandoCarrito.value = true; 
   error.value = null;
   try {
 
-    
     const body = {};
     
+    // Si solo se quieren pasar los seleccionados, se envían sus IDs. Si no, se pasan todos.
     if (soloSeleccionados && seleccionados.value.length > 0) {
       body.piezas_ids = seleccionados.value;
     }
