@@ -92,7 +92,44 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
       }
     },
 
-    // --- ACCIÓN PAYPAL: Crear orden ---
+        // --- ACCIÓN 4: EDITAR MÉTODO (PUT) ---
+        async editarMetodo(idMetodo, datosFormulario) {
+          this.cargando = true;
+          this.error = null;
+          const perfilStore = usePerfilStore();
+
+          try {
+            // Construimos el JSON base
+            const payload = {
+              "tipo_metodo": parseInt(datosFormulario.tipo_metodo),
+              "es_predeterminado": datosFormulario.es_predeterminado,
+              "fecha_agregado": datosFormulario.fecha_agregado || null,
+              "cliente": perfilStore.perfil.id
+            };
+
+            // Adjuntar detalles según el tipo seleccionado
+            if (payload.tipo_metodo === 1 && datosFormulario.detalles_tarjeta) {
+              payload.detalles_tarjeta = { ...datosFormulario.detalles_tarjeta };
+            } else if (payload.tipo_metodo === 2 && datosFormulario.detalles_cuenta) {
+              payload.detalles_cuenta = { ...datosFormulario.detalles_cuenta };
+            } else if (payload.tipo_metodo === 3 && datosFormulario.detalles_billetera) {
+              payload.detalles_billetera = { ...datosFormulario.detalles_billetera };
+            }
+
+            const response = await api.put(`metodo_pago_cliente/${idMetodo}/`, payload);
+            // Actualizar el método en el array local
+            const idx = this.metodos.findIndex(m => m.id === idMetodo);
+            if (idx !== -1) {
+              this.metodos[idx] = response.data;
+            }
+            return true;
+          } catch (error) {
+            this.error = error.response?.data?.detail || 'Error al actualizar.';
+            return false;
+          } finally {
+            this.cargando = false;
+          }
+        },
     async crearOrdenPayPal(pedidoId) {
       try {
         const response = await api.post('paypal/crear-orden/', { pedido_id: pedidoId });

@@ -62,14 +62,7 @@ function closeModal() {
             <div class="alert alert-success" v-if="!piezasStore.bulkUploadResult.errores">
               {{ piezasStore.bulkUploadResult.detalle }}
             </div>
-            <div class="alert alert-warning" v-else>
-              {{ piezasStore.bulkUploadResult.detalle }}
-              <ul>
-                <li v-for="(err, idx) in piezasStore.bulkUploadResult.errores" :key="idx">
-                  {{ err }}
-                </li>
-              </ul>
-            </div>
+
           </div>
           <div v-if="piezasStore.bulkUploadError" class="alert alert-danger mt-3">
             {{ piezasStore.bulkUploadError }}

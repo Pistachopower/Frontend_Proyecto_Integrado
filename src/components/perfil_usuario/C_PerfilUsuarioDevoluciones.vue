@@ -165,7 +165,7 @@ onMounted(() => {
           </thead>
           <tbody>
             <tr v-for="devolucion in devoluciones" :key="devolucion.id">
-              <td class="fw-bold ps-3 text-primary">#{{ devolucion.id }}</td>
+              <td class="fw-bold ps-3 text-primary">{{ devolucion.id }}</td>
               <td>{{ devolucion.pieza_nombre }}</td>
               <td>#{{ devolucion.pedido_id }}</td>
               <td class="text-truncate" style="max-width: 200px;" :title="devolucion.motivo">

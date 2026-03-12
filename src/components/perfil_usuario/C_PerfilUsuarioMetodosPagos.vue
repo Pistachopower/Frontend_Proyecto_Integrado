@@ -12,13 +12,14 @@ const pagoStore = useMetodoPagoStore();
 // "metodos: metodosPago" significa: "Toma 'metodos' del store pero llámalo 'metodosPago' aquí".
 const { metodos: metodosPago, cargando, error } = storeToRefs(pagoStore);
 
-// Variables locales para el formulario (esto se queda igual)
+// Variables locales para el formulario
 const mostrandoFormulario = ref(false);
-const enviando = ref(false); 
+const enviando = ref(false);
+const modoEdicion = ref(false);
+const idEditando = ref(null);
 
-const formulario = ref({
+const formularioVacio = () => ({
   tipo_metodo: "",
-  // Detalles para cada tipo
   detalles_tarjeta: {
     tipo_tarjeta: null,
     num_tarjeta_encriptado: "",
@@ -37,6 +38,8 @@ const formulario = ref({
   }
 });
 
+const formulario = ref(formularioVacio());
+
 onMounted(async () => {
   if (!perfilStore.perfil) {
      await perfilStore.fetchPerfil();
@@ -47,14 +50,12 @@ onMounted(async () => {
 
 const guardarMetodo = async () => {
   if (!formulario.value.tipo_metodo) return alert("Selecciona un tipo");
+  enviando.value = true;
 
-  // Construir el objeto base
   const payload = {
     tipo_metodo: parseInt(formulario.value.tipo_metodo),
-    // es_predeterminado eliminado
   };
 
-  // Según el tipo, incluir solo los detalles necesarios
   if (payload.tipo_metodo === 1) {
     payload.detalles_tarjeta = { ...formulario.value.detalles_tarjeta };
   } else if (payload.tipo_metodo === 2) {
@@ -63,32 +64,39 @@ const guardarMetodo = async () => {
     payload.detalles_billetera = { ...formulario.value.detalles_billetera };
   }
 
-  const exito = await pagoStore.crearMetodo(payload);
+  let exito = false;
+  if (modoEdicion.value && idEditando.value) {
+    exito = await pagoStore.editarMetodo(idEditando.value, payload);
+  } else {
+    exito = await pagoStore.crearMetodo(payload);
+  }
 
   if (exito) {
+    const mensaje = modoEdicion.value ? '¡Actualizado!' : '¡Guardado!';
     mostrandoFormulario.value = false;
-    formulario.value = {
-      tipo_metodo: "",
-      // es_predeterminado eliminado
-      detalles_tarjeta: {
-        tipo_tarjeta: null,
-        num_tarjeta_encriptado: "",
-        propietario: "",
-        fecha_caducidad: "",
-        moneda: ""
-      },
-      detalles_cuenta: {
-        iban: "",
-        banco: "",
-        moneda: ""
-      },
-      detalles_billetera: {
-        proveedor: null,
-        email: ""
-      }
-    };
-    alert("¡Guardado!");
+    modoEdicion.value = false;
+    idEditando.value = null;
+    formulario.value = formularioVacio();
+    alert(mensaje);
   }
+  enviando.value = false;
+};
+
+const editarMetodo = (metodo) => {
+  formulario.value = formularioVacio();
+  formulario.value.tipo_metodo = String(metodo.tipo_metodo);
+  if (metodo.detalles_tarjeta) {
+    formulario.value.detalles_tarjeta = { ...metodo.detalles_tarjeta };
+  }
+  if (metodo.detalles_cuenta) {
+    formulario.value.detalles_cuenta = { ...metodo.detalles_cuenta };
+  }
+  if (metodo.detalles_billetera) {
+    formulario.value.detalles_billetera = { ...metodo.detalles_billetera };
+  }
+  modoEdicion.value = true;
+  idEditando.value = metodo.id;
+  mostrandoFormulario.value = true;
 };
 
 // ... (tu función getTipoPago sigue igual) ...
@@ -118,14 +126,14 @@ const eliminarMetodo = async (id) => {
       <button 
         class="btn" 
         :class="mostrandoFormulario ? 'btn-secondary' : 'btn-primary'"
-        @click="mostrandoFormulario = !mostrandoFormulario">
+        @click="mostrandoFormulario = !mostrandoFormulario; if (!mostrandoFormulario) { modoEdicion = false; idEditando = null; formulario = formularioVacio(); }">
         {{ mostrandoFormulario ? 'Cancelar' : 'Agregar Nuevo' }}
       </button>
     </div>
 
     <div v-if="mostrandoFormulario" class="card mb-4 bg-light border-0 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title mb-3">Nuevo Método de Pago</h5>
+        <h5 class="card-title mb-3">{{ modoEdicion ? 'Editar Método de Pago' : 'Nuevo Método de Pago' }}</h5>
         
         <form @submit.prevent="guardarMetodo">
           
@@ -204,7 +212,7 @@ const eliminarMetodo = async (id) => {
 
           <button type="submit" class="btn btn-success" :disabled="enviando">
             <span v-if="enviando" class="spinner-border spinner-border-sm me-1"></span>
-            {{ enviando ? 'Guardando...' : 'Guardar Método' }}
+            {{ enviando ? (modoEdicion ? 'Actualizando...' : 'Guardando...') : (modoEdicion ? 'Actualizar Método' : 'Guardar Método') }}
           </button>
         </form>
       </div>
@@ -273,7 +281,7 @@ const eliminarMetodo = async (id) => {
               <td>{{ metodo.fecha_agregado || (metodo.metodo_pago?.fecha_agregado) || 'Reciente' }}</td>
 
               <td>
-                <button class="btn btn-sm btn-outline-secondary me-1" title="Editar">
+                <button class="btn btn-sm btn-outline-secondary me-1" title="Editar" @click="editarMetodo(metodo)">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" @click="eliminarMetodo(metodo.id)" title="Eliminar">
