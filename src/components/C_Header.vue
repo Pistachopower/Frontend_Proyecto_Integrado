@@ -38,24 +38,30 @@ const cerrarDesplegable = () => {
 }
 
 // Ir al perfil y cerrar el menú
-const irAlPerfil = () => {
+const irAlPerfil = async () => {
   cerrarDesplegable()
   cerrarMenu()
 
-  // Obtener el tipo de usuario del authStore
-  const tipoUsuario = perfilStore.perfil?.usuario.tipo_usuario;
+  if (!perfilStore.perfil && authStore.isLoggedIn) {
+    await perfilStore.fetchPerfil()
+  }
+
+  // Soporta perfil anidado/plano y normaliza para comparar roles
+  const tipoUsuario = (
+    perfilStore.perfil?.usuario?.tipo_usuario || perfilStore.perfil?.tipo_usuario || ''
+  ).toLowerCase();
 
 
   console.log('Tipo de usuario:', tipoUsuario) 
 
-  if (perfilStore.esCliente) {
+  if (tipoUsuario === 'cliente') {
     router.push('/perfil-usuario')
 
-  } else if (perfilStore.esEmpleado) {
+  } else if (['empleado', 'administrador', 'admin'].includes(tipoUsuario)) {
 
     router.push('/perfil-vendedor')
 
-  } else { //PENDIENTE POR IMPLEMENTAR PARA ADMINISTRADOR
+  } else {
     router.push('/') // Redirigir a inicio si no es reconocido
   }
 

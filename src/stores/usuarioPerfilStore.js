@@ -13,9 +13,13 @@ export const usePerfilStore = defineStore('perfil', {
   
   getters: {
     // Getter para determinar fácilmente si es empleado
-    esEmpleado: (state) => state.perfil?.tipo_usuario === 'empleado',
+    esEmpleado: (state) => {
+      const tipo = (state.perfil?.tipo_usuario || state.perfil?.usuario?.tipo_usuario || '').toLowerCase();
+      return ['empleado', 'administrador', 'admin'].includes(tipo);
+    },
 
-    esCliente: (state) => state.perfil?.tipo_usuario === 'cliente',
+    esCliente: (state) =>
+      (state.perfil?.tipo_usuario || state.perfil?.usuario?.tipo_usuario || '').toLowerCase() === 'cliente',
     
     // Getter para obtener el nombre completo (opcional, por conveniencia)
     nombreCompleto: (state) => `${state.perfil?.nombre || ''} ${state.perfil?.apellido || ''}`,
