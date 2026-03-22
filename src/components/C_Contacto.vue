@@ -13,7 +13,7 @@ const sendEmail = async () => {
   const mensaje = form.value.mensaje.value;
 
   try {
-    debugger;
+    //debugger;
     const response = await api.post('contacto-vendedor/', {
       nombre,
       email,

@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useMetodoPagoStore } from '@/stores/metodoPagoStore.js'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const pagoStore = useMetodoPagoStore()
-const router = useRouter()
+const router = useRouter() //router = para navegar
+const route = useRoute() //route = para leer información de la ruta actual
 const mensaje = ref('Procesando tu pago...')
 const exito = ref(false)
 const mensajeBackend = ref('')
@@ -45,8 +46,16 @@ onMounted(async () => {
     } catch (e) {
       mensaje.value = 'Error al capturar el pago.'
     }
+  
+  } else if (route.query.pedido_id && route.query.total) {
+    // Flujo para otros métodos de pago
+    exito.value = true
+    mensaje.value = route.query.message || '¡Pago realizado con éxito!'
+    pedidoId.value = route.query.pedido_id
+    monto.value = route.query.total
+  
   } else {
-    mensaje.value = 'Faltan parámetros de PayPal en la URL.'
+    mensaje.value = 'No hay información de pago disponible.'
   }
 })
 </script>

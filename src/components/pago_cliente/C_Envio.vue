@@ -67,18 +67,18 @@ function getDetalleMetodo(metodo) {
     const numero = metodo.detalles_tarjeta.num_tarjeta_encriptado || ''
     return `**** **** **** ${numero.slice(-4)}`
   }
-  
+
   // Cuenta bancaria: mostrar últimos 4 dígitos del IBAN
   if (metodo.tipo_metodo === 2 && metodo.detalles_cuenta) {
     const iban = metodo.detalles_cuenta.iban || ''
     return `IBAN: ****${iban.slice(-4)}`
   }
-  
+
   // Billetera digital: mostrar email
   if (metodo.tipo_metodo === 3 && metodo.detalles_billetera) {
     return metodo.detalles_billetera.email || 'Billetera digital'
   }
-  
+
   return 'Método de pago'
 }
 
@@ -92,17 +92,26 @@ async function finalizarCompra() {
     errorCompra.value = 'Por favor, introduce una dirección de envío.'
     return
   }
-  
+
   errorCompra.value = null
   procesandoCompra.value = true
-  
+
   try {
-    await carritoStore.finalizarCompra(
+
+    const response = await carritoStore.finalizarCompra(
       direccionEnvio.value.trim(),
       metodoPagoSeleccionado.value
     )
     // Compra exitosa, redirigir al home
-    router.push({ name: 'Home' })
+    router.push({
+      name: 'pago-exito',
+      query: {
+        pedido_id: response.pedido_id,
+        total: response.total,
+        message: response.message
+      }
+    })
+
   } catch (error) {
     if (error.response?.data) {
       errorCompra.value =
@@ -124,7 +133,7 @@ async function finalizarCompra() {
 const esPayPalDisponible = computed(() => {
   // Buscar el método seleccionado
   const metodo = metodosPago.value.find(m => m.id === metodoPagoSeleccionado.value)
-  
+
   // Si no hay método seleccionado, PayPal no está disponible
   if (metodo === undefined || metodo === null) {
     return false
@@ -159,14 +168,14 @@ async function pagarConPayPal() {
 
     // Extraer el id del pedido según backend
     const pedidoId = responsePedido.pedido_id || responsePedido.id
-    
+
 
     const response = await pagoStore.crearOrdenPayPal(pedidoId)
-    
+
     if (response.success && response.approval_url) {
       // Guardar payment_id en localStorage para usarlo al volver
       localStorage.setItem('paypal_payment_id', response.order_id)
-      
+
       // Redirigir a PayPal
       window.location.href = response.approval_url
       return
@@ -211,12 +220,12 @@ onMounted(async () => {
     procesandoCompra.value = true
     try {
       const response = await pagoStore.capturarPagoPayPal(paymentId, payerId)
-      
+
       // Si el pago se capturó correctamente, redirigir a la página de éxito
       if (response.success) {
         // Limpiar el payment_id del localStorage por si el usuario vuelve a esta página sin pasar por PayPal
         localStorage.removeItem('paypal_payment_id')
-        
+
         router.push({ name: 'pago-exito' })
       } else {
         errorCompra.value = response.error || 'Error al capturar el pago de PayPal.'
@@ -233,25 +242,20 @@ onMounted(async () => {
 <template>
   <div class="container py-5 fade-in">
     <div class="row g-5">
-      
+
       <div class="col-12 col-lg-7">
         <h4 class="fw-bold mb-4">1. Información de Envío</h4>
-        
+
         <form @submit.prevent="finalizarCompra">
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
               <h6 class="mb-3 text-muted text-uppercase small fw-bold">Dirección de Entrega</h6>
-              
+
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label">Dirección</label>
-                  <input 
-                    type="text" 
-                    class="form-control bg-light" 
-                    placeholder="Calle, número, piso..."
-                    v-model="direccionEnvio"
-                    :disabled="procesandoCompra"
-                  >
+                  <input type="text" class="form-control bg-light" placeholder="Calle, número, piso..."
+                    v-model="direccionEnvio" :disabled="procesandoCompra">
                 </div>
               </div>
             </div>
@@ -261,7 +265,7 @@ onMounted(async () => {
           <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4">
               <h6 class="mb-3 text-muted text-uppercase small fw-bold">Método de Pago</h6>
-              
+
               <!-- Estado de carga -->
               <div v-if="cargandoMetodos" class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
@@ -281,26 +285,15 @@ onMounted(async () => {
 
               <!-- Lista de métodos de pago del usuario -->
               <div v-else class="d-flex flex-column gap-3">
-                <div 
-                  v-for="metodo in metodosPago" 
-                  :key="metodo.id"
+                <div v-for="metodo in metodosPago" :key="metodo.id"
                   class="payment-option p-3 border rounded cursor-pointer d-flex align-items-center justify-content-between"
                   :class="{ 'ring-active': metodoPagoSeleccionado === metodo.id }"
-                  @click="metodoPagoSeleccionado = metodo.id"
-                >
+                  @click="metodoPagoSeleccionado = metodo.id">
                   <div class="d-flex align-items-center gap-3">
-                    <input 
-                      type="radio" 
-                      name="metodoPago" 
-                      :value="metodo.id" 
-                      v-model="metodoPagoSeleccionado"
-                      class="form-check-input"
-                    >
+                    <input type="radio" name="metodoPago" :value="metodo.id" v-model="metodoPagoSeleccionado"
+                      class="form-check-input">
                     <!-- Icono según tipo de método -->
-                    <i 
-                      class="fs-3 text-primary"
-                      :class="getIconoMetodo(metodo.tipo_metodo)"
-                    ></i>
+                    <i class="fs-3 text-primary" :class="getIconoMetodo(metodo.tipo_metodo)"></i>
                     <div>
                       <h6 class="fw-bold mb-0">{{ getTipoMetodo(metodo.tipo_metodo) }}</h6>
                       <small class="text-muted">{{ getDetalleMetodo(metodo) }}</small>
@@ -327,11 +320,7 @@ onMounted(async () => {
           <div class="d-flex justify-content-end">
             <div class="d-flex flex-column flex-md-row justify-content-end gap-2 mt-3">
               <!-- Botón de pago normal -->
-              <button 
-                type="submit" 
-                class="btn btn-dark py-3 px-5 fw-bold shadow-hover"
-                :disabled="procesandoCompra"
-              >
+              <button type="submit" class="btn btn-dark py-3 px-5 fw-bold shadow-hover" :disabled="procesandoCompra">
                 <span v-if="procesandoCompra">
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                   Procesando...
@@ -342,14 +331,11 @@ onMounted(async () => {
               </button>
 
               <!-- Botón de pago con PayPal -->
-              <button
-                type="button"
+              <button type="button"
                 class="btn btn-outline-primary py-3 px-5 fw-bold shadow-hover d-flex align-items-center justify-content-center"
-                :disabled="procesandoCompra || !esPayPalDisponible"
-                @click="pagarConPayPal"
-                style="min-width: 220px;"
-              >
-                <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" style="height: 24px; margin-right: 8px;" />
+                :disabled="procesandoCompra || !esPayPalDisponible" @click="pagarConPayPal" style="min-width: 220px;">
+                <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal"
+                  style="height: 24px; margin-right: 8px;" />
                 <span v-if="procesandoCompra">
                   <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                   Procesando...
@@ -371,21 +357,32 @@ onMounted(async () => {
 .fade-in {
   animation: fadeIn 0.5s ease-out;
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .shipping-card {
   transition: all 0.2s;
 }
+
 .cursor-pointer {
   cursor: pointer;
 }
+
 .shipping-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
 .ring-active {
   border-color: #0d6efd;
   background-color: #f8fbff;
@@ -395,13 +392,14 @@ onMounted(async () => {
 .payment-option {
   transition: all 0.2s;
 }
+
 .payment-option:hover {
   background-color: #f8f9fa;
 }
 
 .shadow-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 992px) {

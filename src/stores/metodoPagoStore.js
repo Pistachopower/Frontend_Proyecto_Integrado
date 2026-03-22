@@ -75,7 +75,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
 
       } catch (error) {
         //console.error('Error al crear método:', error);
-        this.error = error.response?.data?.detail || 'Error al guardar.';
+        this.error = error.response?.data?.detail || 'Parece que el formato de tus datos no son correcto. Intenta de nuevo.';
         return false;
       } finally {
         this.cargando = false;
