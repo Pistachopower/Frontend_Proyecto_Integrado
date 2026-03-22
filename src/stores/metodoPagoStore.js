@@ -124,7 +124,7 @@ export const useMetodoPagoStore = defineStore('metodoPago', {
             }
             return true;
           } catch (error) {
-            this.error = error.response?.data?.detail || 'Error al actualizar.';
+            this.error = error.response?.data?.detail || 'Parece que el formato de tus datos no son correcto. Intenta de nuevo.';
             return false;
           } finally {
             this.cargando = false;

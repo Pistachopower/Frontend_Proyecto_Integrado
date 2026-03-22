@@ -1,16 +1,22 @@
 <script setup>
 import Contacto from '@/components/C_Contacto.vue'
 import CategoriaProductos from '@/components/C_CategoriaProductos.vue'
+import Carousel from '@/components/C_Carousel.vue'
 
+// Define una función para importar automáticamente todos los archivos encontrados 
+// por require.context
+const importAll = (r) => r.keys().map(r)
 
+// Carga automáticamente todas las imágenes de src/assets/carousel en un array
+
+const images = importAll(require.context('@/assets/carousel', false, /\.(png|jpe?g|webp)$/))
 
 </script>
 
 <template>
   <main class="home-main">
     <section class="home-section home-carousel">
-   
-      
+      <Carousel :images="images" />
     </section>
     
     
@@ -52,6 +58,5 @@ import CategoriaProductos from '@/components/C_CategoriaProductos.vue'
 .home-section:last-child {
   border-bottom: none;
 }
-
 
 </style>

@@ -25,8 +25,7 @@ sudo apt install nginx
 Copia la carpeta dist al directorio de Nginx 
 sudo mv /home/ubuntu/dist/* /var/www/html/
 
-Importante: si tienes un nuevo dist elimina lo que hay en html con:
-sudo rm -rf /var/www/html/*
+Importante: si tienes un nuevo dist elimina lo que hay en html con:sudo rm -rf /var/www/html/*
 
 Asegúrate de que los archivos sean accesibles por Nginx:
 sudo chown -R www-data:www-data /var/www/html/

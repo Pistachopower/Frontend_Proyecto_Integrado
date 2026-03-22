@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', {
           console.error('Error verificando autenticación:', error)
           // Si falla, intentar refresh o limpiar
           if (error.response?.status === 401) {
+            //TO: DO tryRefreshToken no existe
             await this.tryRefreshToken()
           } else {
             this.isLoggedIn = false
