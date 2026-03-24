@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1/', 
-  //baseURL: 'http://52.91.42.241', 
+  //baseURL: 'http://localhost:8000/api/v1/', 
+  baseURL: 'http://44.221.235.149/', 
   timeout: 10000000000, 
 });
 
