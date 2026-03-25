@@ -65,16 +65,13 @@ watch(() => props.images, () => {
 <style scoped>
 .carousel-container {
   width: 100%;
-  max-width: 500px;      /* Ajusta el ancho máximo */
-  min-height: 220px;     /* Ajusta la altura mínima */
-  margin: 24px auto;     /* Centrado y espacio arriba/abajo */
+  max-width: 900px;   /* Ajusta este valor según tu preferencia */
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 32px 0;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #18181a;   /* Fondo oscuro opcional */
-  border-radius: 6px;
-  box-sizing: border-box;
 }
 .carousel-wrapper {
   width: 100%;
@@ -84,13 +81,16 @@ watch(() => props.images, () => {
   justify-content: center;
   position: relative;
 }
+
 .carousel-image {
   width: 100%;
-  max-height: 200px;     /* Ajusta la altura máxima de la imagen */
+  height: 400px;      /* Ajusta la altura según tu preferencia */
   object-fit: contain;
-  background: #18181a;
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 12px;
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  display: block;
+  margin: 0 auto;
 }
 .carousel-btn {
   position: absolute;
@@ -130,5 +130,15 @@ watch(() => props.images, () => {
 }
 .indicator.active {
   background: #333;
+}
+
+@media (max-width: 600px) {
+  .carousel-container {
+    max-width: 98vw;
+    padding: 8px 0;
+  }
+  .carousel-image {
+    height: 200px;
+  }
 }
 </style>

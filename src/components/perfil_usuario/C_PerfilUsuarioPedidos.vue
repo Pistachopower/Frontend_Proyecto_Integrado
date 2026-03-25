@@ -1,5 +1,7 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
+// Computed para filtrar los pedidos que no tienen estado 6
+const pedidosFiltrados = computed(() => pedidos.value.filter(p => p.estado !== 6));
 import api from '@/services/axiosRequest.js';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 //import { storeToRefs } from 'pinia';
@@ -221,7 +223,7 @@ onMounted(() => {
                     </thead>
                     <tbody>
 
-                        <template v-for="pedido in pedidos" :key="pedido.id">
+                        <template v-for="pedido in pedidosFiltrados" :key="pedido.id">
 
                             <tr class="cursor-pointer transition-bg"
                                 :class="{ 'table-active': pedidoExpandido === pedido.id }"

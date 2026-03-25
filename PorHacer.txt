@@ -1,24 +1,8 @@
-Errores en producción
-Error al caducar la sesión, el interceptor le falta / (hecho pero probar con dist). Busca en
-logs si la ruta de la peticion que hace el interceptor está mal hecha y no la recibe correctamente el backend
-
-El cliente puede comentar una pieza que no ha comprado en el detalle del producto
-    Cuando el cliente quiere editar el comentario no le deja (en local funciona bien)
-
-Hay un 404 cuando intenta ver las piezas de una categoría (en local funciona)
+Errores en producción 
 
 
-
-
-Backend
-Controlar error cuando no hay vendedores asignados. Además mostrar error genérico en el frontend
-
-No permite comprar ni con paypal ni con tarjeta. Error 2475  self.asignar_vendedor_por_carga(pedido), funcion asignar_vendedor_por_carga
-El error puede venir porque solo accede a vendedor y no vendedor-> usuario 
-
-
-Con rol empleado
-El empleado no puede acceder a su perfil
+Mejorar 
+Quitar boton de paypal cuando no tiene paypal
 
 
 

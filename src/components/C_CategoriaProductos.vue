@@ -9,11 +9,29 @@ const { listado } = storeToRefs(categoriasStore);
 onMounted(async () => {
   await categoriasStore.fetchCategorias();
 });
+
+// Mapeo de nombre de categoría a ícono de Bootstrap
+const iconoCategoria = (nombre) => {
+  switch (nombre.toLowerCase()) {
+    case 'baterías':
+      return 'bi-battery-full';
+    case 'cajas de cambio':
+      return 'bi-gear-fill';
+    case 'pistones':
+      return 'bi-circle-square';
+    case 'turbinas':
+      return 'bi-wind';
+    case 'bielas':
+      return 'bi-diagram-3-fill';
+    default:
+      return 'bi-box-seam';
+  }
+};
 </script>
 
 <template>
-  <section class="categorias-section py-5">
-    <div class="container-fluid px-3 px-md-4">
+  <section class="categorias-section py-5 mx-4 mx-lg-5">
+    <div class="container-fluid px-4 px-lg-5">
       <!-- Encabezado -->
       <div class="mb-5">
         <h2 class="fw-bold mb-2">Categorías de Productos</h2>
@@ -21,23 +39,29 @@ onMounted(async () => {
       </div>
 
       <!-- Grid de categorías -->
-      <div class="row g-4">
-        <div v-for="categoria in listado" :key="categoria.id" class="col-12 col-sm-6 col-lg-4 col-xl-3">
-          <div class="categoria-card">
-            <!-- Contenedor de imagen con overlay -->
-            <div class="imagen-container">
-              <img :src="categoria.imagen_categoria" :alt="categoria.nombre" class="categoria-imagen" loading="lazy">
-              <div class="overlay"></div>
+      <div class="row g-5">
+        <div v-for="categoria in listado" :key="categoria.id" class="col-12 col-md-6 col-xl-4">
+          <a :href="`/categoria/${categoria.id}`" class="text-decoration-none">
+            <div class="card h-100 border-0 shadow-sm position-relative">
+              <div class="row g-0 align-items-center">
+                <!-- Ícono y texto -->
+                <div class="col-3 d-flex flex-column align-items-center justify-content-center py-3">
+                  <i :class="['bi', iconoCategoria(categoria.nombre), 'display-5', 'text-danger']"></i>
+                  <span class="fw-bold text-uppercase small mt-2 categoria-nombre-truncada">{{ categoria.nombre }}</span>
+                </div>
+                <!-- Imagen -->
+                <div class="col-9">
+                  <img :src="categoria.imagen_categoria" :alt="categoria.nombre" class="img-fluid rounded-end w-100" style="object-fit:cover; min-height:160px; max-height:180px;">
+                </div>
+              </div>
+              <div class="card-body py-2 px-3">
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="badge bg-dark-subtle text-dark">REF: {{ categoria.id }}</span>
+                </div>
+                <span class="stretched-link"></span>
+              </div>
             </div>
-
-            <!-- Contenido de la tarjeta -->
-            <div class="card-content">
-
-              <a :href="`/categoria/${categoria.id}`" class="categoria-enlace">
-                {{ categoria.nombre }}
-              </a>
-            </div>
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -45,127 +69,25 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.categorias-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 400px;
-}
 
-.categoria-card {
-  height: 100%;
-  border: none;
-  border-radius: 12px;
+.categoria-nombre-truncada {
+  display: block;
+  max-width: 100px;
+  white-space: nowrap;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: white;
-  display: flex;
-  flex-direction: column;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
-.categoria-card:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+.card.h-100 {
+  margin-bottom: 24px;
+  margin-top: 8px;
+  padding-bottom: 8px;
 }
 
-.imagen-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%;
-  overflow: hidden;
-  background: #e9ecef;
+.card-body {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
 }
 
-.categoria-imagen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.categoria-card:hover .categoria-imagen {
-  transform: scale(1.08);
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.categoria-card:hover .overlay {
-  opacity: 1;
-}
-
-.card-content {
-  padding: 20px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-
-
-.categoria-enlace {
-  display: inline-flex;
-  align-items: center;
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  border-bottom: 2px solid transparent;
-  padding-bottom: 2px;
-}
-
-.categoria-enlace:hover {
-  color: #0056b3;
-  border-bottom-color: #0056b3;
-  gap: 8px;
-}
-
-.categoria-enlace i {
-  transition: transform 0.3s ease;
-}
-
-.categoria-card:hover .categoria-enlace i {
-  transform: translateX(4px);
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-
-  .categoria-titulo {
-    font-size: 1rem;
-  }
-
-  .categoria-enlace {
-    font-size: 0.9rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .categoria-titulo {
-    font-size: 1.15rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .card-content {
-    padding: 25px;
-  }
-
-  .categoria-titulo {
-    font-size: 1.2rem;
-  }
-}
 </style>

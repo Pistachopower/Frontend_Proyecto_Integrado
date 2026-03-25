@@ -10,7 +10,7 @@ Usa SCP para copiar la carpeta dist a la instancia EC2
 Importante: borra la carpeta dist si tienes uno nuevo de la instancia
 
 Entra en la terminal, y escribe el siguiente comando:
-scp -i ruta/a/mi/clave.pem -r dist/ ubuntu | ec2-user@IP_DE_INSTANCIA:/home/ubuntu/
+scp -i /home/nelson/Descargas/Frontend_ProyectoIntegrado.pem -r dist/ ec2-user@3.225.154.212:/home/ec2-user
 
 Reemplaza ruta/a/mi/clave.pem por la ruta real del archivo .pem.
 IP_DE_INSTANCIA por la IP pública de tu instancia.
