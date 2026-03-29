@@ -4,7 +4,11 @@ import axios from '../services/axiosRequest';
 export const useCarritoStore = defineStore('carrito', {
 	state: () => ({
 		items: [], // [{ id, cantidad, nombre, imagen, precio, precio_total_piezas }]
-		precioTotal: 0
+		precioTotal: 0,
+		es_primer_pedido: false,
+		total_original_sin_descuento: 0,
+		descuento_bienvenida: 0
+
 	}),
 	actions: {
 		async agregarOActualizar(pieza_id, cantidad) {
@@ -44,6 +48,13 @@ export const useCarritoStore = defineStore('carrito', {
 				this.items = response.data.items;
 				
 				this.precioTotal = response.data.precio_total;
+
+				this.es_primer_pedido = response.data.es_primer_pedido;
+
+				this.total_original_sin_descuento = response.data.total_original_sin_descuento;
+
+				this.descuento_bienvenida = response.data.descuento_bienvenida;
+				
 				return response.data;
 			} catch (error) {
 				console.error('Error al obtener el carrito:', error);
@@ -65,7 +76,9 @@ export const useCarritoStore = defineStore('carrito', {
 				// Limpiar el carrito local después de finalizar
 				this.items = [];
 				this.precioTotal = 0;
-				
+				this.es_primer_pedido = false;
+				this.total_original_sin_descuento = 0;
+				this.descuento_bienvenida = 0;
 				return response.data;
 			} catch (error) {
 				console.error('Error al finalizar la compra:', error);

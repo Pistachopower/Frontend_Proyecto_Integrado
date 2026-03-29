@@ -5,10 +5,13 @@ import { useCarritoStore } from '../stores/carritoStore'
 
 const carritoStore = useCarritoStore()
 
+
+
 // Obtener los productos del carrito al montar el componente
 onMounted(async () => {
   try {
-    await carritoStore.obtenerCarrito()
+    const response = await carritoStore.obtenerCarrito()
+    console.log('Carrito cargado:', response)
 
   } catch (error) {
     console.error('Error al cargar el carrito:', error)
@@ -44,6 +47,8 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
 <template>
   <div class="container py-5 fade-in">
     <h2 class="fw-bold mb-4">Tu Carrito de Compra</h2>
+
+    
 
     <div v-if="carritoStore.items.length === 0" class="alert alert-info">
       Tu carrito está vacío. <router-link to="/catalogo-productos">Continúa comprando</router-link>
@@ -100,9 +105,22 @@ const actualizarCantidad = async (pieza_id, nuevaCantidad) => {
           <div class="card-body p-4">
             <h5 class="fw-bold mb-4">Resumen</h5>
 
+
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Subtotal</span>
-              <span class="fw-bold">€{{ carritoStore.precioTotal }}</span>
+              <span class="fw-bold">
+                <template v-if="carritoStore.es_primer_pedido">
+                  <span style="text-decoration: line-through; color: #888; font-weight: normal;">€{{ carritoStore.total_original_sin_descuento }}</span>
+                  <span class="ms-2 text-success">€{{ carritoStore.precioTotal }}</span>
+                </template>
+                <template v-else>
+                  €{{ carritoStore.precioTotal }}
+                </template>
+              </span>
+            </div>
+
+            <div v-if="carritoStore.es_primer_pedido" class="alert alert-success py-2 px-3 mb-2" style="font-size: 0.97em;">
+              ¡Felicidades! Has recibido un descuento especial de <b>{{ carritoStore.descuento_bienvenida }}</b>% por tu primera compra.
             </div>
 
             <div class="d-flex justify-content-between mb-3">
