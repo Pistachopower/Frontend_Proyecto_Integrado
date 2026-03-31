@@ -173,7 +173,11 @@ const eliminarMetodo = async (id) => {
             </div>
             <div class="mb-3">
               <label class="form-label">Moneda</label>
-              <input v-model="formulario.detalles_tarjeta.moneda" type="text" class="form-control" required maxlength="10">
+              <select v-model="formulario.detalles_tarjeta.moneda" class="form-select" required>
+                <option value="" disabled>Selecciona moneda...</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="USD">Dollar ($)</option>
+              </select>
             </div>
           </div>
 
@@ -189,7 +193,11 @@ const eliminarMetodo = async (id) => {
             </div>
             <div class="mb-3">
               <label class="form-label">Moneda</label>
-              <input v-model="formulario.detalles_cuenta.moneda" type="text" class="form-control" required maxlength="10">
+              <select v-model="formulario.detalles_cuenta.moneda" class="form-select" required>
+                <option value="" disabled>Selecciona moneda...</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="USD">Dollar ($)</option>
+              </select>
             </div>
           </div>
 
