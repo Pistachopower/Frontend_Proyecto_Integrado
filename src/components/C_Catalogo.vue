@@ -4,6 +4,7 @@ import api from '@/services/axiosRequest.js';
 import { usePiezasStore } from '@/stores/piezasStore';
 import { storeToRefs } from 'pinia';
 import C_BuscadorCatalogo from './C_BuscadorCatalogo.vue';
+import { EVENTOS, trackEvento } from '@/services/trackingService';
 
 
 const agregandoDeseo = ref(null); // pieza_id en proceso
@@ -31,6 +32,8 @@ const { listado: piezas, cargando, error } = storeToRefs(store);
 
 // Debounce para evitar múltiples peticiones
 let timeoutFiltros;
+// Evita registrar la misma busqueda repetida varias veces.
+const ultimaBusquedaTrackeada = ref('');
 
 // --- HELPER: Formato de Moneda ---
 const formatoMoneda = (valor) => {
@@ -53,8 +56,20 @@ const getEstadoInfo = (numEstado) => {
 // Función para recibir filtros del buscador con debounce
 const aplicarFiltros = (nuevosFiltros) => {
     clearTimeout(timeoutFiltros);
-    timeoutFiltros = setTimeout(() => {
-        store.fetchCatalogoConFiltros(nuevosFiltros);
+    timeoutFiltros = setTimeout(async () => {
+        await store.fetchCatalogoConFiltros(nuevosFiltros);
+
+        const query = (nuevosFiltros.busqueda || '').trim();
+        const queryNormalizada = query.toLowerCase();
+
+        if (query.length >= 2 && queryNormalizada !== ultimaBusquedaTrackeada.value) {
+            ultimaBusquedaTrackeada.value = queryNormalizada;
+            // Evento de busqueda: se envia al finalizar el debounce.
+            void trackEvento(EVENTOS.BUSQUEDA_REALIZADA, {
+                query,
+                total_resultados: piezas.value.length
+            });
+        }
     }, 500);
 };
 

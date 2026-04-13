@@ -1,8 +1,104 @@
-Errores en producción 
+Pendiente por hacer frontend
+Capturar los eventos del cliente y que sea mostrado al vendedor:
+
+Qué hará el vendedor con esos datos
+El vendedor verá producto más visto, búsquedas frecuentes y piezas más 
+añadidas al carrito.
 
 
-Mejorar 
-Quitar boton de paypal cuando no tiene paypal
+Flujo de captura de eventos del cliente:
+Librería seleccionada en frontend PostHog 
+-librería para registrar eventos desde Vue.
+-Te permite identificar usuarios.
+-Guarda y muestra los eventos en sus paneles.
 
 
 
+En Vue instalas y configuras PostHog.
+Capturas eventos de cliente (clic en producto, agregar al carrito, checkout, etc.).
+Esos eventos se envían a PostHog.
+Para eventos de negocio importantes, también los envías a tu backend DRF en JSON.
+DRF valida y guarda en tu base de datos (tabla de eventos).
+En el perfil del vendedor muestras métricas/resúmenes desde esa tabla.
+
+Frontend
+Hay que definir:
+Lógica del tracking 
+
+Diseño de código en Vue
+Se inicializa PostHog en main.js y se crea una función 
+helper para disparar eventos.
+
+
+Eventos a capturar para el backend
+product_visto (producto más visto)
+Dispara la acción: al abrir un detalle
+Qué mide: abrió detalle de una pieza.
+Propiedades: pieza_id, referencia, categoria_id, precio.
+
+busquedas_frecuentes (búsquedas más frecuentes)
+Dispara la acción:al hacer una búsqueda
+Qué mide: hizo búsqueda.
+Propiedades: query, total_resultados.
+
+anadir_carrito (piezas más agregadas al carrito)
+Dispara la acción: al añadir al carrito
+Qué mide: añadió pieza al carrito.
+Propiedades: pieza_id, cantidad, precio_unitario.
+
+
+
+Backend
+Modelo
+from django.db import models
+
+class EventoCliente(models.Model):
+    PRODUCTO_VISTO = "producto_visto"
+    BUSQUEDA_REALIZADA = "busqueda_realizada"
+    AGREGADO_CARRITO = "agregado_carrito"
+    COMPRA_COMPLETADA = "compra_completada"
+
+    TIPOS_EVENTO = [
+        (PRODUCTO_VISTO, "Producto visto"),
+        (BUSQUEDA_REALIZADA, "Busqueda realizada"),
+        (AGREGADO_CARRITO, "Agregado al carrito"),
+        (COMPRA_COMPLETADA, "Compra completada"),
+    ]
+
+    nombre_evento = models.CharField(max_length=50, choices=TIPOS_EVENTO)
+    cliente = models.ForeignKey(
+        "Cliente",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="eventos_cliente"
+    )
+    sesion_id = models.CharField(max_length=100, blank=True, null=True)
+    fecha_evento = models.DateTimeField(auto_now_add=True)
+    propiedades = models.JSONField(default=dict) #datos del evento
+
+
+    #Añadimos índices en nombre_evento, fecha_evento y cliente 
+    #porque son los campos que más usamos en reportes del vendedor. 
+    #Con esto optimizamos consultas como producto más visto, búsquedas 
+    #más frecuentes y comportamiento por cliente.
+
+    class Meta: #Meta define cómo se comporta esa tabla en la base de datos.
+        db_table = "evento_cliente"
+        indexes = [
+            models.Index(fields=["nombre_evento"]),
+            models.Index(fields=["fecha_evento"]),
+            models.Index(fields=["cliente"]),
+        ]
+
+    def __str__(self):
+        return f"{self.nombre_evento} - {self.fecha_evento}"
+
+
+    Incidencia detectada y solución
+    Durante las pruebas de los eventos del cliente, al activar acciones como agregar al carrito, el backend entraba en conflicto porque estaba en modo debug. Esto provocaba que la página se quedara cargando al dispararse los eventos.
+
+    Solución aplicada:
+    - Se desactivó el modo debug en el backend.
+    - El flujo frontend + PostHog + backend volvió a funcionar correctamente.
+    - Se mantuvo el envío de eventos de forma no bloqueante para evitar que un fallo del backend afecte la experiencia del usuario.

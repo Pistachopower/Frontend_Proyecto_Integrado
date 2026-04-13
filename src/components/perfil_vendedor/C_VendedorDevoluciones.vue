@@ -39,7 +39,7 @@ const getEstadoLineaPedido = (devolucion) => {
   } else if (devolucion?.linea_pedido_estado === 2) {
     return '(Devuelto)';
   }
-  return `(Entregado)`; ;
+  return `(Entregado)`; 
 };
 
 

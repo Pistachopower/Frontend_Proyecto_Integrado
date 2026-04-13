@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia';
 import C_ProductosRelacionados from '@/components/C_OtrosProductos.vue';
 import C_Valoraciones from '@/components/C_Valoraciones.vue';
 import { useValoracionesStore } from '@/stores/valoracionesStore';
+import { EVENTOS, trackEvento } from '@/services/trackingService';
 // Store de valoraciones para refrescar tras comentar
 const valoracionesStore = useValoracionesStore();
 import api from '@/services/axiosRequest';
@@ -46,6 +47,33 @@ const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
 
 const cantidad = ref(1);
 const tabActiva = ref('descripcion');
+// Evita enviar producto_visto duplicado para la misma pieza.
+const ultimaPiezaTrackeada = ref(null);
+
+// Utilidad: obtener siempre categoria_id para el evento producto_visto.
+// Que resuelve: el backend exige categoria_id; cuando venia como undefined
+// el campo se perdia en el JSON y DRF devolvia error de validacion.
+// Como funciona: busca la categoria en los formatos mas comunes del payload
+// de pieza (categoria_id, categoria numerica o categoria.id).
+const obtenerCategoriaId = (piezaActual) => {
+  if (!piezaActual) {
+    return null;
+  }
+
+  if (typeof piezaActual.categoria_id !== 'undefined' && piezaActual.categoria_id !== null) {
+    return piezaActual.categoria_id;
+  }
+
+  if (typeof piezaActual.categoria === 'number') {
+    return piezaActual.categoria;
+  }
+
+  if (piezaActual.categoria && typeof piezaActual.categoria.id !== 'undefined') {
+    return piezaActual.categoria.id;
+  }
+
+  return null;
+};
 
 // --- HELPER ---
 const formatoMoneda = (valor) => {
@@ -71,6 +99,24 @@ watch(() => route.params.id, () => {
     cargarProducto();
 });
 
+watch(
+  () => pieza.value?.id,
+  (piezaId) => {
+    if (!piezaId || piezaId === ultimaPiezaTrackeada.value) {
+      return;
+    }
+
+    ultimaPiezaTrackeada.value = piezaId;
+    // Evento de detalle visto: se dispara cuando cambia la pieza mostrada.
+    void trackEvento(EVENTOS.PRODUCTO_VISTO, {
+      pieza_id: piezaId,
+      referencia: pieza.value.referencia,
+      categoria_id: obtenerCategoriaId(pieza.value),
+      precio: Number(pieza.value.precio_base)
+    });
+  }
+);
+
 onUnmounted(() => {
     store.limpiarSeleccion();
 });
@@ -93,6 +139,12 @@ const decrementar = () => {
 const agregarAlCarrito = async () => {
     try {
         await carritoStore.agregarOActualizar(pieza.value.id, cantidad.value);
+  // Evento de carrito: refleja la accion del boton Anadir al Carrito.
+    void trackEvento(EVENTOS.AGREGADO_CARRITO, {
+      pieza_id: pieza.value.id,
+      cantidad: cantidad.value,
+      precio_unitario: Number(pieza.value.precio_base)
+    });
         // Feedback visual (opcional)
         alert(`${cantidad.value} ${pieza.value.nombre} añadido al carrito`);
         cantidad.value = 1; // Reiniciar contador
