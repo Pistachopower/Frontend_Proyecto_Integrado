@@ -111,11 +111,6 @@ onMounted(() => {
             <h4 class="mt-3 text-muted">No hay piezas disponibles en este momento.</h4>
         </div>
 
-        <!-- Sin resultados de filtro -->
-        <div v-else-if="piezas.length === 0 && cargando" class="text-center py-5 bg-light rounded">
-            <i class="bi bi-search display-1 text-muted opacity-25"></i>
-            <h4 class="mt-3 text-muted">No se encontraron piezas con los filtros aplicados.</h4>
-        </div>
 
         <!-- Grid de piezas -->
         <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate-fade">

@@ -41,7 +41,7 @@ export const usePerfilStore = defineStore('perfil', {
         //console.log(response.data.tipo_usuario);
         
       } catch (error) {
-        console.error('Error al cargar el perfil:', error);
+        //console.error('Error al cargar el perfil:', error);
         this.error = 'No se pudo cargar la información del perfil.';
       
       } finally {

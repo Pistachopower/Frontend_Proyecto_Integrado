@@ -155,7 +155,9 @@ export const usePiezasStore = defineStore('piezas', {
                     payload = formData; // Usamos FormData como payload
                 } else {
                     // Si NO hay archivo nuevo, eliminar el campo imagen
-                    const { imagen, imagenPreview, ...datosLimpios } = datosActualizados;
+                    const datosLimpios = { ...datosActualizados };
+                    delete datosLimpios.imagen;
+                    delete datosLimpios.imagenPreview;
                     payload = datosLimpios; //Enviamos JSON sin imagen
                 }
 
@@ -201,7 +203,9 @@ export const usePiezasStore = defineStore('piezas', {
                     payload = formData;
                 } else {
                     // Eliminar campos de imagen si no hay archivo
-                    const { imagen, imagenPreview, ...datosLimpios } = datosNuevos;
+                    const datosLimpios = { ...datosNuevos };
+                    delete datosLimpios.imagen;
+                    delete datosLimpios.imagenPreview;
                     payload = datosLimpios;
                 }
 

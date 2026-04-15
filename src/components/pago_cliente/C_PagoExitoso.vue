@@ -1,10 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useMetodoPagoStore } from '@/stores/metodoPagoStore.js'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const pagoStore = useMetodoPagoStore()
-const router = useRouter() //router = para navegar
 const route = useRoute() //route = para leer información de la ruta actual
 const mensaje = ref('Procesando tu pago...')
 const exito = ref(false)

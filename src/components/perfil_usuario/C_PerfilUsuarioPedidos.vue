@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 // Computed para filtrar los pedidos que no tienen estado 6
 const pedidosFiltrados = computed(() => pedidos.value.filter(p => p.estado !== 6));
 import api from '@/services/axiosRequest.js';
@@ -128,7 +128,7 @@ const descargarFacturaPDF = async (idPedido) => {
                 { type: 'application/pdf' }));
 
         // Abre la URL en una nueva ventana o pestaña
-        const win = window.open(url, '_blank');
+        window.open(url, '_blank');
 
     } catch (err) {
         alert('No se pudo descargar la factura.');

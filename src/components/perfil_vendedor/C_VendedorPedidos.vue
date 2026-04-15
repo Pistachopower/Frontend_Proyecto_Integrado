@@ -2,7 +2,7 @@
 
 <script setup>
 // Importación de funciones y hooks de Vue y stores personalizados
-import { onMounted, ref, computed, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js'; // Store para datos del perfil del usuario
 import { usePedidosVendedorStore } from '../../stores/pedidosVendedorStore.js'; // Store para pedidos del vendedor
 import api from '@/services/axiosRequest.js'; // Cliente Axios personalizado para peticiones HTTP

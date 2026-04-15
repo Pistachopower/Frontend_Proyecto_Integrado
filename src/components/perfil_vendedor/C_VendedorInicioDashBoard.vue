@@ -2,10 +2,10 @@
 
 
 import { onMounted } from 'vue';
-import { useAuthStore } from '../../stores/authStore.js';
+//import { useAuthStore } from '../../stores/authStore.js';
 import { useDashboardVendedorStore } from '../../stores/dashboardVendedorStore.js';
 
-const authStore = useAuthStore();
+//const authStore = useAuthStore();
 const dashboardStore = useDashboardVendedorStore();
 
 onMounted(() => {

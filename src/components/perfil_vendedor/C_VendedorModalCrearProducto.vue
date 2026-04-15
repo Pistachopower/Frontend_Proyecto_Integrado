@@ -70,16 +70,6 @@ const handleImageUpload = (event) => {
     reader.readAsDataURL(file);
   }
 };
-
-// Función para obtener el texto del estado
-const getEstadoText = (estado) => {
-  const estadoMap = {
-    1: 'NUEVO',
-    2: 'USADO',
-    3: 'REACONDICIONADO'
-  };
-  return estadoMap[estado] || 'Desconocido';
-};
 </script>
 
 <template>
