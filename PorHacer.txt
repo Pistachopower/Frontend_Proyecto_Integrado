@@ -102,3 +102,13 @@ class EventoCliente(models.Model):
     - Se desactivó el modo debug en el backend.
     - El flujo frontend + PostHog + backend volvió a funcionar correctamente.
     - Se mantuvo el envío de eventos de forma no bloqueante para evitar que un fallo del backend afecte la experiencia del usuario.
+
+
+
+
+
+Flujo
+El navegador hace una petición.
+Nginx recibe la petición.
+Nginx la pasa a Gunicorn.
+Gunicorn ejecuta Django y devuelve la respuesta.

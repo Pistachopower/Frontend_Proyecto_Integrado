@@ -8,15 +8,46 @@ import C_ProductosRelacionados from '@/components/C_OtrosProductos.vue';
 import C_Valoraciones from '@/components/C_Valoraciones.vue';
 import { useValoracionesStore } from '@/stores/valoracionesStore';
 import { EVENTOS, trackEvento } from '@/services/trackingService';
+import api from '@/services/axiosRequest';
+
 // Store de valoraciones para refrescar tras comentar
 const valoracionesStore = useValoracionesStore();
-import api from '@/services/axiosRequest';
+
+//Útil para saber qué pieza cargar y ruta es dinámica (ej: /producto/5)
+const route = useRoute();
+
+//acceder a acciones/estado de piezas (fetchPiezaDetalle, piezaSeleccionada, etc.)
+const store = usePiezasStore();
+
+//agregar al carrito con agregarOActualizar.
+const carritoStore = useCarritoStore();
+
+//Traemos la instancia completa del store piezas y la desestructuramos para obtener solo lo que necesitamos (piezaSeleccionada, cargando, error).
+//piezaSeleccionada: pieza: piezaSeleccionada pasa a llamarse pieza para simplificar su uso en el template.
+const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
+
+
+const cantidad = ref(1);
+
+// controlar pestaña activa (descripción/envío).
+const tabActiva = ref('descripcion');
+
+// Evita enviar producto_visto duplicado para la misma pieza.
+const ultimaPiezaTrackeada = ref(null);
+
 // --- ENVIAR VALORACIÓN ---
 const erroresValoracion = ref({});
+
+// controlar estado de envío (deshabilitar botón, evitar doble submit)
+const enviandoValoracion = ref(false);
+
 const enviarValoracion = async () => {
   if (!pieza.value?.id) return;
+  
   enviandoValoracion.value = true;
+  
   erroresValoracion.value = {};
+  
   try {
     await api.post('valoracion/', {
       pieza: pieza.value.id,
@@ -25,7 +56,9 @@ const enviarValoracion = async () => {
       comentario: valoracion.value.comentario
     });
     valoracion.value = { titulo: '', puntuacion: '', comentario: '' };
+    
     await valoracionesStore.fetchValoracionesPorPieza(pieza.value.id);
+    
     alert('¡Gracias por tu valoración!');
   } catch (e) {
     if (e.response && e.response.data) {
@@ -33,46 +66,19 @@ const enviarValoracion = async () => {
     } else {
       alert('Error al enviar la valoración');
     }
+  
   } finally {
     enviandoValoracion.value = false;
   }
 };
 
-
-const route = useRoute();
-const store = usePiezasStore();
-const carritoStore = useCarritoStore();
-const { piezaSeleccionada: pieza, cargando, error } = storeToRefs(store);
-
-
-const cantidad = ref(1);
-const tabActiva = ref('descripcion');
-// Evita enviar producto_visto duplicado para la misma pieza.
-const ultimaPiezaTrackeada = ref(null);
-
-// Utilidad: obtener siempre categoria_id para el evento producto_visto.
-// Que resuelve: el backend exige categoria_id; cuando venia como undefined
-// el campo se perdia en el JSON y DRF devolvia error de validacion.
-// Como funciona: busca la categoria en los formatos mas comunes del payload
-// de pieza (categoria_id, categoria numerica o categoria.id).
+// El backend ya devuelve categoria_id directamente en la pieza.
 const obtenerCategoriaId = (piezaActual) => {
   if (!piezaActual) {
     return null;
   }
 
-  if (typeof piezaActual.categoria_id !== 'undefined' && piezaActual.categoria_id !== null) {
-    return piezaActual.categoria_id;
-  }
-
-  if (typeof piezaActual.categoria === 'number') {
-    return piezaActual.categoria;
-  }
-
-  if (piezaActual.categoria && typeof piezaActual.categoria.id !== 'undefined') {
-    return piezaActual.categoria.id;
-  }
-
-  return null;
+  return piezaActual.categoria_id ?? null;
 };
 
 // --- HELPER ---
@@ -102,11 +108,12 @@ watch(() => route.params.id, () => {
 watch(
   () => pieza.value?.id,
   (piezaId) => {
-    if (!piezaId || piezaId === ultimaPiezaTrackeada.value) {
+    if (!piezaId || piezaId === ultimaPiezaTrackeada.value) { //sino hay id no trackea, o si es la misma pieza que ya se trackeo, no trackea de nuevo.
       return;
     }
 
-    ultimaPiezaTrackeada.value = piezaId;
+    ultimaPiezaTrackeada.value = piezaId; //actualiza la última pieza trackeada para evitar duplicados en el mismo producto.
+    
     // Evento de detalle visto: se dispara cuando cambia la pieza mostrada.
     void trackEvento(EVENTOS.PRODUCTO_VISTO, {
       pieza_id: piezaId,
@@ -121,7 +128,6 @@ onUnmounted(() => {
     store.limpiarSeleccion();
 });
 
-// --- CONTADOR ---
 
 // --- FORMULARIO DE VALORACIÓN ---
 const valoracion = ref({
@@ -129,8 +135,10 @@ const valoracion = ref({
   puntuacion: '',
   comentario: ''
 });
-const enviandoValoracion = ref(false);
+
+
 const incrementar = () => cantidad.value++;
+
 const decrementar = () => {
     if (cantidad.value > 1) cantidad.value--;
 };
@@ -139,14 +147,16 @@ const decrementar = () => {
 const agregarAlCarrito = async () => {
     try {
         await carritoStore.agregarOActualizar(pieza.value.id, cantidad.value);
-  // Evento de carrito: refleja la accion del boton Anadir al Carrito.
+  
+    //Evento de carrito: refleja la accion del boton Anadir al Carrito.
     void trackEvento(EVENTOS.AGREGADO_CARRITO, {
       pieza_id: pieza.value.id,
       cantidad: cantidad.value,
       precio_unitario: Number(pieza.value.precio_base)
     });
-        // Feedback visual (opcional)
+        // Feedback visual 
         alert(`${cantidad.value} ${pieza.value.nombre} añadido al carrito`);
+        
         cantidad.value = 1; // Reiniciar contador
     } catch (error) {
         alert('Error al agregar el producto al carrito');

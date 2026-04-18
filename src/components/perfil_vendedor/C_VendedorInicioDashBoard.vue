@@ -161,7 +161,7 @@ onMounted(() => {
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
           <h6 class="fw-bold mb-0">
-            <i class="bi bi-receipt me-2"></i>Últimas Transacciones
+            <i class="bi bi-receipt me-2"></i>Listado de Pedidos Recientes
           </h6>
           <router-link to="/perfil-vendedor/pedidos" class="btn btn-sm btn-outline-primary">
             Ver Todas

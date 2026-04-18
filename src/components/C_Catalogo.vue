@@ -15,10 +15,12 @@ const agregarADeseos = async (pieza_id) => {
     agregandoDeseo.value = pieza_id;
     errorDeseo.value = null;
     exitoDeseo.value = null;
+    
     try {
         await api.post('lista_deseo/agregar_pieza/', { pieza_id });
         exitoDeseo.value = pieza_id;
         setTimeout(() => { exitoDeseo.value = null; }, 1200);
+    
     } catch (err) {
         errorDeseo.value = 'No se pudo agregar a la lista de deseos.';
     } finally {
@@ -30,8 +32,9 @@ const agregarADeseos = async (pieza_id) => {
 const store = usePiezasStore();
 const { listado: piezas, cargando, error } = storeToRefs(store);
 
-// Debounce para evitar múltiples peticiones
+// Debounce (Evitar llamadas innecesarias al backend) para evitar múltiples peticiones
 let timeoutFiltros;
+
 // Evita registrar la misma busqueda repetida varias veces.
 const ultimaBusquedaTrackeada = ref('');
 
@@ -55,8 +58,9 @@ const getEstadoInfo = (numEstado) => {
 
 // Función para recibir filtros del buscador con debounce
 const aplicarFiltros = (nuevosFiltros) => {
-    clearTimeout(timeoutFiltros);
-    timeoutFiltros = setTimeout(async () => {
+    clearTimeout(timeoutFiltros); // Limpiar debounce previo
+
+    timeoutFiltros = setTimeout(async () => { 
         await store.fetchCatalogoConFiltros(nuevosFiltros);
 
         const query = (nuevosFiltros.busqueda || '').trim();
@@ -64,6 +68,7 @@ const aplicarFiltros = (nuevosFiltros) => {
 
         if (query.length >= 2 && queryNormalizada !== ultimaBusquedaTrackeada.value) {
             ultimaBusquedaTrackeada.value = queryNormalizada;
+           
             // Evento de busqueda: se envia al finalizar el debounce.
             void trackEvento(EVENTOS.BUSQUEDA_REALIZADA, {
                 query,
