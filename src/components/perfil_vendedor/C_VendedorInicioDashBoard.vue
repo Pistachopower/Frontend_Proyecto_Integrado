@@ -156,7 +156,61 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- FILA 3: ÚLTIMAS TRANSACCIONES -->
+    <!-- FILA 3: EVENTOS GLOBALES -->
+    <div class="col-12">
+      <h6 class="fw-bold mb-2 mt-2">
+        <i class="bi bi-activity me-2"></i>Eventos Globales
+      </h6>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <h6 class="fw-bold mb-0">Producto Más Visto</h6>
+        </div>
+        <div class="card-body">
+          <template v-if="dashboardStore.dashboard.producto_mas_visto_global">
+            <p class="mb-1"><strong>Referencia:</strong> {{ dashboardStore.dashboard.producto_mas_visto_global.propiedades__referencia || 'N/A' }}</p>
+            <p class="mb-1"><strong>Pieza ID:</strong> {{ dashboardStore.dashboard.producto_mas_visto_global.propiedades__pieza_id ?? 'N/A' }}</p>
+            <p class="mb-0 text-muted"><strong>Cantidad de veces visto:</strong> {{ dashboardStore.dashboard.producto_mas_visto_global.total_eventos ?? 0 }}</p>
+          </template>
+          <p v-else class="text-muted mb-0">Sin datos de visualizaciones.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <h6 class="fw-bold mb-0">Búsqueda Más Frecuente</h6>
+        </div>
+        <div class="card-body">
+          <template v-if="dashboardStore.dashboard.busqueda_mas_frecuente_global">
+            <p class="mb-1"><strong>Búsqueda:</strong> {{ dashboardStore.dashboard.busqueda_mas_frecuente_global.propiedades__query || 'N/A' }}</p>
+            <p class="mb-0 text-muted"><strong>Cantidad de veces buscada:</strong> {{ dashboardStore.dashboard.busqueda_mas_frecuente_global.total_eventos ?? 0 }}</p>
+          </template>
+          <p v-else class="text-muted mb-0">Sin datos de búsquedas.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <h6 class="fw-bold mb-0">Más Añadida al Carrito</h6>
+        </div>
+        <div class="card-body">
+          <template v-if="dashboardStore.dashboard.pieza_mas_agregada_carrito_global">
+            <p class="mb-1"><strong>Referencia:</strong> {{ dashboardStore.dashboard.pieza_mas_agregada_carrito_global.propiedades__pieza_id || 'N/A' }}</p>
+            <p class="mb-1"><strong>Pieza ID:</strong> {{ dashboardStore.dashboard.pieza_mas_agregada_carrito_global.propiedades__pieza_id ?? 'N/A' }}</p>
+            <p class="mb-0 text-muted"><strong>Cantidad de veces agregado:</strong> {{ dashboardStore.dashboard.pieza_mas_agregada_carrito_global.total_eventos ?? 0 }}</p>
+          </template>
+          <p v-else class="text-muted mb-0">Sin datos de carrito.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILA 4: ÚLTIMAS TRANSACCIONES -->
     <div class="col-12">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
