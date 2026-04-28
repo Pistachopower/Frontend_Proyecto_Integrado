@@ -33,9 +33,9 @@ function validate() {
   // Validaciones de Contraseña
   if (!password.value) {
     errors.value.password = 'La contraseña es obligatoria.'
-  } else if (password.value.length < 4) {
+  } else if (password.value.length < 8) {
     // Puedes añadir reglas de longitud si quieres
-    errors.value.password = 'Mínimo 4 caracteres.' 
+    errors.value.password = 'Mínimo 8 caracteres.' 
   }
 
   // --- NUEVA VALIDACIÓN: COINCIDENCIA ---
