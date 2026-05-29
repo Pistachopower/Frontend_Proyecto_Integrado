@@ -59,14 +59,28 @@ const resetFormulario = () => {
 
 // Función para manejar la carga de imagen
 const handleImageUpload = (event) => {
+  // 1. Accedemos al primer archivo seleccionado por el usuario en el input
   const file = event.target.files[0];
   
+  // Verificamos si efectivamente el usuario seleccionó un archivo
   if (file) {
+    // 2. Instanciamos FileReader para poder leer el archivo local del usuario
     const reader = new FileReader();
+
+    // 3. Preparamos el "escuchador". Este código NO se ejecuta de inmediato.
+    // Se ejecutará de forma asíncrona SOLO cuando el archivo se haya terminado de leer.
     reader.onload = (e) => {
+      // Guardamos la imagen convertida en Base64 para mostrar la vista previa en el HTML
       formData.value.imagenPreview = e.target.result;
+
+      // Guardamos el objeto File original por si necesito enviarlo al servidor/API más adelante
       formData.value.imagen = file;
     };
+
+      // 4. Disparamos la lectura del archivo. 
+    // Le dice al navegador: "Lee este archivo y conviértelo en una URL de datos (Base64) para poder dibujarlo
+    // en la etiqueta imagen".
+    // Cuando termine esta acción, se activará automáticamente el método 'reader.onload' de arriba.
     reader.readAsDataURL(file);
   }
 };
