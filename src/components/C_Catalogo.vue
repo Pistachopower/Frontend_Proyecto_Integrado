@@ -19,6 +19,8 @@ const agregarADeseos = async (pieza_id) => {
     try {
         await api.post('lista_deseo/agregar_pieza/', { pieza_id });
         exitoDeseo.value = pieza_id;
+
+        //Tiempo que aparece corazon
         setTimeout(() => { exitoDeseo.value = null; }, 1200);
     
     } catch (err) {
