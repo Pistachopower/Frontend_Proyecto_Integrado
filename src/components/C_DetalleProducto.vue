@@ -99,12 +99,14 @@ onMounted(() => {
 
 });
 
-// ESTO ES IMPORTANTE: Observar cambios en la ruta
+// Este watch detecta que el ID en la barra de direcciones cambió y fuerza una nueva petición a la API con el nuevo ID
 watch(() => route.params.id, () => {
     //console.log('ID cambió a:', route.params.id);
     cargarProducto();
 });
 
+//En el momento en que pieza.id deja de ser nulo y tiene un valor real 
+// el watch dispara el evento para registrar en tu base de datosque el cliente está viendo ese producto específico.
 watch(
   () => pieza.value?.id,
   (piezaId) => {
