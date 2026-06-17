@@ -38,10 +38,11 @@ api.interceptors.response.use(
       
       if (refreshToken) {
         try {
-          //Pedimos un nuevo access token usando el refresh token
-          const response = await axios.post(
-            `${api.defaults.baseURL}token/refresh/`,
-            { refresh: refreshToken }
+          // Pedimos un nuevo access token usando una instancia limpia de axios
+          // para evitar que los interceptores actuales interfieran en la petición de refresh
+          const response = await axios.post(`${process.env.VUE_APP_API_URL}token/refresh/`, {
+            refresh: refreshToken
+          }
           );
 
           // Guardamos el nuevo access token en localStorage
