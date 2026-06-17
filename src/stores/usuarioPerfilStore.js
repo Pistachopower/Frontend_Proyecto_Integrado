@@ -3,7 +3,7 @@ import api from '@/services/axiosRequest.js';
 
 export const usePerfilStore = defineStore('perfil', {
   state: () => ({
-    pedrfil: null,
+    perfil: null,
     cargando: true,
     error: null,
   }),
