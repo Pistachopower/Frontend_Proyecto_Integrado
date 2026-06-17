@@ -50,6 +50,7 @@ function validate() {
   if (!direccion.value) errors.value.direccion = 'Dirección requerida.'
   if (!fecha_nacimiento.value) errors.value.fecha_nacimiento = 'Fecha requerida.'
   
+  // Si el objeto errors está vacío, significa que el formulario es válido
   return Object.keys(errors.value).length === 0
 }
 

@@ -21,8 +21,8 @@ const agregarADeseos = async (pieza_id) => {
         await api.post('lista_deseo/agregar_pieza/', { pieza_id });
         exitoDeseo.value = pieza_id;
 
-        //Tiempo de corazón lleno antes de volver al estado normal.
-        setTimeout(() => { exitoDeseo.value = null; }, 12000);
+        // Tiempo que aparece el corazón indicando éxito
+        setTimeout(() => { exitoDeseo.value = null; }, 1200);
     
     } catch (err) {
         errorDeseo.value = 'No se pudo agregar a la lista de deseos.';

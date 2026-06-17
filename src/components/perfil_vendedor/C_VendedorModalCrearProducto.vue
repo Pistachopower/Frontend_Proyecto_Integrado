@@ -59,12 +59,8 @@ const resetFormulario = () => {
 
 // Función para manejar la carga de imagen
 const handleImageUpload = (event) => {
-  debugger;
   // 1. Accedemos al primer archivo seleccionado por el usuario en el input
-  const file = event.target.files[0]// 
-
-  console.log('Archivo seleccionado:', event.target);
-
+  const file = event.target.files[0];
   // Verificamos si efectivamente el usuario seleccionó un archivo
   if (file) {
     // 2. Instanciamos FileReader para poder leer el archivo local del usuario
@@ -75,7 +71,6 @@ const handleImageUpload = (event) => {
     reader.onload = (e) => {
       // Guardamos la imagen convertida en Base64 para mostrar la vista previa en el HTML
       formData.value.imagenPreview = e.target.result;
-      
       // Guardamos el objeto File original por si necesito enviarlo al servidor/API más adelante
       formData.value.imagen = file;
     };
