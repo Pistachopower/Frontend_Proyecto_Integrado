@@ -31,6 +31,7 @@ const pasarAlCarrito = async (soloSeleccionados = false) => {
     // Si solo se quieren pasar los seleccionados, se envían sus IDs. Si no, se pasan todos.
     if (soloSeleccionados && seleccionados.value.length > 0) {
       body.piezas_ids = seleccionados.value;
+      console.log('Pasando al carrito solo las piezas con IDs:', body);
     }
 
     body.eliminar_de_lista = true;

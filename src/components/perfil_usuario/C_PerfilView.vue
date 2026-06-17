@@ -1,4 +1,4 @@
-<script setup>
+    <script setup>
 import { onMounted } from 'vue';
 import { usePerfilStore } from '../../stores/usuarioPerfilStore.js';
 import { useRoute } from 'vue-router';

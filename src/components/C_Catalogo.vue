@@ -12,6 +12,7 @@ const exitoDeseo = ref(null); // pieza_id último agregado
 const errorDeseo = ref(null);
 
 const agregarADeseos = async (pieza_id) => {
+    //debugger; 
     agregandoDeseo.value = pieza_id;
     errorDeseo.value = null;
     exitoDeseo.value = null;
@@ -19,7 +20,9 @@ const agregarADeseos = async (pieza_id) => {
     try {
         await api.post('lista_deseo/agregar_pieza/', { pieza_id });
         exitoDeseo.value = pieza_id;
-        setTimeout(() => { exitoDeseo.value = null; }, 1200);
+
+        //Tiempo de corazón lleno antes de volver al estado normal.
+        setTimeout(() => { exitoDeseo.value = null; }, 12000);
     
     } catch (err) {
         errorDeseo.value = 'No se pudo agregar a la lista de deseos.';
@@ -101,6 +104,8 @@ onMounted(() => {
 
 
 
+
+
         <!-- Estados de carga y error -->
         <div v-if="cargando" class="text-center py-5">
             <div class="spinner-border text-primary" role="status"></div>
@@ -142,6 +147,7 @@ onMounted(() => {
                             <i v-else-if="exitoDeseo === pieza.id" class="bi bi-heart-fill text-danger"></i>
                             <i v-else class="bi bi-heart"></i>
                         </button>
+                       
                     </div>
 
                     <div class="position-absolute top-0 end-0 m-2">

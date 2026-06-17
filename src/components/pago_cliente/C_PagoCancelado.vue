@@ -5,10 +5,15 @@ import { useMetodoPagoStore } from '@/stores/metodoPagoStore.js'
 const pagoStore = useMetodoPagoStore()
 const mensaje = ref('');
 
+
 onMounted(async () => {
     // Obtener parámetros de la URL
   const urlParams = new URLSearchParams(window.location.search)
   const paymentId = urlParams.get('paymentId') || localStorage.getItem('paypal_payment_id')
+
+
+  console.log('URL actual:', window.location.href)
+  console.log('PaymentId obtenido:', paymentId)
 
   if (paymentId) {
     const response= await pagoStore.cancelarPagoPayPal(paymentId)

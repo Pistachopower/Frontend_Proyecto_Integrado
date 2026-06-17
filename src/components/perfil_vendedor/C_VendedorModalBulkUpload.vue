@@ -8,6 +8,7 @@ const selectedFile = ref(null);
 const emit = defineEmits(['cerrar', 'subida-exitosa']);
 
 function onFileChange(e) {
+  
   const file = e.target.files[0];
   if (file && /\.(csv|xlsx|ods)$/i.test(file.name)) {
     selectedFile.value = file;

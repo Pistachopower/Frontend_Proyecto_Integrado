@@ -62,7 +62,7 @@ export const usePiezasStore = defineStore('piezas', {
 
             try {
                 // A) PRIMERO: Buscamos en lo que ya tenemos descargado (Memoria)
-                const encontradoEnLocal = this.listado.find(p => p.id == id);
+                const encontradoEnLocal = this.listado.find(p => p.id === Number(id));
 
                 if (encontradoEnLocal) {
                     //console.log(`🚀 Producto ${id} encontrado en memoria local. Ahorrando petición.`);
@@ -165,7 +165,7 @@ export const usePiezasStore = defineStore('piezas', {
                 const response = await api.put(`pieza/${id}/`, payload);
 
                 // Actualizamos el listado local
-                const index = this.listado.findIndex(p => p.id == id);
+                const index = this.listado.findIndex(p => p.id === Number(id));
                 if (index !== -1) {
                     this.listado[index] = response.data; //Actualizamos la pieza en el listado
                 }
@@ -231,13 +231,13 @@ export const usePiezasStore = defineStore('piezas', {
                 await api.delete(`pieza/${id}/`);
 
                 // Eliminar la pieza del listado local
-                const index = this.listado.findIndex(p => p.id == id);
+                const index = this.listado.findIndex(p => p.id === Number(id));
                 if (index !== -1) {
                     this.listado.splice(index, 1); // Elimina el elemento
                 }
 
                 // Si la pieza eliminada era la seleccionada, limpiarla
-                if (this.piezaSeleccionada?.id == id) {
+                if (this.piezaSeleccionada?.id === Number(id)) {
                     this.piezaSeleccionada = null;
                 }
 
@@ -279,6 +279,5 @@ export const usePiezasStore = defineStore('piezas', {
                 this.bulkUploadResult = null;
                 this.bulkUploadError = null;
             }
-
     }
 });

@@ -27,6 +27,7 @@ const estados = [
 
 // Emitir cambios de filtro
 const actualizarFiltros = () => {
+
   const estadosSeleccionados = Object.keys(estadoSeleccionado.value)
     .filter(key => estadoSeleccionado.value[key])
     .map(key => {
@@ -45,6 +46,7 @@ const actualizarFiltros = () => {
     soloEnStock: soloEnStock.value
   };
   emit('filtrar', filtros);
+  
 };
 
 // Limpiar filtros

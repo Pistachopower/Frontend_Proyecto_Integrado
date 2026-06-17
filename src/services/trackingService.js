@@ -29,7 +29,9 @@ const trackingHttp = axios.create({ //si se quita la aplicacion se congela en mo
 // Se llama una vez al arrancar la app (main.js).
 export function inicializarTracking() {
   const posthogKey = process.env.VUE_APP_POSTHOG_KEY;
-  const posthogHost = process.env.VUE_APP_POSTHOG_HOST || 'https://us.i.posthog.com';
+  const posthogHost = process.env.VUE_APP_POSTHOG_HOST || 'https://eu.i.posthog.com';
+ //  const posthogHost = process.env.VUE_APP_POSTHOG_HOST || 'https://us.i.posthog.com';
+ 
 
   if (!posthogKey) {
     if (process.env.NODE_ENV !== 'production') {
@@ -42,6 +44,7 @@ export function inicializarTracking() {
     api_host: posthogHost,
     autocapture: false,
     capture_pageview: false,
+    advanced_disable_flags: true,
     persistence: 'localStorage+cookie',
     person_profiles: 'identified_only'
   });

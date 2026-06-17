@@ -97,7 +97,6 @@ async function finalizarCompra() {
   procesandoCompra.value = true
 
   try {
-
     const response = await carritoStore.finalizarCompra(
       direccionEnvio.value.trim(),
       metodoPagoSeleccionado.value
@@ -130,7 +129,9 @@ async function finalizarCompra() {
 }
 
 // Computed para saber si el método seleccionado es PayPal
+
 const esPayPalDisponible = computed(() => {
+
   // Buscar el método seleccionado
   const metodo = metodosPago.value.find(m => m.id === metodoPagoSeleccionado.value)
 
@@ -151,6 +152,7 @@ const esPayPalDisponible = computed(() => {
  */
 async function pagarConPayPal() {
   // Validar dirección
+
   if (!direccionEnvio.value.trim()) {
     errorCompra.value = 'Por favor, introduce una dirección de envío.'
     return //Detener ejecución si no hay dirección válida

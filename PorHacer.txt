@@ -112,3 +112,39 @@ El navegador hace una petición.
 Nginx recibe la petición.
 Nginx la pasa a Gunicorn.
 Gunicorn ejecuta Django y devuelve la respuesta.
+
+
+
+
+
+
+
+
+¿Cómo se llama detalle de producto descipcion/envio y devoluciones?¿<C_ProductosRelacionados :piezaId="pieza.id"/>? ver como pasan?
+Valoraciones y comentarios
+Permisos (backend, get_queryset)
+Estudiar la lógica del boton de pagar normal cuando tienes la compra con paypal
+
+
+
+
+PREGUNTAS SERIAS
+¿Que confiiguraciones son necesarias para el jwt frontend?
+Configuración base y JWT/CORS en src/services/axiosRequest.js:
+
+BaseURL: http://localhost:8000/api/v1/ (apunta al backend Django; comentado hay URL de AWS para producción).
+Timeout: 10000000000ms (extremadamente alto; debería reducirse).
+Interceptor de Request (JWT automático):
+
+Obtiene access_token de localStorage.
+Lo añade al header Authorization: Bearer {token} en todas las peticiones.
+Elimina la necesidad de pasar tokens manualmente.
+Interceptor de Response (Refresh Token):
+
+Detecta errores 401 (token expirado/inválido).
+Intenta refrescar el token: POST /token/refresh/ con el refresh_token.
+Si funciona, guarda el nuevo access_token en localStorage y reintenta la petición original.
+Si falla, limpia tokens y redirige a /login.
+Flag _retry evita bucles infinitos.
+
+¿cómo asegurarías en Django que cada Cliente o Vendedor solo pueda crearse con el rol correcto y no exista inconsistencia con OneToOneField?

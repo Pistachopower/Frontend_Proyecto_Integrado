@@ -19,6 +19,7 @@ const route = useRoute()
 const router = useRouter()
 
 async function restablecerPassword() {
+
     mensaje.value = ''
     if (nuevaPassword.value !== confirmarPassword.value) {
         mensaje.value = 'Las contraseñas no coinciden.'

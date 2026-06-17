@@ -117,6 +117,7 @@ const toggleDetalle = (idPedido) => {
 
 const descargarFacturaPDF = async (idPedido) => {
     try {
+        debugger;
         const response = await api.get(`pedido/${idPedido}/factura_cliente/`, {
             responseType: 'blob' // Indica que esperas un archivo binario (PDF)
         });

@@ -67,6 +67,7 @@ export const useCarritoStore = defineStore('carrito', {
 				const payload = { direccion_envio };
 				
 				// Solo incluir metodo_pago_id si se proporciona
+				  
 				if (metodo_pago_id) {
 					payload.metodo_pago_id = metodo_pago_id;
 				}

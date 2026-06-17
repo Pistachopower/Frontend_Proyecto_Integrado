@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1/', 
+  baseURL: process.env.VUE_APP_API_URL,
+  //baseURL: 'http://localhost:8000/api/v1/', 
   //baseURL: 'http://44.221.235.149/', 
-  timeout: 10000000000, 
+  timeout: 15000, 
 });
 
 // Este interceptor añade automáticamente el token JWT a TODAS las 
